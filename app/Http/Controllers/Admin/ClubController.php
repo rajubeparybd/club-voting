@@ -6,6 +6,7 @@ use App\Http\Requests\Admin\ClubRequest;
 use App\Models\Club;
 use App\Models\PaymentLog;
 use App\Models\User;
+use App\Notifications\User\ClubMemberAdded;
 use App\Notifications\User\ClubMemberManualPositionUpdated;
 use App\Notifications\User\ClubMemberRemoved;
 use App\Notifications\User\ClubMemberStatusUpdated;
@@ -378,6 +379,12 @@ class ClubController extends Controller
 
         // Attach users to club
         $club->users()->attach($attachData);
+
+        // Notify users via email
+        foreach ($userIds as $userId) {
+            $user = User::find($userId);
+            $user->notify(new ClubMemberAdded($club, $user));
+        }
 
         if (count($userIds) > 0) {
             $this->logActivity(
