@@ -50,7 +50,7 @@ class ClubMemberAdded extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Club Member Added')
+            ->subject('You Have Been Added to a Club')
             ->markdown('emails.club.member-added', [
                 'club' => $this->club,
                 'user' => $this->user,

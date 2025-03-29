@@ -13,11 +13,6 @@ class UserRolesUpdated extends Notification implements ShouldQueue
     /**
      * @var mixed
      */
-    protected $club;
-
-    /**
-     * @var mixed
-     */
     protected $user;
 
     /**

@@ -51,7 +51,7 @@ class ClubMemberManualPositionUpdated extends Notification implements ShouldQueu
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Club Member Position Updated')
+            ->subject('Your Club Member Position Has Been Updated')
             ->markdown('emails.club.member-manual-position-updated', [
                 'club'     => $this->club,
                 'user'     => $this->user,

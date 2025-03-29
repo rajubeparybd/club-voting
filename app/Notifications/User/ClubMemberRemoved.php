@@ -45,7 +45,7 @@ class ClubMemberRemoved extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Club Member Removed')
+            ->subject('Your Club Membership Has Been Removed')
             ->markdown('emails.club.club-member-removed', [
                 'club' => $this->club,
                 'user' => $this->user,
