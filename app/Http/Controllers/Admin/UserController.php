@@ -6,8 +6,10 @@ use App\Http\Requests\Admin\UserRequest;
 use App\Http\Resources\Admin\UserResource;
 use App\Models\Department;
 use App\Models\User;
+use App\Notifications\User\UserRolesUpdated;
 use App\Notifications\User\WelcomeUserNotification;
 use App\Support\MediaHelper;
+use App\Support\RoleManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +20,8 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    use RoleManager;
+
     /**
      * Display a listing of the users.
      */
@@ -129,6 +133,16 @@ class UserController extends Controller
         ]);
 
         $user->syncRoles($validated['roles'] ?? []);
+
+        $roles = Role::whereIn('id', $validated['roles'] ?? [])->get();
+
+        // Convert collection to array of formatted role names
+        $formattedRoles = $roles->map(function ($role) {
+            return $this->formatRoleToText($role->name);
+        })->toArray();
+
+        // Notify the user via email
+        $user->notify(new UserRolesUpdated($user, $formattedRoles));
 
         $this->logActivity(sprintf('%s updated %s user roles', auth()->user()->name, $user->name), 'user');
 
