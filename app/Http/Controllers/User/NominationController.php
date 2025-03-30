@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Nomination;
 use App\Models\NominationApplication;
+use App\Notifications\User\NominationApplicationStatusUpdated;
 use App\Support\MediaHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -119,6 +120,8 @@ class NominationController extends Controller
             }
 
             DB::commit();
+
+            $user->notify(new NominationApplicationStatusUpdated($application, 'pending'));
 
             $this->logActivity('Applied for position in ' . $nomination->club->name, 'nomination');
 

@@ -6,6 +6,7 @@ use App\Http\Requests\Admin\NominationRequest;
 use App\Models\Club;
 use App\Models\Nomination;
 use App\Models\NominationApplication;
+use App\Notifications\User\NominationApplicationStatusUpdated;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -170,10 +171,20 @@ class NominationController extends Controller
             'admin_notes' => 'nullable|string',
         ]);
 
+        $oldStatus = $application->status;
+
         $application->update([
             'status'      => $validated['status'],
             'admin_notes' => $validated['admin_notes'],
         ]);
+
+        // Send notification to the user if status has changed
+        if ($oldStatus !== $validated['status']) {
+            $user = $application->user;
+            if ($user) {
+                $user->notify(new NominationApplicationStatusUpdated($application, $validated['status']));
+            }
+        }
 
         $statusText = ucfirst($validated['status']);
         $this->logActivity("{$statusText} {$application->id} application", "nomination");
