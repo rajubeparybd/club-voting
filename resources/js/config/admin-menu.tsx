@@ -1,12 +1,12 @@
 import { NavItem } from '@/types';
-import { ActivitySquare, Calendar, CreditCard, LayoutGrid, MailCheck, Settings, ShieldCheck, User2, Users } from 'lucide-react';
+import { ActivitySquare, Calendar, CreditCard, Globe, LayoutGrid, Link, MailCheck, Settings, ShieldCheck, User2, Users } from 'lucide-react';
 
 export const adminSidebarNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: route('admin.dashboard'),
         icon: LayoutGrid,
-        permissions: ['view_dashboard'],
+        permissions: ['view_admin_dashboard'],
     },
     {
         title: 'Clubs Management',
@@ -63,7 +63,17 @@ export const adminSidebarNavItems: NavItem[] = [
 ];
 
 export const adminFooterNavItems: NavItem[] = [
-    // Footer nav items
+    {
+        title: 'Visit User Dashboard',
+        permissions: ['normal_user'],
+        href: route('user.dashboard'),
+        icon: Link,
+    },
+    {
+        title: 'Visit Website',
+        href: '/',
+        icon: Globe,
+    },
 ];
 
 export const userContextMenuItems: NavItem[] = [

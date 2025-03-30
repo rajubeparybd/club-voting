@@ -2,7 +2,7 @@
     "permissions": {
         "dashboard": [
             {
-                "name": "view_dashboard",
+                "name": "view_admin_dashboard",
                 "description": "View Admin Dashboard"
             }
         ],
@@ -170,6 +170,6 @@
     "roles": {
         "admin": "all",
         "user": ["normal_user"],
-        "c_admin_club_manager": ["view_dashboard", "edit_club_users", "view_clubs", "edit_clubs", "delete_clubs", "create_clubs"]
+        "c_admin_club_manager": ["view_admin_dashboard", "edit_club_users", "view_clubs", "edit_clubs", "delete_clubs", "create_clubs"]
     }
 }

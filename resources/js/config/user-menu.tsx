@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { ActivitySquare, Award, LayoutGrid, Receipt, Settings, Users, Vote } from 'lucide-react';
+import { ActivitySquare, Award, Globe, LayoutGrid, Link, Receipt, Settings, Users, Vote } from 'lucide-react';
 
 export const userSidebarNavItems: NavItem[] = [
     {
@@ -30,7 +30,17 @@ export const userSidebarNavItems: NavItem[] = [
 ];
 
 export const userFooterNavItems: NavItem[] = [
-    // Footer Nav Items
+    {
+        title: 'Visit Admin Dashboard',
+        permissions: ['view_admin_dashboard'],
+        href: route('admin.dashboard'),
+        icon: Link,
+    },
+    {
+        title: 'Visit Website',
+        href: '/',
+        icon: Globe,
+    },
 ];
 
 export const userContextMenuItems: NavItem[] = [

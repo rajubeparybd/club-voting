@@ -1,12 +1,11 @@
 <?php
-
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\DB;
 use App\Support\RolesPermissionsManager;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class SyncRolesPermissions extends Command
 {
@@ -43,8 +42,8 @@ class SyncRolesPermissions extends Command
         $this->loadDataFromJson();
 
         // Check environment in production
-        if (app()->environment('production') && !$this->option('force')) {
-            if (!$this->confirm('You are in production environment. Do you wish to continue?')) {
+        if (app()->environment('production') && ! $this->option('force')) {
+            if (! $this->confirm('You are in production environment. Do you wish to continue?')) {
                 $this->info('Command canceled.');
                 return;
             }
@@ -100,7 +99,7 @@ class SyncRolesPermissions extends Command
         $progressBar->start();
 
         foreach ($this->permissions as $name => $description) {
-            $permission = Permission::firstOrNew(['name' => $name, 'guard_name' => 'web']);
+            $permission              = Permission::firstOrNew(['name' => $name, 'guard_name' => 'web']);
             $permission->description = $description;
             $permission->save();
             $progressBar->advance();
@@ -127,7 +126,7 @@ class SyncRolesPermissions extends Command
             // Assign permissions to role
             if ($permissions === 'all') {
                 // Give all permissions
-                $role->syncPermissions(Permission::all());
+                $role->syncPermissions(Permission::where('name', '!=', 'normal_user')->get());
             } else {
                 // Give specific permissions
                 $role->syncPermissions($permissions);
