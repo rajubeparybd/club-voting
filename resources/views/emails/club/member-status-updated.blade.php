@@ -1,7 +1,7 @@
 @component('mail::message')
 Hello <strong>{{ $user->name ?? 'there' }}</strong>!
 
-Your club member status has been updated on {{ config('app.name') }}.
+Your club member status has been updated on {{ config('app.name') }} system.
 
 @component('mail::user-card', ['title' => 'Your Club Member Status'])
 **Club:** {{ $club->name }}<br>

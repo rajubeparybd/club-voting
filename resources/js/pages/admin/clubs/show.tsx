@@ -474,18 +474,20 @@ function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, 
                                     </DropdownMenuItem>
                                 </CheckUserPermission>
                                 {/* Position assignment */}
-                                <CheckUserPermission permission="edit_club_users">
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                        disabled={isLoading}
-                                        onClick={() => {
-                                            setIsPositionDialogOpen(true);
-                                        }}
-                                    >
-                                        <Award className="mr-2 size-4" />
-                                        Assign Position (Manual)
-                                    </DropdownMenuItem>
-                                </CheckUserPermission>
+                                {user.pivot.status === 'active' && (
+                                    <CheckUserPermission permission="edit_club_users">
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            disabled={isLoading}
+                                            onClick={() => {
+                                                setIsPositionDialogOpen(true);
+                                            }}
+                                        >
+                                            <Award className="mr-2 size-4" />
+                                            Assign Position (Manual)
+                                        </DropdownMenuItem>
+                                    </CheckUserPermission>
+                                )}
                             </>
                         )}
                         {/* Remove member */}
@@ -544,6 +546,7 @@ function DataTable<T>({ columns, data }: { columns: Column<T>[]; data: T[] }) {
 }
 
 export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) {
+    console.log(positionsWithHolders);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [positionFilter, setPositionFilter] = useState('all');

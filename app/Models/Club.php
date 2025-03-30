@@ -120,12 +120,18 @@ class Club extends Model
 
             // First try to get the winner directly from winner_id
             if ($winner && $winner->winner_id) {
-                $position->current_holder = User::find($winner->winner_id);
+                $user           = User::where('status', 'active')->where('id', $winner->winner_id)->first();
+                $clubMembership = $user->clubs()->where('club_id', $this->id)->first();
+
+                $isActiveMember = $clubMembership ? $clubMembership->pivot->status === 'active' : false;
+
+                $position->current_holder = $isActiveMember ? $user : null;
+                $position->votes_count    = $isActiveMember ? $winner->votes_count : null;
             } else {
                 $position->current_holder = null;
+                $position->votes_count    = null;
             }
 
-            $position->votes_count = $winner ? $winner->votes_count : null;
             return $position;
         });
     }

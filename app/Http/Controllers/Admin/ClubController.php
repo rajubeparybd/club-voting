@@ -248,6 +248,12 @@ class ClubController extends Controller
             'status' => $request->status,
         ]);
 
+        if ($request->status === 'banned' || $request->status === 'inactive') {
+            $club->users()->updateExistingPivot($user->id, [
+                'position_id' => null,
+            ]);
+        }
+
         // Notify the user via email
         $user->notify(new ClubMemberStatusUpdated($club, $user, $request->status));
 
