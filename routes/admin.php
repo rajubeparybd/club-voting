@@ -46,6 +46,7 @@ Route::get('clubs/{club}/non-members', [ClubController::class, 'getNonMembers'])
 // User management
 Route::resource('users', UserController::class);
 Route::post('users/{user}/roles', [UserController::class, 'updateRoles'])->name('users.roles.update');
+Route::put('users/{user}/status', [UserController::class, 'updateStatus'])->name('users.update-status');
 Route::post('users/store-from-api', [UserController::class, 'storeFromApi'])->name('users.store-from-api');
 
 // Role management

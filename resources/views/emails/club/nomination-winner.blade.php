@@ -18,7 +18,7 @@ View Club
 
 If you have any questions about your new role or responsibilities, please contact the club office or send an email to <a href="mailto:{{ config('app.support_email') }}">{{ config('app.support_email') }}</a>.
 
-Best regards,<br>
+Thanks,<br>
 <strong>{{ config('app.name') }} Team</strong>
 
 @slot('subcopy')

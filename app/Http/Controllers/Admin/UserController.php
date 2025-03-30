@@ -7,6 +7,7 @@ use App\Http\Resources\Admin\UserResource;
 use App\Models\Department;
 use App\Models\User;
 use App\Notifications\User\UserRolesUpdated;
+use App\Notifications\User\UserStatusUpdated;
 use App\Notifications\User\WelcomeUserNotification;
 use App\Support\MediaHelper;
 use App\Support\RoleManager;
@@ -147,6 +148,36 @@ class UserController extends Controller
         $this->logActivity(sprintf('%s updated %s user roles', auth()->user()->name, $user->name), 'user');
 
         return back()->with('success', 'User roles updated successfully!');
+    }
+
+    /**
+     * Update the specified user's status.
+     */
+    public function updateStatus(Request $request, User $user): RedirectResponse
+    {
+        $hasAuthorization = $this->checkAuthorization('edit_users', $request, true);
+        if ($hasAuthorization) {
+            return $hasAuthorization;
+        }
+
+        // Check if the user is a Super Admin
+        if ($user->roles->contains('name', 'admin')) {
+            return back()->withErrors(['error' => 'You cannot update the status of a Admin.']);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:active,inactive,banned',
+        ]);
+
+        $oldStatus = $user->status;
+        $user->update(['status' => $validated['status']]);
+
+        // Notify the user via email
+        $user->notify(new UserStatusUpdated($user, $validated['status']));
+
+        $this->logActivity(sprintf('%s updated %s user status from %s to %s', auth()->user()->name, $user->name, $oldStatus, $validated['status']), 'user');
+
+        return back()->with('success', 'User status updated successfully!');
     }
 
     /**

@@ -1,6 +1,7 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import { CreateUserDialog } from '@/components/admin/users/CreateUserDialog';
 import { RoleAssignmentDialog } from '@/components/admin/users/RoleAssignmentDialog';
+import UpdateUserStatusDialog from '@/components/admin/users/UpdateUserStatusDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import { BreadcrumbItem, Department, Role, User } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDate } from 'date-fns';
-import { Plus, Trash2, UserCog } from 'lucide-react';
+import { Plus, Shield, Trash2, UserCog } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 interface Props {
@@ -35,12 +36,21 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
     const [roleDialogOpen, setRoleDialogOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
+    // State for status update dialog
+    const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+    const [userToUpdateStatus, setUserToUpdateStatus] = useState<User | null>(null);
+
     // State for create user dialog
     const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
 
     const handleAssignRoleClick = useCallback((user: User) => {
         setSelectedUser(user);
         setRoleDialogOpen(true);
+    }, []);
+
+    const handleUpdateStatusClick = useCallback((user: User) => {
+        setUserToUpdateStatus(user);
+        setStatusDialogOpen(true);
     }, []);
 
     const columns: ColumnDef<User>[] = [
@@ -183,21 +193,40 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
                 return (
                     <DataTableActions
                         actions={[
-                            {
-                                permission: 'edit_users',
-                                title: 'Assign Roles',
-                                icon: <UserCog className="mr-2 size-4" />,
-                                onClick: () => handleAssignRoleClick(user),
-                                separatorAfter: true,
-                            },
-                            {
-                                permission: 'delete_users',
-                                title: 'Delete User',
-                                icon: <Trash2 className="mr-2 size-4" />,
-                                onClick: () => handleDeleteClick(user.id),
-                                danger: true,
-                                disabled: isLoading,
-                            },
+                            ...(user.status === 'active'
+                                ? [
+                                      {
+                                          permission: 'edit_users',
+                                          title: 'Assign Roles',
+                                          icon: <UserCog className="mr-2 size-4" />,
+                                          onClick: () => handleAssignRoleClick(user),
+                                      },
+                                  ]
+                                : []),
+                            // Show Update Status action only if user is not a super_admin
+                            ...(!user.roles?.some((role) => role.name === 'admin')
+                                ? [
+                                      {
+                                          permission: 'edit_users',
+                                          title: 'Update Status',
+                                          icon: <Shield className="mr-2 size-4" />,
+                                          onClick: () => handleUpdateStatusClick(user),
+                                          separatorAfter: true,
+                                      },
+                                  ]
+                                : []),
+                            ...(!user.roles?.some((role) => role.name === 'admin')
+                                ? [
+                                      {
+                                          permission: 'delete_users',
+                                          title: 'Delete User',
+                                          icon: <Trash2 className="mr-2 size-4" />,
+                                          onClick: () => handleDeleteClick(user.id),
+                                          danger: true,
+                                          disabled: isLoading,
+                                      },
+                                  ]
+                                : []),
                         ]}
                     />
                 );
@@ -319,6 +348,11 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
 
                 {/* Role Assignment Dialog */}
                 {selectedUser && <RoleAssignmentDialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen} user={selectedUser} roles={roles} />}
+
+                {/* Status Update Dialog */}
+                {userToUpdateStatus && (
+                    <UpdateUserStatusDialog isOpen={statusDialogOpen} onOpenChange={setStatusDialogOpen} user={userToUpdateStatus} />
+                )}
 
                 {/* Create User Dialog */}
                 <CreateUserDialog open={createUserDialogOpen} onOpenChange={setCreateUserDialogOpen} />
