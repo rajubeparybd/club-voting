@@ -10,6 +10,7 @@ use App\Notifications\User\ClubMemberAdded;
 use App\Notifications\User\ClubMemberManualPositionUpdated;
 use App\Notifications\User\ClubMemberRemoved;
 use App\Notifications\User\ClubMemberStatusUpdated;
+use App\Notifications\User\PaymentStatusUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -338,6 +339,12 @@ class ClubController extends Controller
             ]);
             $actionMessage = 'rejected';
         }
+
+        // Make sure payment method is loaded
+        $payment->load('paymentMethod');
+
+        // Notify the user about payment status update
+        $user->notify(new PaymentStatusUpdated($club, $user, $payment, $request->status));
 
         $this->logActivity(
             sprintf('%s %s payment for %s in the %s club',
