@@ -67,7 +67,7 @@ class DashboardController extends Controller
         }
 
         return Inertia::render('user/dashboard', [
-            'clubs'                => Club::where('status', 'active')->with('users')->get(),
+            'clubs'                => Club::where('status', 'active')->with('users')->limit(3)->get(),
             'paymentMethods'       => PaymentMethod::where('is_active', true)->get(),
             'activeNominations'    => $activeNominations,
             'upcomingNominations'  => $upcomingNominations,

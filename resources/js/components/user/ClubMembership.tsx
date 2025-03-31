@@ -4,7 +4,19 @@ import { Link } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
 import { route } from 'ziggy-js';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-export default function ClubMembership({ clubs, user, paymentMethods }: { clubs: Club[]; user: User; paymentMethods: PaymentMethod[] }) {
+export default function ClubMembership({
+    clubs,
+    user,
+    paymentMethods,
+    numberOfItems,
+    hasUpcoming,
+}: {
+    clubs: Club[];
+    user: User;
+    paymentMethods: PaymentMethod[];
+    numberOfItems: number;
+    hasUpcoming: boolean;
+}) {
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -20,8 +32,8 @@ export default function ClubMembership({ clubs, user, paymentMethods }: { clubs:
                 </Link>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 xl:grid-cols-3">
-                    {clubs.slice(0, 2).map((club) => (
+                <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 ${hasUpcoming ? 'xl:grid-cols-2' : 'xl:grid-cols-3'}`}>
+                    {clubs.slice(0, numberOfItems).map((club) => (
                         <DashboardClubCard key={club.id} club={club} userId={user.id.toString()} paymentMethods={paymentMethods} />
                     ))}
                 </div>

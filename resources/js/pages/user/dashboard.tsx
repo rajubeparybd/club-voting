@@ -50,6 +50,9 @@ export default function Dashboard({
     const hasUpcomingNominations = upcomingNominations.length > 0;
     const hasClubs = clubs.length > 0;
 
+    const hasUpcoming = hasUpcomingNominations || hasUpcomingVotingEvents;
+    const numberOfItems = hasUpcoming ? 2 : 3;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -57,20 +60,37 @@ export default function Dashboard({
                 <UserInfoCard user={user} />
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-8">
-                    <div className={`${hasUpcomingVotingEvents ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
+                    <div className={`${hasUpcoming ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
                         <div className="space-y-4 lg:space-y-8">
-                            {hasActiveVotingEvents && <OngoingElections votingEvents={activeVotingEvents} />}
-                            {hasActiveNominations && <ClubNomination nominations={activeNominations} applications={applications} />}
-                            {hasClubs && <ClubMembership clubs={clubs} user={user} paymentMethods={paymentMethods} />}
+                            {hasActiveVotingEvents && (
+                                <OngoingElections votingEvents={activeVotingEvents} numberOfItems={numberOfItems} hasUpcoming={hasUpcoming} />
+                            )}
+                            {hasActiveNominations && (
+                                <ClubNomination
+                                    nominations={activeNominations}
+                                    applications={applications}
+                                    numberOfItems={numberOfItems}
+                                    hasUpcoming={hasUpcomingNominations}
+                                />
+                            )}
+                            {hasClubs && (
+                                <ClubMembership
+                                    clubs={clubs}
+                                    user={user}
+                                    paymentMethods={paymentMethods}
+                                    numberOfItems={numberOfItems}
+                                    hasUpcoming={hasUpcoming}
+                                />
+                            )}
                         </div>
                     </div>
-                    {/* {hasUpcomingVotingEvents || */}
-                    {/* // (hasUpcomingNominations && ( */}
-                    <div className="lg:col-span-4">
-                        {hasUpcomingVotingEvents && <UpcomingElections votingEvents={upcomingVotingEvents} />}
-                        {hasUpcomingNominations && <UpcomingNominations nominations={upcomingNominations} />}
-                    </div>
-                    {/* ))} */}
+
+                    {hasUpcoming && (
+                        <div className="lg:col-span-4">
+                            {hasUpcomingVotingEvents && <UpcomingElections votingEvents={upcomingVotingEvents} />}
+                            {hasUpcomingNominations && <UpcomingNominations nominations={upcomingNominations} />}
+                        </div>
+                    )}
                 </div>
             </div>
         </AppLayout>

@@ -5,7 +5,17 @@ import { ExternalLink } from 'lucide-react';
 import { route } from 'ziggy-js';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
-export default function ClubNomination({ nominations, applications }: { nominations: Nomination[]; applications: NominationApplication[] }) {
+export default function ClubNomination({
+    nominations,
+    applications,
+    numberOfItems,
+    hasUpcoming,
+}: {
+    nominations: Nomination[];
+    applications: NominationApplication[];
+    numberOfItems: number;
+    hasUpcoming: boolean;
+}) {
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -21,8 +31,8 @@ export default function ClubNomination({ nominations, applications }: { nominati
                 </Link>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 xl:grid-cols-3">
-                    {nominations.slice(0, 2).map((nomination) => (
+                <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 ${hasUpcoming ? 'xl:grid-cols-2' : 'xl:grid-cols-3'}`}>
+                    {nominations.slice(0, numberOfItems).map((nomination) => (
                         <NominationCard key={nomination.id} nomination={nomination} applications={applications} />
                     ))}
                 </div>
