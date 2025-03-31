@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Admin\ClubController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\NominationController;
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\RoleController;
@@ -14,9 +15,7 @@ use Inertia\Inertia;
 
 Route::redirect('/', 'dashboard')->name('index');
 
-Route::get('dashboard', function () {
-    return Inertia::render('admin/dashboard');
-})->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::prefix('settings')->name('settings.')->group(function () {
     Route::redirect('/', 'profile')->name('index');

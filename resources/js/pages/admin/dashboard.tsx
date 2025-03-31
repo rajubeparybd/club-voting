@@ -1,4 +1,4 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { ActivityFeed, EventStatusChart, StatsGrid, UserRolesChart, UserTrends } from '@/components/admin/dashboard';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -11,24 +11,64 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard() {
+interface DashboardProps {
+    stats: {
+        totalUsers: number;
+        totalClubs: number;
+        totalVotingEvents: number;
+        totalNominations: number;
+        activeClubs: number;
+        pendingClubs: number;
+        activeVotingEvents: number;
+        activeNominations: number;
+        totalVotes: number;
+        totalCandidates: number;
+        lastClosedNominationVotes: number;
+        lastClosedNominationCandidates: number;
+        clubsWithClosedEvents: number;
+        lastEventsEngagement: number;
+        avgVotesPerClub: number;
+        participationRate: number;
+    };
+    recentActivities: {
+        description: string;
+        event: string;
+        causer: {
+            id: number;
+            name: string;
+            avatar: string | null;
+        } | null;
+        created_at: string;
+    }[];
+    trends: {
+        votes: { month: string; count: number }[];
+        users: { month: string; count: number }[];
+        clubs: { month: string; count: number }[];
+    };
+}
+
+export default function Dashboard({ stats, recentActivities, trends }: DashboardProps) {
     return (
         <AdminAppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
+            <Head title="Admin Dashboard" />
+
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                {/* Top Stats Cards */}
+                <StatsGrid stats={stats} />
+
+                {/* Charts Section */}
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
+                    {/* User Trends Chart */}
+                    <UserTrends userTrends={trends.users} />
+
+                    {/* User Roles Distribution */}
+                    <UserRolesChart totalUsers={stats.totalUsers} />
+
+                    {/* Recent Activity Feed */}
+                    <ActivityFeed activities={recentActivities} />
+
+                    {/* Event Status Chart */}
+                    <EventStatusChart activeVotingEvents={stats.activeVotingEvents} totalVotingEvents={stats.totalVotingEvents} />
                 </div>
             </div>
         </AdminAppLayout>
