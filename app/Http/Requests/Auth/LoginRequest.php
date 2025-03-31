@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Auth\Events\Lockout;
@@ -27,7 +26,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'login' => ['required', 'string'],
+            'login'    => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -41,7 +40,7 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $login = $this->input('login');
+        $login     = $this->input('login');
         $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'student_id';
 
         $credentials = [
@@ -54,6 +53,26 @@ class LoginRequest extends FormRequest
 
             throw ValidationException::withMessages([
                 'login' => __('auth.failed'),
+            ]);
+        }
+
+        // Check if user is banned or inactive
+        $user = Auth::user();
+        if ($user->status === 'banned') {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'login' => __('auth.banned', ['support' => config('app.support_email')]),
+            ]);
+        }
+
+        if ($user->status === 'inactive') {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'login' => __('auth.inactive', ['name' => $user->name, 'support' => config('app.support_email')]),
             ]);
         }
 
@@ -88,6 +107,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('login')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('login')) . '|' . $this->ip());
     }
 }
