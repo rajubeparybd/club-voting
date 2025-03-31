@@ -82,20 +82,15 @@ export default function CreatePaymentMethodModal({ isOpen, onOpenChange, onSucce
         e.preventDefault();
 
         if (!validateForm()) {
-            console.log('Client validation failed:', validationErrors);
-            return; // Don't submit if validation fails
+            return;
         }
 
         post(route('admin.payment-methods.store'), {
             preserveScroll: true,
             forceFormData: true,
             onSuccess: () => {
-                console.log('Payment method created successfully');
                 onOpenChange(false);
                 if (onSuccess) onSuccess();
-            },
-            onError: (err: unknown) => {
-                console.error('Error creating payment method:', err);
             },
         });
     };

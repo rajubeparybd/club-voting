@@ -81,7 +81,6 @@ export const ImageUpload = ({
                 if (onFileChange) {
                     onFileChange(file);
                 }
-                console.log("Image loaded successfully:", file.name);
             };
             reader.onerror = () => {
                 console.error("Error reading file:", file.name);

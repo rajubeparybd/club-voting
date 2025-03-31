@@ -88,8 +88,6 @@ export const FileUpload = ({
             if (onFileChange) {
                 onFileChange(file);
             }
-
-            console.log("File loaded successfully:", file.name);
         },
         [onFileChange, onChange, acceptedFileTypes, maxSizeMB]
     );

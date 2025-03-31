@@ -58,7 +58,6 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
 
             if (response.data.student) {
                 setStudentData(response.data.student);
-                console.log(response.data.student);
                 if (response.data.student.email) {
                     setEmail(response.data.student.email);
                 }

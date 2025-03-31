@@ -546,7 +546,6 @@ function DataTable<T>({ columns, data }: { columns: Column<T>[]; data: T[] }) {
 }
 
 export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) {
-    console.log(positionsWithHolders);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [positionFilter, setPositionFilter] = useState('all');

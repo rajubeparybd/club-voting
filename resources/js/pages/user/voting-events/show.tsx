@@ -61,9 +61,6 @@ export default function VotingEventShow({
         ? `View results for ${votingEvent.club?.name} club's election`
         : `Attend and vote for ${votingEvent.club?.name} club's positions`;
 
-    // Add console logging to help with debugging
-    console.log('Winners:', winners);
-
     return (
         <UserAppLayout
             breadcrumbs={[

@@ -87,10 +87,6 @@ export default function VotingEventShow({ votingEvent, club, winners, lastNomina
     const [timeDetails, setTimeDetails] = useState<TimeDetails>({ days: '0', hours: '0', minutes: '0', seconds: '0', isExpired: false });
     const [timerLabel, setTimerLabel] = useState<string>('');
 
-    console.log('Winners data:', winners);
-    console.log('lastNomination', lastNomination);
-    console.log('candidates', candidates);
-
     // Helper function to check if a candidate is a winner
     const isWinner = useCallback(
         (candidateId: number) => {
