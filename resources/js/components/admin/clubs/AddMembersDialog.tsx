@@ -188,7 +188,7 @@ export function AddMembersDialog({ open, onOpenChange, clubId }: AddMembersDialo
                                                         disabled={isSubmitting}
                                                         id={`user-${user.id}`}
                                                     />
-                                                    <Avatar className="h-8 w-8 rounded-full border border-gray-300">
+                                                    <Avatar className="h-8 w-8 rounded-md border border-gray-300">
                                                         <AvatarImage src={user.avatar || ''} alt={user.name} />
                                                         <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                                                     </Avatar>

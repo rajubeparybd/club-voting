@@ -744,9 +744,9 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
                     <div className="flex items-center gap-2">
                         {holder && (
                             <div className="flex items-center gap-2">
-                                <Avatar className="h-8 w-8 rounded-full border border-gray-300">
+                                <Avatar className="h-8 w-8 rounded-md border border-gray-300">
                                     <AvatarImage src={holder.avatar || ''} alt={holder.name} />
-                                    <AvatarFallback>{holder.name.charAt(0)}</AvatarFallback>
+                                    <AvatarFallback className="rounded-md">{holder.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <span>{holder.name}</span>
                             </div>
@@ -773,9 +773,9 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
             header: 'Name',
             cell: (user) => (
                 <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8 rounded-full border border-gray-300">
+                    <Avatar className="h-8 w-8 rounded-md border border-gray-300">
                         <AvatarImage src={user.avatar || ''} alt={user.name} />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback className="rounded-md">{user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <span>{user.name}</span>
                 </div>

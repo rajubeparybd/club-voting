@@ -100,7 +100,7 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
             cell: ({ row }) => (
                 <Avatar className="border-primary size-8 rounded-md border">
                     <AvatarImage src={row.getValue('avatar')} alt={row.getValue('name')} />
-                    <AvatarFallback>{row.getValue('name')?.toString()?.charAt(0)}</AvatarFallback>
+                    <AvatarFallback className="rounded-md">{row.getValue('name')?.toString()?.charAt(0)}</AvatarFallback>
                 </Avatar>
             ),
             enableSorting: false,

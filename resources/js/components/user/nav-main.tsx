@@ -1,6 +1,5 @@
 import {
     SidebarGroup,
-    SidebarGroupLabel,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
@@ -99,7 +98,7 @@ function NavMenuItem({ item }: { item: NavItem }) {
 export function NavMain({ items = [] }: { items: NavItem[] }) {
     return (
         <SidebarGroup className="px-2 py-0">
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            {/* <SidebarGroupLabel>Platform</SidebarGroupLabel> */}
             <SidebarMenu>
                 {items.map((item) =>
                     item.submenu ? <NavCollapsibleItem key={item.title} item={item} /> : <NavMenuItem key={item.title} item={item} />,

@@ -94,9 +94,9 @@ export default function TiebreakModal({ isOpen, onOpenChange, ties, votingEventI
                                     <div key={candidate.id} className="hover:bg-accent flex items-center space-x-2 rounded-md border p-3">
                                         <RadioGroupItem value={candidate.id.toString()} id={`candidate-${candidate.id}`} />
                                         <label htmlFor={`candidate-${candidate.id}`} className="flex flex-1 cursor-pointer items-center gap-3">
-                                            <Avatar className="size-10 rounded-lg border">
+                                            <Avatar className="size-10 rounded-md border">
                                                 <AvatarImage src={candidate.user?.avatar ?? undefined} alt={candidate.user?.name ?? ''} />
-                                                <AvatarFallback>{getInitials(candidate.user?.name ?? '')}</AvatarFallback>
+                                                <AvatarFallback className="rounded-md">{getInitials(candidate.user?.name ?? '')}</AvatarFallback>
                                             </Avatar>
                                             <div className="flex flex-col">
                                                 <span className="font-medium">{candidate.user?.name}</span>

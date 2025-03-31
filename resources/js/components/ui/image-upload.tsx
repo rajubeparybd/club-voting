@@ -172,7 +172,7 @@ export const ImageUpload = ({
                             'flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors',
                             isDragging
                                 ? 'border-indigo-500 bg-indigo-500/10'
-                                : 'border-gray-600 bg-gray-800/50 hover:bg-gray-700/50',
+                                : 'border-gray-600 bg-gray-200 hover:bg-gray-500/50 dark:border-gray-600 dark:bg-gray-800/50 dark:hover:bg-gray-700/50',
                             hasError && 'border-red-500 bg-red-500/10',
                             className
                         )}

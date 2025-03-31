@@ -85,9 +85,9 @@ export function VotingForm({ votingEvent, position, candidates, userVotes }: Vot
                                             className={!hasVotedForPosition && !processing ? 'cursor-pointer' : 'cursor-not-allowed'}
                                         />
                                         <div className="flex flex-1 items-center space-x-3">
-                                            <Avatar className="size-10 overflow-hidden rounded-lg">
+                                            <Avatar className="size-10 overflow-hidden rounded-md">
                                                 <AvatarImage src={candidate.user?.avatar || ''} alt={candidate.user?.name || ''} />
-                                                <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                                <AvatarFallback className="rounded-md bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
                                                     {getInitials(candidate.user?.name || '')}
                                                 </AvatarFallback>
                                             </Avatar>

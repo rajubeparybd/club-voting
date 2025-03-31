@@ -54,9 +54,9 @@ export function VotingResults({ position, candidates, userVotes, winners = [] }:
                                 <div key={candidate.id} className="space-y-2">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <Avatar className="size-10 overflow-hidden rounded-lg">
+                                            <Avatar className="size-10 overflow-hidden rounded-md">
                                                 <AvatarImage src={candidate.user?.avatar || ''} alt={candidate.user?.name || ''} />
-                                                <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                                <AvatarFallback className="rounded-md bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
                                                     {getInitials(candidate.user?.name || '')}
                                                 </AvatarFallback>
                                             </Avatar>

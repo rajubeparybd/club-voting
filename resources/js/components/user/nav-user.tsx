@@ -19,7 +19,7 @@ export function NavUser() {
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
-                            className="text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent group bg-gray-800/50"
+                            className="text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent group bg-gray-200 dark:bg-gray-800/50"
                         >
                             <UserInfo user={auth.user} showEmail />
                             <ChevronsUpDown className="ml-auto size-4" />
