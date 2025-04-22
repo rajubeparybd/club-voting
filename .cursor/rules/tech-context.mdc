@@ -1,0 +1,61 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Technology Context
+
+## Backend Stack
+- Laravel 12.x (PHP 8.2+) - Modern PHP framework
+- Inertia.js - Server-side framework that connects Laravel with React
+- MySQL - Database (configurable)
+
+## Frontend Stack
+- React 19.x - JavaScript frontend library
+- TypeScript - Static typing for JavaScript
+- Tailwind CSS - Utility-first CSS framework
+- shadcn/ui - UI component library built on Radix UI
+- Vite - Frontend build tool
+- Inertia.js - Client-side framework that pairs with Laravel
+- Lucide - Icon library
+
+## Architecture
+- Laravel + Inertia.js + React SPA application
+- RESTful API design principles
+- MVC pattern on the backend
+- Component-based architecture on the frontend
+
+## File Structure Conventions
+- Backend:
+  - `app/Models` - Eloquent models
+  - `app/Http/Controllers` - Request handlers
+  - `app/Http/Middleware` - Request filters
+  - `app/Http/Requests` - Form validation
+  - `database/migrations` - Database schema
+  - `routes` - API and web routes
+
+- Frontend:
+  - `resources/js/pages` - Page components
+  - `resources/js/components` - Reusable UI components
+  - `resources/js/layouts` - Layout templates
+  - `resources/js/hooks` - Custom React hooks
+  - `resources/js/lib` - Utility functions
+  - `resources/js/types` - TypeScript interfaces/types
+
+## Coding Standards
+- PHP: PSR-12 coding standard
+- JavaScript/TypeScript: ESLint with recommended rules
+- Prettier for code formatting
+- Strong typing with TypeScript
+
+## Testing
+- PHPUnit for PHP testing
+- Pest for expressive testing
+- Laravel testing helpers
+
+## Development Workflow
+- Local development with `php artisan serve` and `npm run dev`
+- Git-based version control
+- Conventional commits recommended
+
+
