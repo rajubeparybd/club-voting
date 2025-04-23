@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import TextLink from '@/components/ui/text-link';
-import AuthLayout from '@/layouts/user/auth-layout';
+import AuthLayout from '@/layouts/auth-layout';
 
 type LoginForm = {
     email: string;
