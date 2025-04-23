@@ -1,8 +1,10 @@
+import useAuthorization from '@/hooks/useAuthorization';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
+    const { hasRole } = useAuthorization();
 
     return (
         <>
@@ -15,7 +17,7 @@ export default function Welcome() {
                     <nav className="flex items-center justify-end gap-4">
                         {auth.user ? (
                             <Link
-                                href={route('user.dashboard')}
+                                href={hasRole('admin') ? route('admin.dashboard') : route('user.dashboard')}
                                 className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
                             >
                                 Dashboard
