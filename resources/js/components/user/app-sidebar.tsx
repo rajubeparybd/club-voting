@@ -1,16 +1,17 @@
-import { NavFooter } from '@/components/nav-footer';
-import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { NavFooter } from '@/components/user/nav-footer';
+import { NavMain } from '@/components/user/nav-main';
+import { NavUser } from '@/components/user/nav-user';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
-import AppLogo from './app-logo';
+import { route } from 'ziggy-js';
+import AppLogo from '../app/app-logo';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/dashboard',
+        href: route('user.dashboard'),
         icon: LayoutGrid,
     },
 ];
@@ -35,7 +36,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href={route('user.dashboard')} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>

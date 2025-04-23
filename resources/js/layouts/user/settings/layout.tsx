@@ -1,25 +1,25 @@
-import Heading from '@/components/heading';
+import Heading from '@/components/app/heading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
-
+import { route } from 'ziggy-js';
 const sidebarNavItems: NavItem[] = [
     {
         title: 'Profile',
-        href: '/settings/profile',
+        href: route('user.settings.profile.edit'),
         icon: null,
     },
     {
         title: 'Password',
-        href: '/settings/password',
+        href: route('user.settings.password.edit'),
         icon: null,
     },
     {
         title: 'Appearance',
-        href: '/settings/appearance',
+        href: route('user.settings.appearance'),
         icon: null,
     },
 ];

@@ -1,20 +1,21 @@
-import InputError from '@/components/input-error';
-import AppLayout from '@/layouts/app-layout';
-import SettingsLayout from '@/layouts/settings/layout';
+import InputError from '@/components/ui/input-error';
+import AppLayout from '@/layouts/user/app-layout';
+import SettingsLayout from '@/layouts/user/settings/layout';
 import { type BreadcrumbItem } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 
-import HeadingSmall from '@/components/heading-small';
-import { Button } from '@/components/ui/button';
+import HeadingSmall from '@/components/app/heading-small';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import ProcessingButton from '@/components/ui/processing-button';
+import { route } from 'ziggy-js';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Password settings',
-        href: '/settings/password',
+        href: route('user.settings.password.edit'),
     },
 ];
 
@@ -31,7 +32,7 @@ export default function Password() {
     const updatePassword: FormEventHandler = (e) => {
         e.preventDefault();
 
-        put(route('password.update'), {
+        put(route('user.settings.password.update'), {
             preserveScroll: true,
             onSuccess: () => reset(),
             onError: (errors) => {
@@ -108,7 +109,7 @@ export default function Password() {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save password</Button>
+                            <ProcessingButton processing={processing}>Save password</ProcessingButton>
 
                             <Transition
                                 show={recentlySuccessful}

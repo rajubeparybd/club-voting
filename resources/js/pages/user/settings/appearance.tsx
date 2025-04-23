@@ -1,16 +1,17 @@
 import { Head } from '@inertiajs/react';
 
-import AppearanceTabs from '@/components/appearance-tabs';
-import HeadingSmall from '@/components/heading-small';
+import AppearanceTabs from '@/components/app/appearance-tabs';
+import HeadingSmall from '@/components/app/heading-small';
 import { type BreadcrumbItem } from '@/types';
+import { route } from 'ziggy-js';
 
-import AppLayout from '@/layouts/app-layout';
-import SettingsLayout from '@/layouts/settings/layout';
+import AppLayout from '@/layouts/user/app-layout';
+import SettingsLayout from '@/layouts/user/settings/layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Appearance settings',
-        href: '/settings/appearance',
+        href: route('user.settings.appearance'),
     },
 ];
 
