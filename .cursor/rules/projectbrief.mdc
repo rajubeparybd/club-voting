@@ -3,103 +3,112 @@ description:
 globs:
 alwaysApply: true
 ---
-# Backlink Directory Website Project Brief
+# Club Voting System Project Brief
 
 ## Project Overview
-This project aims to build a comprehensive online directory platform that helps webmasters and SEO professionals discover, filter, and leverage backlink opportunities. Similar to backlinkbox.pro, our platform will provide a curated collection of backlink resources across multiple categories to help website owners improve their search engine rankings and online visibility.
+
+This project aims to build a comprehensive online voting and club management platform that helps educational institutions and organizations manage their clubs, elections, and voting processes efficiently. The platform provides a secure, transparent, and user-friendly environment for managing club operations, elections, and member participation.
 
 ## Strategic Goals
-- Create a centralized hub for backlink resources across various categories
-- Provide users with powerful filtering and discovery tools to find relevant backlink opportunities
-- Generate revenue through premium listings and/or subscription model
-- Establish the platform as an authority in the SEO and backlink space
-- Build a community of engaged SEO professionals who contribute to the platform's growth
 
-## Target Audience
-- Primary: SEO professionals and digital marketers seeking backlink opportunities
-- Secondary: Website owners and bloggers looking to improve their site rankings
-- Tertiary: Digital marketing agencies managing backlink strategies for clients
+- Create a centralized hub for club management and voting processes
+- Provide secure and transparent election mechanisms
+- Streamline club operations and member management
+- Establish a reliable platform for democratic processes within organizations
+- Build an efficient system for handling multiple concurrent elections
 
 ## Key Features
 
-### Backlink Resource Directory
-- Comprehensive database of backlink opportunities categorized by type (guest posting, article submission, profile creation, etc.)
-- Detailed listing pages with domain metrics (DA/DR, traffic, niche relevance)
-- User ratings and success reports for backlink sources
-- Verification system for premium/featured backlink opportunities
+### Multi-Role System
 
-### Search & Discovery
-- Advanced filtering system with multiple parameters (DA/DR score, niche, cost, etc.)
-- Category-based browsing of backlink types
-- Keyword and niche search functionality
-- Saved searches and favorite backlink sources
+- User roles with specific permissions (Users, Candidates, Admins, Club Admins)
+- Role-based access control
+- Secure authentication and authorization
+- Profile management for all user types
 
-### User Management
-- User registration and profiles
-- Dashboard for tracking backlink campaigns
-- Backlink monitoring tools to verify link status
-- Contribution capabilities (reviews, ratings, new source submissions)
+### Club Management
 
-### Admin Features
-- Content management system for backlink directory
-- Resource approval workflow for user submissions
-- User management and subscription tracking
-- Analytics and reporting on platform usage
-- Newsletter and communication tools for SEO updates
+- Comprehensive club creation and management
+- Position definition and tracking
+- Membership management system
+- Club status monitoring (Active/Inactive/Pending)
+- Detailed club profiles and information
+
+### Nomination System
+
+- Nomination period management
+- Candidate application processing
+- Application review workflow
+- Candidate profile management
+- Statement and qualification tracking
+
+### Voting System
+
+- Secure election scheduling and management
+- One-vote-per-user enforcement
+- Real-time election result tracking
+- Support for multiple simultaneous elections
+- Vote verification and audit trails
+
+### Support System
+
+- Ticket-based support management
+- Priority level assignment (Low/Medium/High/Urgent)
+- Status tracking workflow (Open/In Progress/Resolved/Closed)
+- Message threading between staff and users
 
 ## Technical Requirements
-- Mobile-responsive design optimized for professionals on-the-go
-- Fast loading times and optimized performance for large directory database
-- SEO-friendly architecture (we practice what we preach)
+
+- Mobile-responsive design for accessibility
+- Fast loading times and optimized performance
 - Secure user authentication and data protection
-- Scalable database design to handle thousands of backlink resources
-- API for potential future integrations with SEO tools
+- Scalable database design for multiple clubs and elections
+- Real-time updates for election results
 
 ## Design Guidelines
-- Clean, professional interface that prioritizes usability
-- Intuitive navigation and clear information hierarchy
+
+- Clean, intuitive interface prioritizing usability
+- Clear navigation and information hierarchy
 - Consistent visual language throughout the platform
-- Emphasis on readability and data visualization
-- Visual distinctions between different backlink types/categories
+- Emphasis on accessibility and ease of use
+- Visual distinctions between different user roles and sections
 
 ## Success Metrics
-- User acquisition and retention rates
-- Directory resource growth across categories
-- User engagement (searches, views, backlink acquisitions)
-- Conversion rate for premium features
-- SEO performance and organic traffic growth of our own platform
+
+- User adoption and engagement rates
+- Election participation statistics
+- Support ticket resolution times
+- System uptime and performance
+- User satisfaction ratings
 
 ## Implementation Phases
 
-### Phase 1: MVP
-- Basic directory structure with 10 initial backlink categories
-- Simple search and filtering functionality by domain metrics
-- Core user accounts and backlink tracking
-- Admin panel for content management
+### Phase 1: Core Features
+
+- Basic user authentication and role management
+- Club creation and management
+- Simple election setup and voting mechanism
+- Basic support ticket system
 
 ### Phase 2: Enhanced Features
-- Advanced filtering and discovery tools
-- Rating and review system for backlink sources
-- Backlink health monitoring
-- Improved user dashboards with campaign management
 
-### Phase 3: Monetization & Growth
-- Premium listing options for exclusivity
-- Subscription model implementation with tiered access
-- API for third-party SEO tool integrations
-- Community features and user contributions platform
+- Advanced voting system with real-time results
+- Comprehensive nomination process
+- Enhanced club management tools
+- Improved support system with priority handling
 
-## Timeline
-- Planning & design: 4 weeks
-- Phase 1 development: 8 weeks
-- Testing & iteration: 2 weeks
-- Launch: Q4 2024
-- Phase 2 rollout: Q1 2025
-- Phase 3 rollout: Q2-Q3 2025
+### Phase 3: Advanced Features
 
+- Analytics and reporting dashboard
+- Advanced security features
+- API for potential integrations
+- Enhanced user experience improvements
 
+## Technology Stack
 
-
-
-
-
+- Backend: Laravel 12.x (PHP 8.2+)
+- Frontend: React 19.x with TypeScript
+- UI: Tailwind CSS with shadcn/ui components
+- Icons: Lucide
+- Build Tool: Vite
+- Server-Side Framework: Inertia.js
