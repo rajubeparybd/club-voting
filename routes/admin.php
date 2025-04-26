@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\Settings\ProfileController;
 use App\Http\Controllers\Admin\Settings\PasswordController;
+use App\Http\Controllers\Admin\ClubController;
 
 Route::redirect('/', 'dashboard')->name('index');
 
@@ -25,3 +26,5 @@ Route::prefix('settings')->name('settings.')->group(function () {
         return Inertia::render('admin/settings/appearance');
     })->name('appearance');
 });
+
+Route::resource('clubs', ClubController::class);

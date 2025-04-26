@@ -3,9 +3,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ImageIcon, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
     value: string;
+    hasError?: boolean;
     onChange: (value: string) => void;
     onFileChange?: (file: File | null) => void;
     disabled?: boolean;
@@ -16,6 +18,7 @@ export const ImageUpload = ({
     onChange,
     onFileChange,
     disabled,
+    hasError,
 }: ImageUploadProps) => {
     const [isMounted, setIsMounted] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
@@ -68,15 +71,20 @@ export const ImageUpload = ({
             reader.onload = e => {
                 const result = e.target?.result as string;
                 setPreview(result);
-                // We're not setting the actual value yet, just storing the file
-                // The actual upload will happen on form submission
+                // Update the form field value with the data URL for validation
+                onChange(result);
+                // Pass the file to the parent component for upload
                 if (onFileChange) {
                     onFileChange(file);
                 }
+                console.log("Image loaded successfully:", file.name);
+            };
+            reader.onerror = () => {
+                console.error("Error reading file:", file.name);
             };
             reader.readAsDataURL(file);
         },
-        [onFileChange]
+        [onFileChange, onChange]
     );
 
     const handleDrop = useCallback(
@@ -156,11 +164,13 @@ export const ImageUpload = ({
                     </div>
                 ) : (
                     <div
-                        className={`flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
+                        className={cn(
+                            'flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors',
                             isDragging
                                 ? 'border-indigo-500 bg-indigo-500/10'
-                                : 'border-gray-600 bg-gray-800/50 hover:bg-gray-700/50'
-                        }`}
+                                : 'border-gray-600 bg-gray-800/50 hover:bg-gray-700/50',
+                            hasError && 'border-red-500 bg-red-500/10'
+                        )}
                         onClick={() => fileInputRef.current?.click()}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}

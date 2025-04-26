@@ -1,11 +1,16 @@
 import { NavItem } from '@/types';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-react';
 
 export const adminSidebarNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: route('admin.dashboard'),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Clubs Management',
+        href: route('admin.clubs.index'),
+        icon: Users,
     },
 ];
 
