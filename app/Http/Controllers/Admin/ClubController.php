@@ -33,8 +33,10 @@ class ClubController extends Controller
             $query->where('status', $request->get('status'));
         }
 
+        $per_page = $request->get('per_page', 10);
+
         return Inertia::render('admin/clubs/index', [
-            'clubs' => $query->latest()->paginate(10),
+            'clubs' => $query->latest()->paginate($per_page)
         ]);
     }
 

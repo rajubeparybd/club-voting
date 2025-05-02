@@ -15,6 +15,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Loader2, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const positionSchema = z.object({
@@ -28,35 +29,61 @@ const clubFormSchema = z.object({
     description: z.string().min(10, 'Description must be at least 10 characters'),
     status: z.enum(['active', 'inactive', 'pending']),
     open_date: z.string().optional(),
-    image: z.string().min(1, 'Club image is required'),
-    is_active: z.boolean(),
-    positions: z.array(positionSchema).min(1, 'At least one position is required'),
+    image: z.string().optional(),
+    positions: z.array(positionSchema).optional(),
 });
 
 type ClubFormValues = z.infer<typeof clubFormSchema>;
 
-export default function CreateClub() {
+interface EditClubProps {
+    club: {
+        id: number;
+        name: string;
+        description: string;
+        status: 'active' | 'inactive' | 'pending';
+        open_date: string | null;
+        image: string | null;
+        positions: {
+            id: number;
+            name: string;
+            description: string | null;
+            is_active: boolean;
+        }[];
+    };
+}
+
+export default function EditClub({ club }: EditClubProps) {
     useFlashNotifications();
 
     const [clubImage, setClubImage] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Format the opening date to YYYY-MM-DD format for the date input
+    const formatOpenDate = (dateString: string | null): string => {
+        if (!dateString) return '';
+
+        try {
+            const date = new Date(dateString);
+            return date.toISOString().split('T')[0];
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return '';
+        }
+    };
+
     const form = useForm<ClubFormValues>({
         resolver: zodResolver(clubFormSchema),
         defaultValues: {
-            name: '',
-            description: '',
-            status: 'active',
-            open_date: new Date().toISOString().split('T')[0],
-            image: '',
-            positions: [
-                {
-                    name: '',
-                    description: '',
-                    is_active: true,
-                },
-            ],
-            is_active: true,
+            name: club.name,
+            description: club.description,
+            status: club.status,
+            open_date: formatOpenDate(club.open_date),
+            image: club.image || '',
+            positions: club.positions.map((position) => ({
+                name: position.name,
+                description: position.description || '',
+                is_active: position.is_active,
+            })),
         },
     });
 
@@ -65,50 +92,53 @@ export default function CreateClub() {
         name: 'positions',
     });
 
+    // Generate default accordion values to keep all items expanded
+    const defaultAccordionValues = fields.map((_, index) => `position-${index}`);
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Clubs Management',
             href: route('admin.clubs.index'),
         },
         {
-            title: 'Create',
-            href: route('admin.clubs.create'),
+            title: 'Edit',
+            href: route('admin.clubs.edit', { club: club.id }),
         },
     ];
 
     const handleSubmit = (data: ClubFormValues) => {
         setIsSubmitting(true);
 
+        // Add the file to FormData if it exists
         const formData = new FormData();
 
-        // Add regular form fields to FormData
-        formData.append('name', data.name);
-        formData.append('description', data.description);
-        formData.append('status', data.status);
-        formData.append('image', data.image);
-
-        if (data.open_date) {
-            formData.append('open_date', data.open_date);
-        }
-
-        // Handle positions array correctly
-        if (data.positions && Array.isArray(data.positions)) {
-            // Convert positions to JSON string
-            const positionsJson = JSON.stringify(data.positions);
-            formData.append('positions', positionsJson);
-        }
+        // Add all form fields to FormData
+        Object.entries(data).forEach(([key, value]) => {
+            // Handle nested positions array separately
+            if (key === 'positions' && Array.isArray(value)) {
+                formData.append(key, JSON.stringify(value));
+            } else if (value !== null && value !== undefined) {
+                formData.append(key, value.toString());
+            }
+        });
 
         // Add the file if it exists
         if (clubImage) {
             formData.append('club_image', clubImage);
         }
 
-        // Submit with FormData
-        router.post(route('admin.clubs.store'), formData, {
+        // Add _method field for method spoofing
+        formData.append('_method', 'PUT');
+
+        // Submit with FormData as POST with method spoofing
+        router.post(route('admin.clubs.update', { club: club.id }), formData, {
             onSuccess: () => {
+                toast.success('Club updated successfully');
                 setIsSubmitting(false);
             },
-            onError: () => {
+            onError: (errors) => {
+                console.error('Submission errors:', errors);
+                toast.error('Failed to update club');
                 setIsSubmitting(false);
             },
         });
@@ -116,12 +146,12 @@ export default function CreateClub() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Club" />
+            <Head title={`Edit Club: ${club.name}`} />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold">Create Club</h1>
-                        <p className="text-sm text-gray-500">Create a new club to manage your club's information.</p>
+                        <h1 className="text-2xl font-bold">Edit Club</h1>
+                        <p className="text-sm text-gray-500">Update club information and positions.</p>
                     </div>
                     <Button variant="outline" asChild>
                         <Link href={route('admin.clubs.index')}>
@@ -133,7 +163,7 @@ export default function CreateClub() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Club Information</CardTitle>
-                        <CardDescription>Fill in the details to create a new club.</CardDescription>
+                        <CardDescription>Update the details of the club.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Form {...form}>
@@ -215,12 +245,18 @@ export default function CreateClub() {
                                             <FormLabel>Club Image</FormLabel>
                                             <FormControl>
                                                 <ImageUpload
-                                                    value={field.value}
+                                                    value={field.value || ''}
                                                     onChange={field.onChange}
                                                     onFileChange={setClubImage}
                                                     hasError={!!form.formState.errors.image}
                                                 />
                                             </FormControl>
+                                            {club.image && (
+                                                <div className="mt-2">
+                                                    <p className="mb-1 text-sm text-gray-500">Current image:</p>
+                                                    <img src={club.image} alt={club.name} className="max-h-40 rounded-md border" />
+                                                </div>
+                                            )}
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -248,7 +284,7 @@ export default function CreateClub() {
                                     </div>
 
                                     {fields.length > 0 ? (
-                                        <Accordion type="multiple" className="w-full space-y-2 pb-2" defaultValue={['position-0']}>
+                                        <Accordion type="multiple" className="mb-2 w-full space-y-2 pb-2" defaultValue={defaultAccordionValues}>
                                             {fields.map((field, index) => (
                                                 <AccordionItem
                                                     key={field.id}
@@ -330,10 +366,10 @@ export default function CreateClub() {
                                     <Button type="submit" disabled={isSubmitting}>
                                         {isSubmitting ? (
                                             <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...
                                             </>
                                         ) : (
-                                            'Create Club'
+                                            'Update Club'
                                         )}
                                     </Button>
                                 </div>
