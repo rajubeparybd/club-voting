@@ -1,0 +1,55 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Conventional Commits Guidelines
+WRITE SHORT COMMIT MESSAGE
+
+## Commit Message Structure
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+## Required Rules
+- Every commit message MUST start with a type followed by colon and space
+- Types MUST be lowercase (e.g., `feat`, `fix`, `docs`)
+- Description MUST immediately follow the type/scope prefix
+- Breaking changes MUST be indicated with `!` before the colon or `BREAKING CHANGE:` in footer
+
+## Commit Types
+- `feat`: New features (correlates with MINOR in SemVer)
+- `fix`: Bug fixes (correlates with PATCH in SemVer)
+- `docs`: Documentation changes only
+- `style`: Code style changes (formatting, semicolons, etc.)
+- `refactor`: Code changes that neither fix bugs nor add features
+- `perf`: Performance improvements
+- `test`: Adding or correcting tests
+- `build`: Changes to build system or dependencies
+- `ci`: Changes to CI configuration
+- `chore`: Other changes that don't modify src or test files
+
+## Optional Elements
+- Scope: Additional context in parentheses - `feat(api): new endpoint`
+- Body: Detailed explanation after a blank line following description
+- Footer: Additional metadata after blank line (e.g., `Refs: #123`)
+
+## Breaking Changes
+- Append `!` after type/scope: `feat(api)!: remove users endpoint`
+- Or add footer: `BREAKING CHANGE: users API removed`
+
+## Examples
+```
+feat: add Polish language support
+fix(auth): prevent login timeout issue
+docs: update README installation steps
+style: format code according to new rules
+refactor!: change authentication flow
+chore: update dependencies
+```
+
