@@ -170,4 +170,46 @@ class ClubController extends Controller
 
         return to_route('admin.clubs.index')->with('success', 'Club deleted successfully.');
     }
+
+    /**
+     * Update a member's status in the club.
+     */
+    public function updateMemberStatus(Request $request, Club $club, $userId)
+    {
+        $request->validate([
+            'status' => 'required|in:active,inactive,pending,banned',
+        ]);
+
+        $club->users()->updateExistingPivot($userId, [
+            'status' => $request->status,
+        ]);
+
+        return back()->with('success', 'Member status updated successfully.');
+    }
+
+    /**
+     * Update a member's position assignment in the club.
+     */
+    public function updateMemberPosition(Request $request, Club $club, $userId)
+    {
+        $request->validate([
+            'position_id' => 'nullable|exists:club_positions,id,club_id,' . $club->id,
+        ]);
+
+        $club->users()->updateExistingPivot($userId, [
+            'position_id' => $request->position_id,
+        ]);
+
+        return back()->with('success', 'Member position updated successfully.');
+    }
+
+    /**
+     * Remove a member from the club.
+     */
+    public function removeMember(Club $club, $userId)
+    {
+        $club->users()->detach($userId);
+
+        return back()->with('success', 'Member removed from club successfully.');
+    }
 }

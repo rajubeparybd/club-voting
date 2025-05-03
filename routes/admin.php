@@ -28,3 +28,8 @@ Route::prefix('settings')->name('settings.')->group(function () {
 });
 
 Route::resource('clubs', ClubController::class);
+
+// Club member management routes
+Route::post('clubs/{club}/members/{user}/update-status', [ClubController::class, 'updateMemberStatus'])->name('clubs.members.update-status');
+Route::post('clubs/{club}/members/{user}/update-position', [ClubController::class, 'updateMemberPosition'])->name('clubs.members.update-position');
+Route::delete('clubs/{club}/members/{user}/remove', [ClubController::class, 'removeMember'])->name('clubs.members.remove');

@@ -2,19 +2,96 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import Processing from '@/components/ui/processing';
+import ProcessingButton from '@/components/ui/processing-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AppLayout from '@/layouts/admin/app-layout';
-import { getStatusColor, getStatusText } from '@/lib/utils';
+import { getNoImage, getStatusColor, getStatusText } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { ArrowLeft, Award, CalendarDays, Edit, Search, Users } from 'lucide-react';
-import { ReactNode, useMemo, useState } from 'react';
+import { ArrowLeft, Award, Ban, CalendarDays, Edit, LogOut, MoreHorizontal, Search, Shield, Users } from 'lucide-react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { route } from 'ziggy-js';
+
+// Position Assignment Dialog Component
+interface PositionDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    clubPositions: ClubPosition[];
+    userId: number;
+    onPositionChange: (userId: number, positionId: number | null) => void;
+    currentPositionId: number | null;
+}
+
+function PositionAssignmentDialog({ open, onOpenChange, clubPositions, userId, onPositionChange, currentPositionId }: PositionDialogProps) {
+    const [selectedPositionId, setSelectedPositionId] = useState<string>(currentPositionId ? currentPositionId.toString() : 'none');
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    // Reset selectedPositionId when currentPositionId changes or dialog opens
+    useEffect(() => {
+        if (open) {
+            setSelectedPositionId(currentPositionId ? currentPositionId.toString() : 'none');
+            setIsUpdating(false);
+        }
+    }, [currentPositionId, open]);
+
+    const handleConfirm = () => {
+        setIsUpdating(true);
+        const positionId = selectedPositionId !== 'none' ? parseInt(selectedPositionId, 10) : null;
+        onPositionChange(userId, positionId);
+    };
+
+    return (
+        <Dialog
+            open={open}
+            onOpenChange={(newOpen) => {
+                if (!isUpdating) {
+                    onOpenChange(newOpen);
+                }
+            }}
+        >
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Assign Position</DialogTitle>
+                    <DialogDescription>Select a position to assign to this member</DialogDescription>
+                </DialogHeader>
+
+                <div className="flex flex-col gap-4 py-4">
+                    <Select value={selectedPositionId} onValueChange={setSelectedPositionId} disabled={isUpdating}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a position" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="none">No Position</SelectItem>
+                            {clubPositions.map((position) => (
+                                <SelectItem key={position.id} value={position.id.toString()} disabled={!position.is_active}>
+                                    {position.name} {!position.is_active && '(Inactive)'}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isUpdating}>
+                        Cancel
+                    </Button>
+                    <ProcessingButton processing={isUpdating} onClick={handleConfirm}>
+                        {isUpdating ? 'Assigning...' : 'Confirm'}
+                    </ProcessingButton>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 interface ClubPosition {
     id: number;
@@ -68,8 +145,85 @@ interface Column<T> {
     cell?: (item: T) => ReactNode;
 }
 
-// Custom table component that works with our column definition
+// Member action dropdown component
+interface MemberActionsProps {
+    user: ClubUser;
+    clubPositions: ClubPosition[];
+    onStatusChange: (userId: number, status: string) => void;
+    onPositionChange: (userId: number, positionId: number | null) => void;
+    onRemoveMember: (userId: number) => void;
+    isLoading: boolean;
+}
 
+function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, onRemoveMember, isLoading }: MemberActionsProps) {
+    const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
+    const currentStatus = user.pivot.status || 'pending';
+
+    return (
+        <>
+            <PositionAssignmentDialog
+                open={isPositionDialogOpen}
+                onOpenChange={setIsPositionDialogOpen}
+                clubPositions={clubPositions}
+                userId={user.id}
+                onPositionChange={(userId, positionId) => {
+                    onPositionChange(userId, positionId);
+                    setIsPositionDialogOpen(false);
+                }}
+                currentPositionId={user.pivot.position_id}
+            />
+
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" disabled={isLoading}>
+                        <MoreHorizontal className="size-4" />
+                        <span className="sr-only">Open menu</span>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    {/* Status actions */}
+                    <DropdownMenuItem disabled={currentStatus === 'active' || isLoading} onClick={() => onStatusChange(user.id, 'active')}>
+                        <Shield className="mr-2 size-4 text-green-600" />
+                        Activate Member
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem disabled={currentStatus === 'inactive' || isLoading} onClick={() => onStatusChange(user.id, 'inactive')}>
+                        <Shield className="mr-2 size-4 text-gray-600" />
+                        Deactivate Member
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem disabled={currentStatus === 'banned' || isLoading} onClick={() => onStatusChange(user.id, 'banned')}>
+                        <Ban className="mr-2 size-4 text-red-600" />
+                        Ban Member
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    {/* Position assignment */}
+                    <DropdownMenuItem
+                        disabled={isLoading}
+                        onClick={() => {
+                            setIsPositionDialogOpen(true);
+                        }}
+                    >
+                        <Award className="mr-2 size-4" />
+                        Assign Position
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    {/* Remove member */}
+                    <DropdownMenuItem className="text-red-600 focus:text-red-600" disabled={isLoading} onClick={() => onRemoveMember(user.id)}>
+                        <LogOut className="mr-2 size-4" />
+                        Remove from Club
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </>
+    );
+}
+
+// Custom table component that works with our column definition
 function DataTable<T>({ columns, data }: { columns: Column<T>[]; data: T[] }) {
     return (
         <div className="rounded-md border">
@@ -87,7 +241,7 @@ function DataTable<T>({ columns, data }: { columns: Column<T>[]; data: T[] }) {
                             <TableRow key={i}>
                                 {columns.map((column) => (
                                     <TableCell key={column.key}>
-                                        {column.cell ? column.cell(item) : String((item as any)[column.key] || '')}
+                                        {column.cell ? column.cell(item) : ((item as Record<string, unknown>)[column.key] as ReactNode)}
                                     </TableCell>
                                 ))}
                             </TableRow>
@@ -110,6 +264,7 @@ export default function ClubShow({ club }: ClubShowProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [positionFilter, setPositionFilter] = useState('all');
+    const [isLoading, setIsLoading] = useState(false);
 
     const breadcrumbs: BreadcrumbItem[] = useMemo(
         () => [
@@ -125,6 +280,77 @@ export default function ClubShow({ club }: ClubShowProps) {
         [club.id, club.name],
     );
 
+    // Handle member status change
+    const handleStatusChange = (userId: number, status: string) => {
+        setIsLoading(true);
+
+        router.post(
+            route('admin.clubs.members.update-status', { club: club.id, user: userId }),
+            {
+                status: status,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success(`Member status updated to ${status}`);
+                    setIsLoading(false);
+                },
+                onError: (errors) => {
+                    console.error(errors);
+                    toast.error('Failed to update member status');
+                    setIsLoading(false);
+                },
+            },
+        );
+    };
+
+    // Handle position assignment
+    const handlePositionChange = (userId: number, positionId: number | null) => {
+        setIsLoading(true);
+
+        router.post(
+            route('admin.clubs.members.update-position', { club: club.id, user: userId }),
+            {
+                position_id: positionId,
+            },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    toast.success(positionId ? 'Position assigned successfully' : 'Position removed successfully');
+                    setIsLoading(false);
+                },
+                onError: (errors) => {
+                    console.error(errors);
+                    toast.error('Failed to update position');
+                    setIsLoading(false);
+                },
+            },
+        );
+    };
+
+    // Handle member removal
+    const handleRemoveMember = (userId: number) => {
+        if (!confirm('Are you sure you want to remove this member from the club?')) {
+            return;
+        }
+
+        setIsLoading(true);
+
+        router.delete(route('admin.clubs.members.remove', { club: club.id, user: userId }), {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success('Member removed from club');
+                setIsLoading(false);
+            },
+            onError: (errors) => {
+                console.error(errors);
+                toast.error('Failed to remove member');
+                setIsLoading(false);
+            },
+        });
+    };
+
     const positionColumns: Column<ClubPosition>[] = [
         {
             key: 'name',
@@ -138,7 +364,11 @@ export default function ClubShow({ club }: ClubShowProps) {
         {
             key: 'is_active',
             header: 'Status',
-            cell: (position) => <Badge variant={position.is_active ? 'default' : 'secondary'}>{position.is_active ? 'Active' : 'Inactive'}</Badge>,
+            cell: (position) => {
+                return (
+                    <Badge className={getStatusColor(position.is_active ? 'active' : 'inactive')}>{position.is_active ? 'Active' : 'Inactive'}</Badge>
+                );
+            },
         },
         {
             key: 'created_at',
@@ -188,6 +418,20 @@ export default function ClubShow({ club }: ClubShowProps) {
             header: 'Joined Date',
             cell: (user) => format(new Date(user.pivot.joined_at), 'PPP'),
         },
+        {
+            key: 'actions',
+            header: 'Actions',
+            cell: (user) => (
+                <MemberActions
+                    user={user}
+                    clubPositions={club.positions}
+                    onStatusChange={handleStatusChange}
+                    onPositionChange={handlePositionChange}
+                    onRemoveMember={handleRemoveMember}
+                    isLoading={isLoading}
+                />
+            ),
+        },
     ];
 
     // Filter members based on search, status, and position
@@ -218,10 +462,12 @@ export default function ClubShow({ club }: ClubShowProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Club: ${club.name}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="relative flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+                {isLoading && <Processing />}
+
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold">{club.name}</h1>
+                        <h1 className="text-2xl font-bold">Club Details</h1>
                         <p className="text-sm text-gray-500">View detailed information about this club</p>
                     </div>
                     <div className="flex gap-2">
@@ -242,15 +488,15 @@ export default function ClubShow({ club }: ClubShowProps) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Club Details</CardTitle>
-                        <CardDescription>Complete information about the club</CardDescription>
+                        <CardTitle>{club.name}</CardTitle>
+                        <CardDescription>Complete information about {club.name.toLowerCase()} club</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="grid gap-6 md:grid-cols-2">
                             <div className="space-y-4">
                                 <div>
                                     <h3 className="mb-2 text-lg font-medium">About</h3>
-                                    <p className="text-sm text-gray-700">{club.description}</p>
+                                    <p className="text-sm text-gray-500">{club.description}</p>
                                 </div>
 
                                 <div className="flex items-center gap-2">
@@ -275,7 +521,14 @@ export default function ClubShow({ club }: ClubShowProps) {
 
                             <div className="flex justify-center md:justify-end">
                                 {club.image ? (
-                                    <img src={club.image} alt={club.name} className="max-h-60 rounded-lg object-cover shadow-md" />
+                                    <img
+                                        src={club.image}
+                                        alt={club.name}
+                                        className="max-h-60 rounded-lg object-cover shadow-md"
+                                        onError={(e) => {
+                                            e.currentTarget.src = getNoImage();
+                                        }}
+                                    />
                                 ) : (
                                     <div className="flex h-52 w-52 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                                         No image available
@@ -305,7 +558,7 @@ export default function ClubShow({ club }: ClubShowProps) {
                             </CardHeader>
                             <CardContent>
                                 {club.positions.length > 0 ? (
-                                    <DataTable columns={positionColumns} data={club.positions} searchable={true} searchKey="name" />
+                                    <DataTable columns={positionColumns} data={club.positions} />
                                 ) : (
                                     <div className="rounded-md border border-dashed p-6 text-center text-gray-500">
                                         <p>No positions have been created for this club yet.</p>
@@ -362,7 +615,7 @@ export default function ClubShow({ club }: ClubShowProps) {
                                     </div>
                                 </div>
                                 {filteredMembers.length > 0 ? (
-                                    <DataTable columns={memberColumns} data={filteredMembers} searchable={true} searchKey="name" />
+                                    <DataTable columns={memberColumns} data={filteredMembers} />
                                 ) : (
                                     <div className="rounded-md border border-dashed p-6 text-center text-gray-500">
                                         <p>No members matching the selected filters.</p>
