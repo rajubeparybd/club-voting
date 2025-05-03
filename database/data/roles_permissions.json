@@ -1,0 +1,26 @@
+{
+    "permissions": {
+        "users": ["view_users", "edit_users", "delete_users", "restore_users", "force_delete_users", "create_users"],
+        "clubs": ["view_clubs", "edit_clubs", "delete_clubs", "create_clubs", "restore_clubs", "force_delete_clubs"],
+        "club_positions": [
+            "view_club_positions",
+            "edit_club_positions",
+            "delete_club_positions",
+            "create_club_positions",
+            "restore_club_positions",
+            "force_delete_club_positions"
+        ],
+        "club_users": [
+            "view_club_users",
+            "edit_club_users",
+            "delete_club_users",
+            "create_club_users",
+            "restore_club_users",
+            "force_delete_club_users"
+        ]
+    },
+    "roles": {
+        "admin": "all",
+        "user": []
+    }
+}
