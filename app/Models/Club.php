@@ -20,7 +20,7 @@ class Club extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->withPivot('position_id', 'joined_at')
+            ->withPivot('position_id', 'status', 'joined_at')
             ->withTimestamps();
     }
 
