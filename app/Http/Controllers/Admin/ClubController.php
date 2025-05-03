@@ -17,6 +17,10 @@ class ClubController extends Controller
      */
     public function index(Request $request): Response
     {
+        if (!$request->user()->hasPermissionTo('view_clubs')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to view clubs.');
+        }
+
         $query = Club::query()
             ->withCount('users')
             ->withCount('positions');
@@ -43,8 +47,12 @@ class ClubController extends Controller
     /**
      * Show the form for creating a new club.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        if (!$request->user()->hasPermissionTo('create_clubs')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to create clubs.');
+        }
+
         return Inertia::render('admin/clubs/create');
     }
 
@@ -53,6 +61,10 @@ class ClubController extends Controller
      */
     public function store(ClubRequest $request)
     {
+        if (!$request->user()->hasPermissionTo('create_clubs')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to create clubs.');
+        }
+
         $validated = $request->validated();
         $positions = $validated['positions'] ?? '[]';
         unset($validated['positions']);
@@ -88,8 +100,12 @@ class ClubController extends Controller
     /**
      * Show the club details.
      */
-    public function show(Club $club): Response
+    public function show(Club $club, Request $request): Response
     {
+        if (!$request->user()->hasPermissionTo('view_clubs')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to view clubs.');
+        }
+
         $club->load(['positions', 'users']);
 
         return Inertia::render('admin/clubs/show', [
@@ -100,8 +116,12 @@ class ClubController extends Controller
     /**
      * Show the form for editing the club.
      */
-    public function edit(Club $club): Response
+    public function edit(Club $club, Request $request): Response
     {
+        if (!$request->user()->hasPermissionTo('edit_clubs')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to edit clubs.');
+        }
+
         $club->load('positions');
 
         return Inertia::render('admin/clubs/edit', [
@@ -114,6 +134,10 @@ class ClubController extends Controller
      */
     public function update(ClubRequest $request, Club $club)
     {
+        if (!$request->user()->hasPermissionTo('edit_clubs')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to edit clubs.');
+        }
+
         $validated = $request->validated();
         $positions = $validated['positions'] ?? [];
         unset($validated['positions']);
@@ -159,8 +183,12 @@ class ClubController extends Controller
     /**
      * Remove the club from storage.
      */
-    public function destroy(Club $club)
+    public function destroy(Club $club, Request $request)
     {
+        if (!$request->user()->hasPermissionTo('delete_clubs')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to delete clubs.');
+        }
+
         // Delete the club image if exists
         if ($club->image && Storage::disk('public')->exists(str_replace('/storage/', '', $club->image))) {
             Storage::disk('public')->delete(str_replace('/storage/', '', $club->image));
@@ -176,6 +204,10 @@ class ClubController extends Controller
      */
     public function updateMemberStatus(Request $request, Club $club, $userId)
     {
+        if (!$request->user()->hasPermissionTo('edit_club_users')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to edit club users.');
+        }
+
         $request->validate([
             'status' => 'required|in:active,inactive,pending,banned',
         ]);
@@ -192,6 +224,10 @@ class ClubController extends Controller
      */
     public function updateMemberPosition(Request $request, Club $club, $userId)
     {
+        if (!$request->user()->hasPermissionTo('edit_club_users')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to edit club users.');
+        }
+
         $request->validate([
             'position_id' => 'nullable|exists:club_positions,id,club_id,' . $club->id,
         ]);
@@ -206,8 +242,12 @@ class ClubController extends Controller
     /**
      * Remove a member from the club.
      */
-    public function removeMember(Club $club, $userId)
+    public function removeMember(Club $club, $userId, Request $request)
     {
+        if (!$request->user()->hasPermissionTo('delete_club_users')) {
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to delete club users.');
+        }
+
         $club->users()->detach($userId);
 
         return back()->with('success', 'Member removed from club successfully.');

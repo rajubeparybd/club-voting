@@ -7,7 +7,7 @@ import { DataTablePagination } from '@/components/ui/data-table/pagination';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AppLayout from '@/layouts/admin/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { route } from 'ziggy-js';
@@ -62,8 +62,6 @@ interface Props {
 
 export default function ClubsIndex({ clubs }: Props) {
     useFlashNotifications();
-    const page = usePage();
-    console.log(page.props);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [isLoading, setIsLoading] = useState(false);
