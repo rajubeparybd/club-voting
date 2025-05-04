@@ -4,6 +4,7 @@ import ManagementPageHeader from '@/components/admin/common/management-page-head
 import { DeleteConfirmationDialog } from '@/components/ui/DeleteConfirmationDialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import CheckUserPermission from '@/components/ui/check-user-permission';
 import { DataTablePagination } from '@/components/ui/data-table/pagination';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AppLayout from '@/layouts/admin/app-layout';
@@ -170,11 +171,13 @@ export default function ClubsIndex({ clubs }: Props) {
                 />
 
                 <ManagementPageHeader title="Clubs" description="A list of all clubs with their positions.">
-                    <Button asChild>
-                        <Link href={route('admin.clubs.create')}>
-                            <Plus className="mr-2 size-4" /> Create Club
-                        </Link>
-                    </Button>
+                    <CheckUserPermission permission="create_clubs">
+                        <Button asChild>
+                            <Link href={route('admin.clubs.create')}>
+                                <Plus className="mr-2 size-4" /> Create Club
+                            </Link>
+                        </Button>
+                    </CheckUserPermission>
                 </ManagementPageHeader>
 
                 <Card>

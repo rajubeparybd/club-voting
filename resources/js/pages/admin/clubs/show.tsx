@@ -496,12 +496,14 @@ export default function ClubShow({ club }: ClubShowProps) {
                                 Back
                             </Link>
                         </Button>
-                        <Button asChild>
-                            <Link href={route('admin.clubs.edit', { club: club.id })}>
-                                <Edit className="mr-2 size-4" />
-                                Edit
-                            </Link>
-                        </Button>
+                        <CheckUserPermission permission="edit_clubs">
+                            <Button asChild>
+                                <Link href={route('admin.clubs.edit', { club: club.id })}>
+                                    <Edit className="mr-2 size-4" />
+                                    Edit
+                                </Link>
+                            </Button>
+                        </CheckUserPermission>
                     </div>
                 </ManagementPageHeader>
 
