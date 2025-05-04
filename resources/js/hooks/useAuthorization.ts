@@ -27,6 +27,15 @@ const useAuthorization = () => {
     };
 
     /**
+     * Check if user has all of the specified roles
+     * @param roles - Array of role names to check
+     * @returns True if user has all of the roles, false otherwise
+     */
+    const hasAllRole = (roles: string[]) => {
+        return roles.every((role) => auth?.roles?.includes(role));
+    };
+
+    /**
      * Check if user has a specific permission
      * @param permission - Permission name to check
      * @returns True if user has the permission, false otherwise
@@ -44,7 +53,16 @@ const useAuthorization = () => {
         return permissions.some((permission) => auth?.permissions?.includes(permission));
     };
 
-    return { hasRole, hasAnyRole, hasPermission, hasAnyPermission };
+    /**
+     * Check if user has all of the specified permissions
+     * @param permissions - Array of permission names to check
+     * @returns True if user has all of the permissions, false otherwise
+     */
+    const hasAllPermission = (permissions: string[]) => {
+        return permissions.every((permission) => auth?.permissions?.includes(permission));
+    };
+
+    return { hasRole, hasAnyRole, hasAllRole, hasPermission, hasAnyPermission, hasAllPermission };
 };
 
 export default useAuthorization;

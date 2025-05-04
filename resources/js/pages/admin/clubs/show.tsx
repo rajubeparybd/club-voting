@@ -17,7 +17,7 @@ import { getNoImage, getStatusColor, getStatusText } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { ArrowLeft, Award, Ban, CalendarDays, Edit, LogOut, MoreHorizontal, Search, Shield, Users } from 'lucide-react';
+import { ArrowLeft, Award, Ban, CalendarDays, Edit, Lock, LogOut, MoreHorizontal, Search, Shield, Users } from 'lucide-react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { route } from 'ziggy-js';
@@ -183,46 +183,61 @@ function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, 
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     {/* Status actions */}
-                    <CheckUserPermission permission="edit_club_users">
-                        <DropdownMenuItem disabled={currentStatus === 'active' || isLoading} onClick={() => onStatusChange(user.id, 'active')}>
-                            <Shield className="mr-2 size-4 text-green-600" />
-                            Activate Member
-                        </DropdownMenuItem>
+                    <CheckUserPermission
+                        permission={['edit_club_users', 'delete_club_users']}
+                        fallback={
+                            <DropdownMenuItem>
+                                <Lock className="mr-2 size-4" />
+                                Access Denied
+                            </DropdownMenuItem>
+                        }
+                    >
+                        <CheckUserPermission permission="edit_club_users">
+                            <DropdownMenuItem disabled={currentStatus === 'active' || isLoading} onClick={() => onStatusChange(user.id, 'active')}>
+                                <Shield className="mr-2 size-4 text-green-600" />
+                                Activate Member
+                            </DropdownMenuItem>
 
-                        <DropdownMenuItem disabled={currentStatus === 'inactive' || isLoading} onClick={() => onStatusChange(user.id, 'inactive')}>
-                            <Shield className="mr-2 size-4 text-gray-600" />
-                            Deactivate Member
-                        </DropdownMenuItem>
+                            <DropdownMenuItem
+                                disabled={currentStatus === 'inactive' || isLoading}
+                                onClick={() => onStatusChange(user.id, 'inactive')}
+                            >
+                                <Shield className="mr-2 size-4 text-gray-600" />
+                                Deactivate Member
+                            </DropdownMenuItem>
 
-                        <DropdownMenuItem disabled={currentStatus === 'banned' || isLoading} onClick={() => onStatusChange(user.id, 'banned')}>
-                            <Ban className="mr-2 size-4 text-red-600" />
-                            Ban Member
-                        </DropdownMenuItem>
+                            <DropdownMenuItem disabled={currentStatus === 'banned' || isLoading} onClick={() => onStatusChange(user.id, 'banned')}>
+                                <Ban className="mr-2 size-4 text-red-600" />
+                                Ban Member
+                            </DropdownMenuItem>
+                        </CheckUserPermission>
 
-                        <DropdownMenuSeparator />
-                    </CheckUserPermission>
+                        {/* Position assignment */}
+                        <CheckUserPermission permission="edit_club_users">
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                disabled={isLoading}
+                                onClick={() => {
+                                    setIsPositionDialogOpen(true);
+                                }}
+                            >
+                                <Award className="mr-2 size-4" />
+                                Assign Position
+                            </DropdownMenuItem>
+                        </CheckUserPermission>
 
-                    {/* Position assignment */}
-                    <CheckUserPermission permission="edit_club_users">
-                        <DropdownMenuItem
-                            disabled={isLoading}
-                            onClick={() => {
-                                setIsPositionDialogOpen(true);
-                            }}
-                        >
-                            <Award className="mr-2 size-4" />
-                            Assign Position
-                        </DropdownMenuItem>
-
-                        <DropdownMenuSeparator />
-                    </CheckUserPermission>
-
-                    {/* Remove member */}
-                    <CheckUserPermission permission="delete_club_users">
-                        <DropdownMenuItem className="text-red-600 focus:text-red-600" disabled={isLoading} onClick={() => onRemoveMember(user.id)}>
-                            <LogOut className="mr-2 size-4" />
-                            Remove from Club
-                        </DropdownMenuItem>
+                        {/* Remove member */}
+                        <CheckUserPermission permission="delete_club_users">
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                className="text-red-600 focus:text-red-600"
+                                disabled={isLoading}
+                                onClick={() => onRemoveMember(user.id)}
+                            >
+                                <LogOut className="mr-2 size-4" />
+                                Remove from Club
+                            </DropdownMenuItem>
+                        </CheckUserPermission>
                     </CheckUserPermission>
                 </DropdownMenuContent>
             </DropdownMenu>

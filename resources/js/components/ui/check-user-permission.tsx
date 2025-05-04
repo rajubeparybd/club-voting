@@ -4,9 +4,10 @@ import React from 'react'
 interface CheckUserPermissionProps {
     permission: string | string[];
     children: React.ReactNode;
+    fallback?: React.ReactNode;
 }
 
-const CheckUserPermission = ({ permission, children }: CheckUserPermissionProps) => {
+const CheckUserPermission = ({ permission, children, fallback }: CheckUserPermissionProps) => {
     const { hasPermission, hasAnyPermission } = useAuthorization();
 
 
@@ -16,7 +17,7 @@ const CheckUserPermission = ({ permission, children }: CheckUserPermissionProps)
         if (hasPermission(permission)) return children;
     }
 
-    return null;
+    return fallback || null;
 }
 
 export default CheckUserPermission;
