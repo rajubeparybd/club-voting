@@ -3,33 +3,33 @@
         "dashboard": [
             {
                 "name": "view_dashboard",
-                "description": "View Dashboard"
+                "description": "View Admin Dashboard"
             }
         ],
         "users": [
             {
                 "name": "view_users",
-                "description": "View Users"
+                "description": "View All the Users and their details"
             },
             {
                 "name": "edit_users",
-                "description": "Edit Users"
+                "description": "Edit the Users"
             },
             {
                 "name": "delete_users",
-                "description": "Delete Users"
+                "description": "Delete the Users"
             },
             {
                 "name": "restore_users",
-                "description": "Restore Users"
+                "description": "Restore the Users"
             },
             {
                 "name": "force_delete_users",
-                "description": "Force Delete Users"
+                "description": "Force Delete the Users"
             },
             {
                 "name": "create_users",
-                "description": "Create Users"
+                "description": "Create the Users"
             },
             {
                 "name": "normal_user",
@@ -39,79 +39,79 @@
         "clubs": [
             {
                 "name": "view_clubs",
-                "description": "View Clubs"
+                "description": "View All the Clubs and their details"
             },
             {
                 "name": "edit_clubs",
-                "description": "Edit Clubs"
+                "description": "Edit the Clubs"
             },
             {
                 "name": "delete_clubs",
-                "description": "Delete Clubs"
+                "description": "Delete the Clubs"
             },
             {
                 "name": "create_clubs",
-                "description": "Create Clubs"
+                "description": "Create the Clubs"
             },
             {
                 "name": "restore_clubs",
-                "description": "Restore Clubs"
+                "description": "Restore the Clubs"
             },
             {
                 "name": "force_delete_clubs",
-                "description": "Force Delete Clubs"
+                "description": "Force Delete the Clubs"
             }
         ],
         "club_users": [
             {
                 "name": "view_club_users",
-                "description": "View Club Users"
+                "description": "View All the Club Users and their details"
             },
             {
                 "name": "edit_club_users",
-                "description": "Edit Club Users"
+                "description": "Edit the Club Users"
             },
             {
                 "name": "delete_club_users",
-                "description": "Delete Club Users"
+                "description": "Delete the Club Users"
             },
             {
                 "name": "create_club_users",
-                "description": "Create Club Users"
+                "description": "Create the Club Users"
             },
             {
                 "name": "restore_club_users",
-                "description": "Restore Club Users"
+                "description": "Restore the Club Users"
             },
             {
                 "name": "force_delete_club_users",
-                "description": "Force Delete Club Users"
+                "description": "Force Delete the Club Users"
             }
         ],
         "roles": [
             {
                 "name": "view_roles",
-                "description": "View Roles"
+                "description": "View All the Roles and their details"
             },
             {
                 "name": "edit_roles",
-                "description": "Edit Roles"
+                "description": "Edit the Roles"
             },
             {
                 "name": "delete_roles",
-                "description": "Delete Roles"
+                "description": "Delete the Roles"
             },
             {
                 "name": "create_roles",
-                "description": "Create Roles"
+                "description": "Create the Roles"
             },
             {
                 "name": "restore_roles",
-                "description": "Restore Roles"
+                "description": "Restore the Roles"
             },
             {
                 "name": "force_delete_roles",
-                "description": "Force Delete Roles"
+                "description": "Force Delete the Roles"
             }
         ]
     },

@@ -100,7 +100,9 @@ class SyncRolesPermissions extends Command
         $progressBar->start();
 
         foreach ($this->permissions as $name => $description) {
-            Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web', 'description' => $description]);
+            $permission = Permission::firstOrNew(['name' => $name, 'guard_name' => 'web']);
+            $permission->description = $description;
+            $permission->save();
             $progressBar->advance();
         }
 
