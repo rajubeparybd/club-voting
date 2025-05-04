@@ -49,3 +49,47 @@ export const getStatusText = (status: string) => {
 export const getNoImage = (width = 200, height = 100, text = 'No Image') => {
     return `https://placehold.co/${width}x${height}?text=${text}`;
 };
+
+/**
+ * Format a role name to text
+ * @param {string} role - The role name to format
+ * @returns {string} The formatted role name
+ */
+export const formatRoleToText = (role: string) => {
+    const prefix = 'c_admin_';
+    if (role.startsWith(prefix)) {
+        role = role.slice(prefix.length);
+    }
+    return role.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+/**
+ * Format a text to role name
+ * @param {string} text - The text to format
+ * @returns {string} The formatted role name
+ */
+export const formatTextToRole = (text: string) => {
+    const underscored = text.toLowerCase().replace(/\s+/g, '_');
+    return `c_admin_${underscored}`;
+};
+
+/**
+ * Format a pattern to text
+ * @param {string} pattern - The pattern to format
+ * @returns {string} The formatted pattern
+ */
+export const formatPatternToText = (pattern: string, capitalize = true) => {
+    if (capitalize) {
+        return pattern.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+    }
+    return pattern.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toLowerCase());
+};
+
+/**
+ * Format a text to pattern
+ * @param {string} text - The text to format
+ * @returns {string} The formatted pattern
+ */
+export const formatTextToPattern = (text: string) => {
+    return text.toLowerCase().replace(/\s+/g, '_');
+};

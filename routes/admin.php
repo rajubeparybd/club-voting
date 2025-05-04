@@ -5,6 +5,8 @@ use Inertia\Inertia;
 use App\Http\Controllers\Admin\Settings\ProfileController;
 use App\Http\Controllers\Admin\Settings\PasswordController;
 use App\Http\Controllers\Admin\ClubController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\RoleController;
 
 Route::redirect('/', 'dashboard')->name('index');
 
@@ -33,3 +35,7 @@ Route::resource('clubs', ClubController::class);
 Route::post('clubs/{club}/members/{user}/update-status', [ClubController::class, 'updateMemberStatus'])->name('clubs.members.update-status');
 Route::post('clubs/{club}/members/{user}/update-position', [ClubController::class, 'updateMemberPosition'])->name('clubs.members.update-position');
 Route::delete('clubs/{club}/members/{user}/remove', [ClubController::class, 'removeMember'])->name('clubs.members.remove');
+
+
+// Role management
+Route::resource('roles', RoleController::class);

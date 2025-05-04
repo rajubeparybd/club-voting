@@ -1,16 +1,32 @@
 import { NavItem } from '@/types';
-import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, ShieldCheck, Users } from 'lucide-react';
 
 export const adminSidebarNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: route('admin.dashboard'),
         icon: LayoutGrid,
+        permissions: ['view_dashboard'],
     },
     {
         title: 'Clubs Management',
         href: route('admin.clubs.index'),
         icon: Users,
+        permissions: ['view_clubs', 'create_clubs', 'edit_clubs', 'delete_clubs'],
+    },
+    {
+        title: 'Users & Roles',
+        href: route('admin.users.index'),
+        icon: Users,
+        permissions: ['view_users', 'create_users', 'edit_users', 'delete_users', 'view_roles', 'create_roles', 'edit_roles', 'delete_roles'],
+        submenu: [
+            {
+                title: 'Role Management',
+                href: route('admin.roles.index'),
+                icon: ShieldCheck,
+                permissions: ['view_roles', 'create_roles', 'edit_roles', 'delete_roles'],
+            },
+        ],
     },
 ];
 
