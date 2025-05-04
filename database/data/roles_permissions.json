@@ -33,7 +33,7 @@
             },
             {
                 "name": "normal_user",
-                "description": "Normal User"
+                "description": "This is Default permission for Normal User"
             }
         ],
         "clubs": [
@@ -52,14 +52,6 @@
             {
                 "name": "create_clubs",
                 "description": "Create the Clubs"
-            },
-            {
-                "name": "restore_clubs",
-                "description": "Restore the Clubs"
-            },
-            {
-                "name": "force_delete_clubs",
-                "description": "Force Delete the Clubs"
             }
         ],
         "club_users": [
@@ -78,14 +70,6 @@
             {
                 "name": "create_club_users",
                 "description": "Create the Club Users"
-            },
-            {
-                "name": "restore_club_users",
-                "description": "Restore the Club Users"
-            },
-            {
-                "name": "force_delete_club_users",
-                "description": "Force Delete the Club Users"
             }
         ],
         "roles": [
@@ -104,14 +88,6 @@
             {
                 "name": "create_roles",
                 "description": "Create the Roles"
-            },
-            {
-                "name": "restore_roles",
-                "description": "Restore the Roles"
-            },
-            {
-                "name": "force_delete_roles",
-                "description": "Force Delete the Roles"
             }
         ]
     },

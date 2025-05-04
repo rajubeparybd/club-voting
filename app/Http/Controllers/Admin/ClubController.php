@@ -17,8 +17,9 @@ class ClubController extends Controller
      */
     public function index(Request $request): Response
     {
-        if (!$request->user()->hasPermissionTo('view_clubs')) {
-            return Inertia::render('errors/403')->with('error', 'You do not have permission to view clubs.');
+        $response = $this->checkAuthorization('view_clubs', $request);
+        if ($response) {
+            return $response;
         }
 
         $query = Club::query()
@@ -49,8 +50,9 @@ class ClubController extends Controller
      */
     public function create(Request $request): Response
     {
-        if (!$request->user()->hasPermissionTo('create_clubs')) {
-            return Inertia::render('admin/dashboard')->with('error', 'You do not have permission to create clubs.');
+        $response = $this->checkAuthorization('create_clubs', $request);
+        if ($response) {
+            return $response;
         }
 
         return Inertia::render('admin/clubs/create');
@@ -61,8 +63,9 @@ class ClubController extends Controller
      */
     public function store(ClubRequest $request)
     {
-        if (!$request->user()->hasPermissionTo('create_clubs')) {
-            return to_route('admin.dashboard')->with('error', 'You do not have permission to create clubs.');
+        $response = $this->checkAuthorization('create_clubs', $request, true, 'admin.dashboard');
+        if ($response) {
+            return $response;
         }
 
         $validated = $request->validated();
@@ -102,8 +105,9 @@ class ClubController extends Controller
      */
     public function show(Club $club, Request $request): Response
     {
-        if (!$request->user()->hasPermissionTo('view_clubs')) {
-            return Inertia::render('admin/dashboard')->with('error', 'You do not have permission to view clubs.');
+        $response = $this->checkAuthorization('view_clubs', $request);
+        if ($response) {
+            return $response;
         }
 
         $club->load(['positions', 'users']);
@@ -118,8 +122,9 @@ class ClubController extends Controller
      */
     public function edit(Club $club, Request $request): Response
     {
-        if (!$request->user()->hasPermissionTo('edit_clubs')) {
-            return Inertia::render('admin/dashboard')->with('error', 'You do not have permission to edit clubs.');
+        $response = $this->checkAuthorization('edit_clubs', $request);
+        if ($response) {
+            return $response;
         }
 
         $club->load('positions');
@@ -134,8 +139,9 @@ class ClubController extends Controller
      */
     public function update(ClubRequest $request, Club $club)
     {
-        if (!$request->user()->hasPermissionTo('edit_clubs')) {
-            return to_route('admin.dashboard')->with('error', 'You do not have permission to edit clubs.');
+        $response = $this->checkAuthorization('edit_clubs', $request, true, 'admin.dashboard');
+        if ($response) {
+            return $response;
         }
 
         $validated = $request->validated();
@@ -185,8 +191,9 @@ class ClubController extends Controller
      */
     public function destroy(Club $club, Request $request)
     {
-        if (!$request->user()->hasPermissionTo('delete_clubs')) {
-            return to_route('admin.dashboard')->with('error', 'You do not have permission to delete clubs.');
+        $response = $this->checkAuthorization('delete_clubs', $request, true, 'admin.dashboard');
+        if ($response) {
+            return $response;
         }
 
         // Delete the club image if exists
@@ -204,8 +211,9 @@ class ClubController extends Controller
      */
     public function updateMemberStatus(Request $request, Club $club, $userId)
     {
-        if (!$request->user()->hasPermissionTo('edit_club_users')) {
-            return to_route('admin.dashboard')->with('error', 'You do not have permission to edit club users.');
+        $response = $this->checkAuthorization('edit_club_users', $request);
+        if ($response) {
+            return $response;
         }
 
         $request->validate([
@@ -224,8 +232,9 @@ class ClubController extends Controller
      */
     public function updateMemberPosition(Request $request, Club $club, $userId)
     {
-        if (!$request->user()->hasPermissionTo('edit_club_users')) {
-            return to_route('admin.dashboard')->with('error', 'You do not have permission to edit club users.');
+        $response = $this->checkAuthorization('edit_club_users', $request);
+        if ($response) {
+            return $response;
         }
 
         $request->validate([
@@ -244,8 +253,9 @@ class ClubController extends Controller
      */
     public function removeMember(Club $club, $userId, Request $request)
     {
-        if (!$request->user()->hasPermissionTo('delete_club_users')) {
-            return to_route('admin.dashboard')->with('error', 'You do not have permission to delete club users.');
+        $response = $this->checkAuthorization('delete_club_users');
+        if ($response) {
+            return $response;
         }
 
         $club->users()->detach($userId);
