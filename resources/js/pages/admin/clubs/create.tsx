@@ -1,3 +1,4 @@
+import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -118,18 +119,14 @@ export default function CreateClub() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Club" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold">Create Club</h1>
-                        <p className="text-sm text-gray-500">Create a new club to manage your club's information.</p>
-                    </div>
+                <ManagementPageHeader title="Create Club" description="Fill in the details to create a new club.">
                     <Button variant="outline" asChild>
                         <Link href={route('admin.clubs.index')}>
                             <ArrowLeft className="size-4" />
                             Go Back
                         </Link>
                     </Button>
-                </div>
+                </ManagementPageHeader>
                 <Card>
                     <CardHeader>
                         <CardTitle>Club Information</CardTitle>

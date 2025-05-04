@@ -1,5 +1,6 @@
 import { ClubsSearchFilters } from '@/components/admin/clubs/ClubsSearchFilters';
 import { ClubsTable } from '@/components/admin/clubs/ClubsTable';
+import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import { DeleteConfirmationDialog } from '@/components/ui/DeleteConfirmationDialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -168,17 +169,13 @@ export default function ClubsIndex({ clubs }: Props) {
                     isLoading={isLoading}
                 />
 
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold">Clubs Management</h1>
-                        <p className="text-sm text-gray-500">Manage all clubs and their positions.</p>
-                    </div>
+                <ManagementPageHeader title="Clubs" description="A list of all clubs with their positions.">
                     <Button asChild>
                         <Link href={route('admin.clubs.create')}>
                             <Plus className="mr-2 size-4" /> Create Club
                         </Link>
                     </Button>
-                </div>
+                </ManagementPageHeader>
 
                 <Card>
                     <CardHeader>

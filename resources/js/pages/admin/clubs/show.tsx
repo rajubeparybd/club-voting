@@ -1,3 +1,4 @@
+import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -487,11 +488,7 @@ export default function ClubShow({ club }: ClubShowProps) {
             <div className="relative flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {isLoading && <Processing />}
 
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold">Club Details</h1>
-                        <p className="text-sm text-gray-500">View detailed information about this club</p>
-                    </div>
+                <ManagementPageHeader title={club.name} description={`Complete information about ${club.name.toLowerCase()} club`}>
                     <div className="flex gap-2">
                         <Button variant="outline" asChild>
                             <Link href={route('admin.clubs.index')}>
@@ -506,7 +503,7 @@ export default function ClubShow({ club }: ClubShowProps) {
                             </Link>
                         </Button>
                     </div>
-                </div>
+                </ManagementPageHeader>
 
                 <Card>
                     <CardHeader>
