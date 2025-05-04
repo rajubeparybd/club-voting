@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import ProcessingButton from '@/components/ui/processing-button';
-import DeleteUser from '@/components/user/delete-user';
 import AppLayout from '@/layouts/user/app-layout';
 import SettingsLayout from '@/layouts/user/settings/layout';
 import { route } from 'ziggy-js';
@@ -121,7 +120,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     </form>
                 </div>
 
-                <DeleteUser />
+                {/* <DeleteUser /> */}
             </SettingsLayout>
         </AppLayout>
     );

@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import ProcessingButton from '@/components/ui/processing-button';
-import DeleteUser from '@/components/admin/delete-user';
 import AppLayout from '@/layouts/admin/app-layout';
 import SettingsLayout from '@/layouts/admin/settings/layout';
 import { route } from 'ziggy-js';
@@ -121,7 +120,17 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     </form>
                 </div>
 
-                <DeleteUser />
+                {/* <CheckUserRole role="admin" fallback={<DeleteUser />}>
+                    <div className="space-y-6">
+                        <HeadingSmall title="Delete account" description="Delete your account and all of its resources" />
+                        <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
+                            <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
+                                <p className="font-medium">Warning</p>
+                                <p className="text-sm">As admin you can't delete your main account.</p>
+                            </div>
+                        </div>
+                    </div>
+                </CheckUserRole> */}
             </SettingsLayout>
         </AppLayout>
     );
