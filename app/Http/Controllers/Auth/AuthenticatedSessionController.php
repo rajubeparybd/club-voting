@@ -35,7 +35,9 @@ class AuthenticatedSessionController extends Controller
 
         // Get authenticated user
         $user = auth()->user();
-        $allRoles = $user->roles->pluck('name')->toArray();
+        $allRoles = $user->roles->filter(function ($role) {
+                return str_starts_with($role->name, 'c_admin_');
+            })->pluck('name')->toArray();
 
         // Check if user has admin roles - check for admin or custom admin roles
         if ($user->hasRole('admin') || $user->hasAnyRole($allRoles)) {

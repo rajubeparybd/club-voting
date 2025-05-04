@@ -22,7 +22,9 @@ class CheckAdminRole
             return redirect('/login');
         }
 
-        $allRoles = $user->roles->pluck('name')->toArray();
+        $allRoles = $user->roles->filter(function ($role) {
+                return str_starts_with($role->name, 'c_admin_');
+            })->pluck('name')->toArray();
 
         if ($user->hasRole('admin') || $user->hasAnyRole($allRoles)) {
             return $next($request);
