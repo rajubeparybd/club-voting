@@ -22,6 +22,8 @@ class UserSeeder extends Seeder
 
         $user->assignRole('user');
 
-        User::factory()->count(50)->create();
+        User::factory()->count(50)->create()->each(function ($user) {
+            $user->assignRole('user');
+        });
     }
 }

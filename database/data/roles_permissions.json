@@ -13,6 +13,7 @@
     },
     "roles": {
         "admin": "all",
-        "user": []
+        "user": [],
+        "c_admin_club_manager": ["edit_club_users", "view_clubs", "edit_clubs", "delete_clubs", "create_clubs", "restore_clubs", "force_delete_clubs"]
     }
 }
