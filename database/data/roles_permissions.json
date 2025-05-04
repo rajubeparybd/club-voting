@@ -1,19 +1,132 @@
 {
     "permissions": {
-        "users": ["view_users", "edit_users", "delete_users", "restore_users", "force_delete_users", "create_users"],
-        "clubs": ["view_clubs", "edit_clubs", "delete_clubs", "create_clubs", "restore_clubs", "force_delete_clubs"],
+        "dashboard": [
+            {
+                "name": "view_dashboard",
+                "description": "View Dashboard"
+            }
+        ],
+        "users": [
+            {
+                "name": "view_users",
+                "description": "View Users"
+            },
+            {
+                "name": "edit_users",
+                "description": "Edit Users"
+            },
+            {
+                "name": "delete_users",
+                "description": "Delete Users"
+            },
+            {
+                "name": "restore_users",
+                "description": "Restore Users"
+            },
+            {
+                "name": "force_delete_users",
+                "description": "Force Delete Users"
+            },
+            {
+                "name": "create_users",
+                "description": "Create Users"
+            },
+            {
+                "name": "normal_user",
+                "description": "Normal User"
+            }
+        ],
+        "clubs": [
+            {
+                "name": "view_clubs",
+                "description": "View Clubs"
+            },
+            {
+                "name": "edit_clubs",
+                "description": "Edit Clubs"
+            },
+            {
+                "name": "delete_clubs",
+                "description": "Delete Clubs"
+            },
+            {
+                "name": "create_clubs",
+                "description": "Create Clubs"
+            },
+            {
+                "name": "restore_clubs",
+                "description": "Restore Clubs"
+            },
+            {
+                "name": "force_delete_clubs",
+                "description": "Force Delete Clubs"
+            }
+        ],
         "club_users": [
-            "view_club_users",
-            "edit_club_users",
-            "delete_club_users",
-            "create_club_users",
-            "restore_club_users",
-            "force_delete_club_users"
+            {
+                "name": "view_club_users",
+                "description": "View Club Users"
+            },
+            {
+                "name": "edit_club_users",
+                "description": "Edit Club Users"
+            },
+            {
+                "name": "delete_club_users",
+                "description": "Delete Club Users"
+            },
+            {
+                "name": "create_club_users",
+                "description": "Create Club Users"
+            },
+            {
+                "name": "restore_club_users",
+                "description": "Restore Club Users"
+            },
+            {
+                "name": "force_delete_club_users",
+                "description": "Force Delete Club Users"
+            }
+        ],
+        "roles": [
+            {
+                "name": "view_roles",
+                "description": "View Roles"
+            },
+            {
+                "name": "edit_roles",
+                "description": "Edit Roles"
+            },
+            {
+                "name": "delete_roles",
+                "description": "Delete Roles"
+            },
+            {
+                "name": "create_roles",
+                "description": "Create Roles"
+            },
+            {
+                "name": "restore_roles",
+                "description": "Restore Roles"
+            },
+            {
+                "name": "force_delete_roles",
+                "description": "Force Delete Roles"
+            }
         ]
     },
     "roles": {
         "admin": "all",
-        "user": [],
-        "c_admin_club_manager": ["edit_club_users", "view_clubs", "edit_clubs", "delete_clubs", "create_clubs", "restore_clubs", "force_delete_clubs"]
+        "user": ["normal_user"],
+        "c_admin_club_manager": [
+            "view_dashboard",
+            "edit_club_users",
+            "view_clubs",
+            "edit_clubs",
+            "delete_clubs",
+            "create_clubs",
+            "restore_clubs",
+            "force_delete_clubs"
+        ]
     }
 }

@@ -22,14 +22,15 @@ class RoleSeeder extends Seeder
             return;
         }
 
-        foreach ($roles as $name => $permissions) {
-            $role = Role::create(['name' => $name]);
+        foreach ($roles as $name => $permissionNames) {
+            $role = Role::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
 
-            if ($permissions === 'all') {
+            if ($permissionNames === 'all') {
                 $role->syncPermissions(Permission::all());
             } else {
-                $role->syncPermissions($permissions);
+                $role->syncPermissions($permissionNames);
             }
         }
+
     }
 }

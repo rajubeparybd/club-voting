@@ -35,7 +35,7 @@ class RolesPermissionsManager
     /**
      * Get all permissions from the JSON file
      *
-     * @return array The permissions as a flat array
+     * @return array The permissions as a flat array where keys are names and values are descriptions
      */
     public static function getAllPermissions()
     {
@@ -48,17 +48,11 @@ class RolesPermissionsManager
         $permissionsData = $data['permissions'];
         $allPermissions = [];
 
-        // Handle flat or categorized permissions
+        // Handle categorized permissions
         if (is_array($permissionsData)) {
-            if (isset($permissionsData[0])) {
-                // Flat array format
-                $allPermissions = $permissionsData;
-            } else {
-                // Categorized format
-                foreach ($permissionsData as $category => $permissions) {
-                    foreach ($permissions as $permission) {
-                        $allPermissions[] = $permission;
-                    }
+            foreach ($permissionsData as $category => $permissions) {
+                foreach ($permissions as $permission) {
+                    $allPermissions[$permission['name']] = $permission['description'] ?? NULL;
                 }
             }
         }

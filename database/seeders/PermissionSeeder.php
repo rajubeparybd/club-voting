@@ -21,8 +21,9 @@ class PermissionSeeder extends Seeder
             return;
         }
 
-        foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+        foreach ($permissions as $name => $description) {
+            Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web', 'description' => $description]);
         }
+
     }
 }
