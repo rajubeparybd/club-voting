@@ -1,6 +1,6 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Eye, Lock, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Link } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import CheckUserPermission from "../check-user-permission";
@@ -21,6 +21,12 @@ export function     ClubActions({ clubId, onDelete, disabled = false }: ClubActi
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <CheckUserPermission permission={['view_clubs', 'edit_clubs', 'delete_clubs']} fallback={
+            <DropdownMenuItem>
+                <Lock className="mr-2 size-4" />
+                Access Denied
+            </DropdownMenuItem>
+        }>
         <CheckUserPermission permission="view_clubs">
           <DropdownMenuItem asChild>
             <Link href={route('admin.clubs.show', clubId)} className="flex w-full items-center">
@@ -49,6 +55,7 @@ export function     ClubActions({ clubId, onDelete, disabled = false }: ClubActi
               Delete Club
             </DropdownMenuItem>
           </>
+        </CheckUserPermission>
         </CheckUserPermission>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -4,9 +4,10 @@ import React from 'react'
 interface CheckUserRoleProps {
     role: string | string[];
     children: React.ReactNode;
+    fallback?: React.ReactNode;
 }
 
-const CheckUserRole = ({ role, children }: CheckUserRoleProps) => {
+const CheckUserRole = ({ role, children, fallback }: CheckUserRoleProps) => {
     const { hasRole, hasAnyRole } = useAuthorization();
 
     if (Array.isArray(role)) {
@@ -15,7 +16,7 @@ const CheckUserRole = ({ role, children }: CheckUserRoleProps) => {
         if (hasRole(role)) return children;
     }
 
-    return null;
+    return fallback || null;
 }
 
 export default CheckUserRole;
