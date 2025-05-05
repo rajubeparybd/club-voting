@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { BookOpen, Folder, LayoutGrid, ShieldCheck, User2, Users } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Settings, ShieldCheck, User2, Users } from 'lucide-react';
 
 export const adminSidebarNavItems: NavItem[] = [
     {
@@ -46,5 +46,13 @@ export const adminFooterNavItems: NavItem[] = [
         title: 'Documentation',
         href: 'https://laravel.com/docs/starter-kits',
         icon: BookOpen,
+    },
+];
+
+export const userContextMenuItems: NavItem[] = [
+    {
+        title: 'Settings',
+        href: route('admin.settings.profile.edit'),
+        icon: Settings,
     },
 ];

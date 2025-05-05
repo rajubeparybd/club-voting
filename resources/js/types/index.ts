@@ -73,6 +73,8 @@ export interface NavItem {
     isActive?: boolean;
     submenu?: NavItem[];
     permissions?: string[];
+    separatorBefore?: boolean;
+    separatorAfter?: boolean;
 }
 
 export interface SharedData {

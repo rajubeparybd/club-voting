@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Settings } from 'lucide-react';
 
 export const userSidebarNavItems: NavItem[] = [
     {
@@ -19,5 +19,13 @@ export const userFooterNavItems: NavItem[] = [
         title: 'Documentation',
         href: 'https://laravel.com/docs/starter-kits',
         icon: BookOpen,
+    },
+];
+
+export const userContextMenuItems: NavItem[] = [
+    {
+        title: 'Settings',
+        href: route('user.settings.profile.edit'),
+        icon: Settings,
     },
 ];

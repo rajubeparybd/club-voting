@@ -1,9 +1,10 @@
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user/user-info';
+import { userContextMenuItems } from '@/config/admin-menu';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { type User } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 interface UserMenuContentProps {
     user: User;
@@ -21,12 +22,18 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                    <Link className="block w-full" href={route('admin.settings.profile.edit')} as="button" prefetch onClick={cleanup}>
-                        <Settings className="mr-2" />
-                        Settings
-                    </Link>
-                </DropdownMenuItem>
+                {userContextMenuItems.map((item) => (
+                    <>
+                        {item.separatorBefore && <DropdownMenuSeparator />}
+                        <DropdownMenuItem asChild key={item.title}>
+                            <Link className="block w-full" href={item.href} as="button" prefetch onClick={cleanup}>
+                                {item.icon && <item.icon className="mr-2" />}
+                                {item.title}
+                            </Link>
+                        </DropdownMenuItem>
+                        {item.separatorAfter && <DropdownMenuSeparator />}
+                    </>
+                ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
