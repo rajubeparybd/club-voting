@@ -86,13 +86,23 @@ export interface SharedData {
 
 export interface User {
     id: number;
-    name: string;
+    student_id: string;
+    name?: string | null;
+    phone?: string | null;
+    birth_date?: string | null;
+    intake?: string | null;
+    gender?: 'M' | 'F' | 'Other';
     email: string;
+    password: string;
+    email_verified_at?: string | null;
+    remember_token?: string | null;
+    status: 'active' | 'inactive' | 'banned';
+    department_id?: number | null;
+    department: Department;
     avatar?: string;
-    email_verified_at: string | null;
+    roles?: Role[];
     created_at: string;
     updated_at: string;
-    roles?: Role[];
     [key: string]: unknown;
 }
 
@@ -113,4 +123,25 @@ export interface Permission {
     created_at: string;
     updated_at: string;
     description: string;
+}
+
+export interface ClubMember {
+    id: number;
+    club_id: number;
+    user_id: number;
+    position_id: number | null;
+    status: 'active' | 'inactive' | 'pending';
+    joined_at: string;
+    created_at: string;
+    updated_at: string;
+    user?: User;
+    position?: ClubPosition;
+}
+
+export interface Department {
+    id: number;
+    name: string;
+    code: string | null;
+    created_at: string;
+    updated_at: string;
 }

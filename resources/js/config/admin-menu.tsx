@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { BookOpen, Folder, LayoutGrid, ShieldCheck, Users } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, ShieldCheck, User2, Users } from 'lucide-react';
 
 export const adminSidebarNavItems: NavItem[] = [
     {
@@ -20,6 +20,12 @@ export const adminSidebarNavItems: NavItem[] = [
         icon: Users,
         permissions: ['view_users', 'create_users', 'edit_users', 'delete_users', 'view_roles', 'create_roles', 'edit_roles', 'delete_roles'],
         submenu: [
+            {
+                title: 'User Management',
+                href: route('admin.users.index'),
+                icon: User2,
+                permissions: ['view_users', 'create_users', 'edit_users', 'delete_users'],
+            },
             {
                 title: 'Role Management',
                 href: route('admin.roles.index'),
