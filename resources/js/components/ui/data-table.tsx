@@ -195,7 +195,7 @@ function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
   return (
-    <div className="flex items-center justify-between px-2">
+    <div className="flex items-center w-full flex-col md:flex-row justify-between px-2">
         <div className="flex items-center gap-4">
             <div className="text-muted-foreground text-sm">
             Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + table.getState().pagination.pageSize} of {table.getFilteredRowModel().rows.length} items.
@@ -223,11 +223,6 @@ function DataTablePagination<TData>({
         </div>
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
-        {/* <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
-        </div>
-         */}
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
@@ -273,7 +268,7 @@ function DataTablePagination<TData>({
 
 export interface DataTableFilter {
     label: string;
-    type: "select" | "input";
+    type: "select" | "input" | "global";
     options?: { label: string; value: string }[];
 }
 
@@ -293,6 +288,8 @@ export default function DataTable<TData, TValue>({
    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
    const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
    const [showFilters, setShowFilters] = useState(false)
+   const [globalFilter, setGlobalFilter] = useState<string>("")
+
 
   const table = useReactTable({
     data,
@@ -305,11 +302,14 @@ export default function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    globalFilterFn: "auto",
+    onGlobalFilterChange: setGlobalFilter,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      globalFilter,
     },
   })
 
@@ -334,7 +334,15 @@ export default function DataTable<TData, TValue>({
                       className="w-full md:max-w-[200px] mb-2"
                     />
                   )}
-
+                {filter.type === "global" && (
+                    <Input
+                      placeholder={`Filter ${filter.label.toLowerCase()}...`}
+                      value={globalFilter}
+                      onChange={(event) => setGlobalFilter(event.target.value)}
+                      className="w-full md:max-w-[200px] mb-2"
+                    />
+                  )}
+                  {/* TODO: Select Filter Not Working. Fix it. */}
                   {filter.type === "select" && filter.options && (
                     <Select
                       value={(column.getFilterValue() as string) ?? ""}

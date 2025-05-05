@@ -162,8 +162,8 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
 
     const filters: Record<string, DataTableFilter> = {
         email: {
-            label: 'Email',
-            type: 'input',
+            label: 'Search',
+            type: 'global',
         },
         roles: {
             label: 'Role',
