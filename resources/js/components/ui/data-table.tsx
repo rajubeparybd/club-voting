@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { EyeOff, ArrowDown, ArrowUp, ChevronsUpDown, ChevronsRight, ChevronRight, ChevronLeft, ChevronsLeft, MoreHorizontal, Lock, ColumnsIcon, FilterIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatPatternToText } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import CheckUserPermission from "./check-user-permission"
 
@@ -270,22 +270,28 @@ export interface DataTableFilter {
     label: string;
     type: "select" | "input" | "global";
     options?: { label: string; value: string }[];
+    placeholder?: string;
 }
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   filters?: Record<string, DataTableFilter>
+  initialHiddenColumns?: string[]
 }
 
 export default function DataTable<TData, TValue>({
   columns,
   data,
   filters,
+  initialHiddenColumns,
 }: DataTableProps<TData, TValue>) {
    const [sorting, setSorting] = useState<SortingState>([])
    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialHiddenColumns?.reduce((acc, column) => {
+    acc[column] = false
+    return acc
+   }, {} as Record<string, boolean>) || {})
    const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
    const [showFilters, setShowFilters] = useState(false)
    const [globalFilter, setGlobalFilter] = useState<string>("")
@@ -328,7 +334,7 @@ export default function DataTable<TData, TValue>({
                 <div key={key} className="flex items-center gap-2">
                   {filter.type === "input" && (
                     <Input
-                      placeholder={`Filter ${filter.label.toLowerCase()}...`}
+                      placeholder={filter.placeholder ?? `Filter by ${filter.label.toLowerCase()}...`}
                       value={(column.getFilterValue() as string) ?? ""}
                       onChange={(event) => column.setFilterValue(event.target.value)}
                       className="w-full md:max-w-[200px] mb-2"
@@ -336,7 +342,7 @@ export default function DataTable<TData, TValue>({
                   )}
                 {filter.type === "global" && (
                     <Input
-                      placeholder={`Filter ${filter.label.toLowerCase()}...`}
+                      placeholder={filter.placeholder ?? `Filter by ${filter.label.toLowerCase()}...`}
                       value={globalFilter}
                       onChange={(event) => setGlobalFilter(event.target.value)}
                       className="w-full md:max-w-[200px] mb-2"
@@ -351,7 +357,7 @@ export default function DataTable<TData, TValue>({
                       }
                     >
                       <SelectTrigger className="w-full md:w-[180px] mb-2">
-                        <SelectValue placeholder={`Filter ${filter.label.toLowerCase()}...`} />
+                        <SelectValue placeholder={filter.placeholder ?? `Filter by ${filter.label.toLowerCase()}...`} />
                       </SelectTrigger>
                       <SelectContent>
                         {filter.options.map((option) => (
@@ -405,7 +411,7 @@ export default function DataTable<TData, TValue>({
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {formatPatternToText(column.id)}
                   </DropdownMenuCheckboxItem>
                 )
               })}

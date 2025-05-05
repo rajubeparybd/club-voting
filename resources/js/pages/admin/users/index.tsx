@@ -35,6 +35,28 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
             accessorKey: 'student_id',
             header: ({ column }) => <DataTableColumnHeader column={column} title="Student ID" />,
         },
+        // {
+        //     accessorKey: 'user_info',
+        //     id: 'user_info',
+        //     header: ({ column }) => <DataTableColumnHeader column={column} title="User Info" />,
+        //     cell: ({ row }) => {
+        //         const user = row.original;
+        //         return (
+        //             <div className="flex items-center gap-2">
+        //                 <Avatar className="h-8 w-8 rounded-lg border border-gray-300">
+        //                     <AvatarImage src={user.avatar || ''} alt={user.name || ''} />
+        //                     <AvatarFallback>{user?.name?.charAt(0) || ''}</AvatarFallback>
+        //                 </Avatar>
+        //                 <div className="flex flex-col">
+        //                     <span className="font-medium">{user.name}</span>
+        //                     <span className="text-sm text-gray-500">{user.email}</span>
+        //                 </div>
+        //             </div>
+        //         );
+        //     },
+        //     enableSorting: true,
+        //     enableHiding: true,
+        // },
         {
             accessorKey: 'name',
             header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
@@ -158,11 +180,14 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
         },
     ];
 
+    const initialHiddenColumns = ['gender', 'intake', 'created_at'];
+
     const data = useMemo(() => usersData, [usersData]);
 
     const filters: Record<string, DataTableFilter> = {
         email: {
             label: 'Search',
+            placeholder: 'Search by name, email, or student ID',
             type: 'global',
         },
         roles: {
@@ -282,7 +307,7 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
                         <CardDescription>A list of all users with their roles.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <DataTable columns={columns} data={data} filters={filters} />
+                        <DataTable columns={columns} data={data} filters={filters} initialHiddenColumns={initialHiddenColumns} />
                     </CardContent>
                 </Card>
             </div>
