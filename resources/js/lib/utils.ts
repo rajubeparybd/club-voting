@@ -11,26 +11,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Get the color for a status
- * @param {string} status - The status to get the color for
- * @returns {string} The color for the status
- */
-export const getStatusColor = (status: string) => {
-    switch (status) {
-        case 'active':
-            return 'bg-green-600 text-white';
-        case 'inactive':
-            return 'bg-gray-600 text-white';
-        case 'pending':
-            return 'bg-yellow-600 text-white';
-        case 'banned':
-            return 'bg-red-600 text-white';
-        default:
-            return 'bg-gray-600 text-white';
-    }
-};
-
-/**
  * Get the text for a status
  * @param {string} status - The status to get the text for
  * @returns {string} The text for the status

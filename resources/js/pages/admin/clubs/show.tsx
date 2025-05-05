@@ -1,6 +1,5 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import CheckUserPermission from '@/components/ui/check-user-permission';
@@ -10,11 +9,12 @@ import { Input } from '@/components/ui/input';
 import Processing from '@/components/ui/processing';
 import ProcessingButton from '@/components/ui/processing-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StatusBadge, StatusVariant } from '@/components/ui/status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AppLayout from '@/layouts/admin/app-layout';
-import { getNoImage, getStatusColor, getStatusText } from '@/lib/utils';
+import { getNoImage } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
@@ -388,9 +388,7 @@ export default function ClubShow({ club }: ClubShowProps) {
             key: 'is_active',
             header: 'Status',
             cell: (position) => {
-                return (
-                    <Badge className={getStatusColor(position.is_active ? 'active' : 'inactive')}>{position.is_active ? 'Active' : 'Inactive'}</Badge>
-                );
+                return <StatusBadge status={position.is_active ? 'active' : 'inactive'} variant={position.is_active ? 'active' : 'inactive'} />;
             },
         },
         {
@@ -433,7 +431,7 @@ export default function ClubShow({ club }: ClubShowProps) {
             header: 'Status',
             cell: (user) => {
                 const status = user.pivot.status || 'pending';
-                return <Badge className={getStatusColor(status)}>{getStatusText(status)}</Badge>;
+                return <StatusBadge status={status} variant={status as StatusVariant} />;
             },
         },
         {
@@ -521,7 +519,7 @@ export default function ClubShow({ club }: ClubShowProps) {
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    <Badge className={getStatusColor(club.status)}>{getStatusText(club.status)}</Badge>
+                                    <StatusBadge status={club.status} variant={club.status} />
 
                                     {club.open_date && (
                                         <div className="flex items-center gap-1 text-sm text-gray-500">
