@@ -1,5 +1,5 @@
+import { ClubActions } from '@/components/admin/clubs/club-actions';
 import { Badge } from '@/components/ui/badge';
-import { ClubActions } from '@/components/ui/data-table/club-actions';
 import { StatusBadge } from '@/components/ui/data-table/status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
