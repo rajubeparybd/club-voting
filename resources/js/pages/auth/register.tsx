@@ -55,6 +55,8 @@ type RegisterForm = {
     password_confirmation: string;
 };
 
+// TODO: System don't show the error message while registering.
+
 export default function Register() {
     const { data, setData, post, processing, errors, reset, setError } = useForm<Required<RegisterForm>>({
         student_id: '',

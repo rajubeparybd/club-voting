@@ -49,6 +49,17 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * Get the default avatar URL.
+     *
+     * @return string
+     */
+    public function getAvatarAttribute(): string
+    {
+        return $this->getFirstMediaUrl('avatar');
+    }
+
+
+    /**
      * Register the media collections
      */
     public function registerMediaCollections(): void

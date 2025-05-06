@@ -33,13 +33,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Get authenticated user
+        $user = auth()->user();
+
         activity()
-            ->causedBy(auth()->user())
+            ->causedBy($user)
             ->event('login')
             ->log(sprintf('Login to the system using %s ip.', $request->ip()));
 
-        // Get authenticated user
-        $user = auth()->user();
         $allRoles = $user->roles->filter(function ($role) {
                 return str_starts_with($role->name, 'c_admin_');
             })->pluck('name')->toArray();

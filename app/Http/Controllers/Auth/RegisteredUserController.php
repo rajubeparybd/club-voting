@@ -45,7 +45,7 @@ class RegisteredUserController extends Controller
         ]);
 
         // Handle avatar upload using the helper
-        MediaHelper::addMediaFromBase64($user, $validated['avatar'], 'avatar', 'avatar-' . $user->id);
+        MediaHelper::addMediaFromBase64($user, $validated['avatar'], 'avatar', $user->student_id);
 
         $user->assignRole('user');
 
