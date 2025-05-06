@@ -1,6 +1,5 @@
 import InputError from '@/components/ui/input-error';
-import AppLayout from '@/layouts/admin/app-layout';
-import SettingsLayout from '@/layouts/admin/settings/layout';
+import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
@@ -10,6 +9,7 @@ import HeadingSmall from '@/components/app/heading-small';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ProcessingButton from '@/components/ui/processing-button';
+import AdminSettingsLayout from '@/layouts/admin/settings/admin-settings-layout';
 import { route } from 'ziggy-js';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -50,10 +50,10 @@ export default function Password() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title="Profile settings" />
 
-            <SettingsLayout>
+            <AdminSettingsLayout>
                 <div className="space-y-6">
                     <HeadingSmall title="Update password" description="Ensure your account is using a long, random password to stay secure" />
 
@@ -123,7 +123,7 @@ export default function Password() {
                         </div>
                     </form>
                 </div>
-            </SettingsLayout>
-        </AppLayout>
+            </AdminSettingsLayout>
+        </AdminAppLayout>
     );
 }

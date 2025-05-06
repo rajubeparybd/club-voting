@@ -13,7 +13,7 @@ import { StatusBadge, StatusVariant } from '@/components/ui/status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
-import AppLayout from '@/layouts/admin/app-layout';
+import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { getNoImage } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -481,7 +481,7 @@ export default function ClubShow({ club }: ClubShowProps) {
     }, [club.users, searchTerm, statusFilter, positionFilter]);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Club: ${club.name}`} />
             <div className="relative flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {isLoading && <Processing />}
@@ -645,6 +645,6 @@ export default function ClubShow({ club }: ClubShowProps) {
                     </TabsContent>
                 </Tabs>
             </div>
-        </AppLayout>
+        </AdminAppLayout>
     );
 }

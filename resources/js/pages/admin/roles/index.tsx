@@ -7,7 +7,7 @@ import CheckUserPermission from '@/components/ui/check-user-permission';
 import { DataTablePagination } from '@/components/ui/data-table/pagination';
 import { DeleteConfirmationDialog } from '@/components/ui/DeleteConfirmationDialog';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
-import AppLayout from '@/layouts/admin/app-layout';
+import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { BreadcrumbItem, PaginatedData, Role } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
@@ -92,7 +92,7 @@ export default function RolesIndex({ roles }: Props) {
     // Defensive rendering
     if (!roles || !roles.data) {
         return (
-            <AppLayout breadcrumbs={breadcrumbs}>
+            <AdminAppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Roles Management" />
                 <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                     <Card>
@@ -103,12 +103,12 @@ export default function RolesIndex({ roles }: Props) {
                         </CardContent>
                     </Card>
                 </div>
-            </AppLayout>
+            </AdminAppLayout>
         );
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title="Roles Management" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <DeleteConfirmationDialog
@@ -151,6 +151,6 @@ export default function RolesIndex({ roles }: Props) {
                     </CardContent>
                 </Card>
             </div>
-        </AppLayout>
+        </AdminAppLayout>
     );
 }

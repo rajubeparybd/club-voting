@@ -7,7 +7,7 @@ import DataTable, { DataTableActions, DataTableColumnHeader, DataTableFilter } f
 import { DeleteConfirmationDialog } from '@/components/ui/DeleteConfirmationDialog';
 import { StatusBadge } from '@/components/ui/status-badge';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
-import AppLayout from '@/layouts/admin/app-layout';
+import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { formatRoleToText } from '@/lib/utils';
 import { BreadcrumbItem, Department, Role, User } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -265,7 +265,7 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
     // Defensive rendering
     if (!users || !users.data) {
         return (
-            <AppLayout breadcrumbs={breadcrumbs}>
+            <AdminAppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Users Management" />
                 <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                     <Card>
@@ -276,12 +276,12 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
                         </CardContent>
                     </Card>
                 </div>
-            </AppLayout>
+            </AdminAppLayout>
         );
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title="Users Management" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <DeleteConfirmationDialog
@@ -312,6 +312,6 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
                     </CardContent>
                 </Card>
             </div>
-        </AppLayout>
+        </AdminAppLayout>
     );
 }

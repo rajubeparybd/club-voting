@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
-import AppLayout from '@/layouts/admin/app-layout';
+import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { BreadcrumbItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Head, Link, router } from '@inertiajs/react';
@@ -146,7 +146,7 @@ export default function EditClub({ club }: EditClubProps) {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Club: ${club.name}`} />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <ManagementPageHeader title={club.name} description={`Edit ${club.name.toLowerCase()} club information`}>
@@ -375,6 +375,6 @@ export default function EditClub({ club }: EditClubProps) {
                     </CardContent>
                 </Card>
             </div>
-        </AppLayout>
+        </AdminAppLayout>
     );
 }

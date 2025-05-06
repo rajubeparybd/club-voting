@@ -5,7 +5,7 @@ import CheckUserPermission from '@/components/ui/check-user-permission';
 import DataTable, { DataTableColumnHeader, DataTableFilter } from '@/components/ui/data-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
-import AppLayout from '@/layouts/admin/app-layout';
+import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { formatFilter } from '@/lib/utils';
 import { BreadcrumbItem, User } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -124,7 +124,7 @@ export default function ActivitiesIndex({
     // Defensive rendering
     if (!personalData) {
         return (
-            <AppLayout breadcrumbs={breadcrumbs}>
+            <AdminAppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Activity Logs" />
                 <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                     <Card>
@@ -135,12 +135,12 @@ export default function ActivitiesIndex({
                         </CardContent>
                     </Card>
                 </div>
-            </AppLayout>
+            </AdminAppLayout>
         );
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title="Activity Logs" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <ManagementPageHeader title="Activity Logs" description="View activity logs in the system.">
@@ -195,6 +195,6 @@ export default function ActivitiesIndex({
                     </Tabs>
                 </CheckUserPermission>
             </div>
-        </AppLayout>
+        </AdminAppLayout>
     );
 }

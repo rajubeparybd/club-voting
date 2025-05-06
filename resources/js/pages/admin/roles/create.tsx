@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import AppLayout from '@/layouts/admin/app-layout';
+import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { formatPatternToText, formatTextToRole } from '@/lib/utils';
 import { Permission } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -83,7 +83,7 @@ export default function CreateRole({ permissions }: Props) {
     );
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Role" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <ManagementPageHeader title="Create Role" description="Create a new role">
@@ -183,6 +183,6 @@ export default function CreateRole({ permissions }: Props) {
                     </form>
                 </Form>
             </div>
-        </AppLayout>
+        </AdminAppLayout>
     );
 }

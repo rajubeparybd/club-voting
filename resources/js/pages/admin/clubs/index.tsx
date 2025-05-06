@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import CheckUserPermission from '@/components/ui/check-user-permission';
 import { DataTablePagination } from '@/components/ui/data-table/pagination';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
-import AppLayout from '@/layouts/admin/app-layout';
+import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
@@ -143,7 +143,7 @@ export default function ClubsIndex({ clubs }: Props) {
     // Defensive rendering
     if (!clubs || !clubs.data) {
         return (
-            <AppLayout breadcrumbs={breadcrumbs}>
+            <AdminAppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Clubs Management" />
                 <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                     <Card>
@@ -154,12 +154,12 @@ export default function ClubsIndex({ clubs }: Props) {
                         </CardContent>
                     </Card>
                 </div>
-            </AppLayout>
+            </AdminAppLayout>
         );
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title="Clubs Management" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <DeleteConfirmationDialog
@@ -208,6 +208,6 @@ export default function ClubsIndex({ clubs }: Props) {
                     </CardContent>
                 </Card>
             </div>
-        </AppLayout>
+        </AdminAppLayout>
     );
 }

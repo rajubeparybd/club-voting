@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import AppLayout from '@/layouts/admin/app-layout';
+import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { formatPatternToText, formatRoleToText, formatTextToRole } from '@/lib/utils';
 import { Permission, Role } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -90,7 +90,7 @@ export default function EditRole({ role, permissions }: Props) {
     );
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Role: ${formatRoleToText(role.name)}`} />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <ManagementPageHeader title={`Edit Role: ${formatRoleToText(role.name)}`} description="Update role name and permissions">
@@ -201,6 +201,6 @@ export default function EditRole({ role, permissions }: Props) {
                     </form>
                 </Form>
             </div>
-        </AppLayout>
+        </AdminAppLayout>
     );
 }
