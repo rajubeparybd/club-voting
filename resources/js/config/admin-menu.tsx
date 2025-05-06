@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { BookOpen, Folder, LayoutGrid, Settings, ShieldCheck, User2, Users } from 'lucide-react';
+import { ActivitySquare, BookOpen, Folder, LayoutGrid, Settings, ShieldCheck, User2, Users } from 'lucide-react';
 
 export const adminSidebarNavItems: NavItem[] = [
     {
@@ -54,5 +54,10 @@ export const userContextMenuItems: NavItem[] = [
         title: 'Settings',
         href: route('admin.settings.profile.edit'),
         icon: Settings,
+    },
+    {
+        title: 'Activity Logs',
+        href: route('admin.activities.index'),
+        icon: ActivitySquare,
     },
 ];

@@ -81,6 +81,16 @@
                 "name": "create_roles",
                 "description": "Create the Roles"
             }
+        ],
+        "activities": [
+            {
+                "name": "view_other_activities",
+                "description": "View activity logs of other users"
+            },
+            {
+                "name": "view_other_activity_details",
+                "description": "View detailed information about specific activities of other users"
+            }
         ]
     },
     "roles": {
