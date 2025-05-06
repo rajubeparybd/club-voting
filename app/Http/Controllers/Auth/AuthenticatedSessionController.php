@@ -33,6 +33,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        activity()
+            ->causedBy(auth()->user())
+            ->event('login')
+            ->log(sprintf('Login to the system using %s ip.', $request->ip()));
+
         // Get authenticated user
         $user = auth()->user();
         $allRoles = $user->roles->filter(function ($role) {
@@ -53,6 +58,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        activity()
+            ->causedBy(auth()->user())
+            ->event('logout')
+            ->log(sprintf('Logout from the system using %s ip.', $request->ip()));
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\ActivityResource;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Activitylog\Models\Activity;
@@ -29,16 +28,19 @@ class ActivityController extends Controller
 
         $allActivities = $permissions
             ? Activity::orderBy('created_at', 'desc')->get()
-            : null;
-
+            : NULL;
 
         return Inertia::render('admin/activities/index', [
             'personalActivities' => ActivityResource::collection($personalActivities),
-            'allUsersActivities' => $permissions
+
+            'allUsersActivities'       => $permissions
                 ? ActivityResource::collection($allActivities)
-                : null,
-            'events' => [...$personalActivities->pluck('event')->unique()],
-            'canViewOtherActivities' => $permissions,
+                : NULL,
+            'personalActivitiesEvents' => [...$personalActivities->pluck('event')->unique()],
+            'allUsersActivitiesEvents' => $permissions
+                ? [...$allActivities->pluck('event')->unique()]
+                : NULL,
+            'canViewOtherActivities'   => $permissions,
         ]);
     }
 

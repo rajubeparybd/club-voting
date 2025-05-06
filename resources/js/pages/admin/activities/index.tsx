@@ -6,6 +6,7 @@ import DataTable, { DataTableColumnHeader, DataTableFilter } from '@/components/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AppLayout from '@/layouts/admin/app-layout';
+import { formatFilter } from '@/lib/utils';
 import { BreadcrumbItem, User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
@@ -23,26 +24,25 @@ interface Activity {
 interface Props {
     personalActivities: { data: Activity[] };
     allUsersActivities: { data: Activity[] } | null;
-    events: string[];
+    personalActivitiesEvents: string[];
+    allUsersActivitiesEvents: string[] | null;
     canViewOtherActivities: boolean;
 }
 
-export default function ActivitiesIndex({ personalActivities, allUsersActivities, events, canViewOtherActivities }: Props) {
+export default function ActivitiesIndex({
+    personalActivities,
+    allUsersActivities,
+    personalActivitiesEvents,
+    allUsersActivitiesEvents,
+    canViewOtherActivities,
+}: Props) {
     useFlashNotifications();
     const [activeTab, setActiveTab] = useState<string>('personal');
 
     const personalData = useMemo(() => personalActivities.data, [personalActivities.data]);
     const allData = useMemo(() => allUsersActivities?.data || [], [allUsersActivities?.data]);
-
-    const eventsFilter = useMemo(
-        () =>
-            events.map((item) => {
-                if (!item) item = 'all';
-                const formattedItem = item?.slice(0, 1).toUpperCase() + item?.slice(1);
-                return { label: formattedItem, value: item };
-            }),
-        [events],
-    );
+    const personalActivitiesEventsFilter = useMemo(() => formatFilter(personalActivitiesEvents), [personalActivitiesEvents]);
+    const allUsersActivitiesEventsFilter = useMemo(() => formatFilter(allUsersActivitiesEvents || []), [allUsersActivitiesEvents]);
 
     const columns: ColumnDef<Activity>[] = [
         {
@@ -91,7 +91,7 @@ export default function ActivitiesIndex({ personalActivities, allUsersActivities
         event: {
             label: 'Event',
             type: 'select',
-            options: eventsFilter,
+            options: personalActivitiesEventsFilter,
             className: 'md:w-64',
         },
     };
@@ -106,7 +106,7 @@ export default function ActivitiesIndex({ personalActivities, allUsersActivities
         event: {
             label: 'Event',
             type: 'select',
-            options: eventsFilter,
+            options: allUsersActivitiesEventsFilter,
             className: 'md:w-64',
         },
     };

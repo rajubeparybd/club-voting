@@ -73,3 +73,15 @@ export const formatPatternToText = (pattern: string, capitalize = true) => {
 export const formatTextToPattern = (text: string) => {
     return text.toLowerCase().replace(/\s+/g, '_');
 };
+
+/**
+ * Format a filter
+ * @param {string[]} filters - The filters to format
+ * @returns {string[]} The formatted filters
+ */
+export const formatFilter = (filters: string[]) => {
+    return ['all', ...filters].map((item) => {
+        const formattedItem = item?.slice(0, 1).toUpperCase() + item?.slice(1);
+        return { label: formattedItem, value: item };
+    });
+};
