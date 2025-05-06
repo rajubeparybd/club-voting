@@ -189,6 +189,7 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
             label: 'Search',
             placeholder: 'Search by name, email, or student ID',
             type: 'global',
+            className: 'flex-1',
         },
         roles: {
             label: 'Role',

@@ -271,6 +271,7 @@ export interface DataTableFilter {
     type: "select" | "input" | "global";
     options?: { label: string; value: string }[];
     placeholder?: string;
+    className?: string;
 }
 
 interface DataTableProps<TData, TValue> {
@@ -321,23 +322,23 @@ export default function DataTable<TData, TValue>({
 
   return (
     <>
-    <div className="flex items-center py-4 gap-2">
+    <div className="flex items-center py-4 gap-2 justify-between">
         {/* Render filters based on the filters prop */}
         {filters && Object.entries(filters).length > 0 && (
-          <div className={cn("flex flex-wrap items-center gap-2", showFilters ? "block" : "hidden md:flex")}>
+          <div className={cn("flex-wrap gap-2 hidden items-center w-full", showFilters ? "block" : "hidden md:flex")}>
             {Object.entries(filters).map(([key, filter]) => {
               const column = table.getColumn(key)
 
               if (!column) return null
 
               return (
-                <div key={key} className="flex items-center gap-2">
+                <div key={key} className={cn("flex items-center gap-2", filter.className)}>
                   {filter.type === "input" && (
                     <Input
                       placeholder={filter.placeholder ?? `Filter by ${filter.label.toLowerCase()}...`}
                       value={(column.getFilterValue() as string) ?? ""}
                       onChange={(event) => column.setFilterValue(event.target.value)}
-                      className="w-full md:max-w-[200px] mb-2"
+                      className="mb-2"
                     />
                   )}
                 {filter.type === "global" && (
@@ -345,7 +346,7 @@ export default function DataTable<TData, TValue>({
                       placeholder={filter.placeholder ?? `Filter by ${filter.label.toLowerCase()}...`}
                       value={globalFilter}
                       onChange={(event) => setGlobalFilter(event.target.value)}
-                      className="w-full md:max-w-[200px] mb-2"
+                      className="mb-2"
                     />
                   )}
                   {/* TODO: Select Filter Not Working. Fix it. */}
@@ -356,7 +357,7 @@ export default function DataTable<TData, TValue>({
                         column.setFilterValue(value === "all" ? "" : value)
                       }
                     >
-                      <SelectTrigger className="w-full md:w-[180px] mb-2">
+                      <SelectTrigger className="mb-2">
                         <SelectValue placeholder={filter.placeholder ?? `Filter by ${filter.label.toLowerCase()}...`} />
                       </SelectTrigger>
                       <SelectContent>
@@ -374,50 +375,51 @@ export default function DataTable<TData, TValue>({
           </div>
         )}
 
-        {/* Show/hide filters on mobile */}
-        {filters && Object.entries(filters).length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className="md:hidden"
-          >
-            <FilterIcon className="mr-2 size-4" />
-            {showFilters ? "Hide" : "Show"} Filters
-          </Button>
-        )}
-
-        {/* Column visibility dropdown */}
-        {table.getAllColumns().some(column => column.getCanHide()) && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              <ColumnsIcon className="size-4" />
+        <div className="flex flex-1 items-center gap-2">
+            {/* Show/hide filters on mobile */}
+            {filters && Object.entries(filters).length > 0 && (
+            <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="md:hidden mb-2"
+            >
+                <FilterIcon className="mr-2 size-4" />
+                {showFilters ? "Hide" : "Show"} Filters
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter(
-                (column) => column.getCanHide()
-              )
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {formatPatternToText(column.id)}
-                  </DropdownMenuCheckboxItem>
-                )
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+            )}
+
+            {/* Column visibility dropdown */}
+            {table.getAllColumns().some(column => column.getCanHide()) && (
+                <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="mb-2">
+                    <ColumnsIcon className="size-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    {table
+                    .getAllColumns()
+                    .filter(
+                        (column) => column.getCanHide()
+                    )
+                    .map((column) => {
+                        return (
+                        <DropdownMenuCheckboxItem
+                            key={column.id}
+                            className="capitalize"
+                            checked={column.getIsVisible()}
+                            onCheckedChange={(value) =>
+                            column.toggleVisibility(!!value)
+                            }
+                        >
+                            {formatPatternToText(column.id)}
+                        </DropdownMenuCheckboxItem>
+                        )
+                    })}
+                </DropdownMenuContent>
+                </DropdownMenu>
+            )}
+        </div>
     </div>
     <div className="rounded-md border">
       <Table>
