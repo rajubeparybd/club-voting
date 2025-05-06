@@ -18,13 +18,27 @@ class ActivityController extends Controller
      */
     public function index(): Response
     {
-        $activities = Activity::causedBy(User::find(auth()->id()))
+        $permissions = auth()->user()->hasAllPermissions([
+            'view_other_activities',
+            'view_other_activity_details',
+        ]);
+
+        $personalActivities = Activity::causedBy(User::find(auth()->id()))
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $allActivities = $permissions
+            ? Activity::orderBy('created_at', 'desc')->get()
+            : null;
+
+
         return Inertia::render('admin/activities/index', [
-            'activities' => ActivityResource::collection($activities),
-            'events' => [...$activities->pluck('event')->unique()],
+            'personalActivities' => ActivityResource::collection($personalActivities),
+            'allUsersActivities' => $permissions
+                ? ActivityResource::collection($allActivities)
+                : null,
+            'events' => [...$personalActivities->pluck('event')->unique()],
+            'canViewOtherActivities' => $permissions,
         ]);
     }
 

@@ -1,13 +1,15 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import CheckUserPermission from '@/components/ui/check-user-permission';
 import DataTable, { DataTableColumnHeader, DataTableFilter } from '@/components/ui/data-table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AppLayout from '@/layouts/admin/app-layout';
 import { BreadcrumbItem, User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 interface Activity {
     id: number;
@@ -19,13 +21,19 @@ interface Activity {
 }
 
 interface Props {
-    activities: { data: Activity[] };
+    personalActivities: { data: Activity[] };
+    allUsersActivities: { data: Activity[] } | null;
     events: string[];
+    canViewOtherActivities: boolean;
 }
 
-export default function ActivitiesIndex({ activities, events }: Props) {
+export default function ActivitiesIndex({ personalActivities, allUsersActivities, events, canViewOtherActivities }: Props) {
     useFlashNotifications();
-    const personalData = useMemo(() => activities.data, [activities.data]);
+    const [activeTab, setActiveTab] = useState<string>('personal');
+
+    const personalData = useMemo(() => personalActivities.data, [personalActivities.data]);
+    const allData = useMemo(() => allUsersActivities?.data || [], [allUsersActivities?.data]);
+
     const eventsFilter = useMemo(
         () =>
             events.map((item) => {
@@ -71,33 +79,27 @@ export default function ActivitiesIndex({ activities, events }: Props) {
             enableSorting: true,
             enableHiding: true,
         },
-        // {
-        //     id: 'actions',
-        //     header: ({ column }) => <DataTableColumnHeader column={column} title="Actions" />,
-        //     enableHiding: false,
-        //     enableSorting: false,
-        //     cell: ({ row }) => {
-        //         const activity = row.original;
-        //         return (
-        //             <DataTableActions
-        //                 actions={[
-        //                     {
-        //                         permission: 'view_activity_details',
-        //                         title: 'View Details',
-        //                         icon: <Eye className="mr-2 size-4" />,
-        //                         onClick: () => console.log('View activity details', activity.id),
-        //                     },
-        //                 ]}
-        //             />
-        //         );
-        //     },
-        // },
     ];
 
     const personalFilters: Record<string, DataTableFilter> = {
         description: {
             label: 'Search',
             placeholder: 'Search your activities...',
+            type: 'global',
+            className: 'flex-1',
+        },
+        event: {
+            label: 'Event',
+            type: 'select',
+            options: eventsFilter,
+            className: 'md:w-64',
+        },
+    };
+
+    const allFilters: Record<string, DataTableFilter> = {
+        description: {
+            label: 'Search',
+            placeholder: 'Search all activities...',
             type: 'global',
             className: 'flex-1',
         },
@@ -141,21 +143,57 @@ export default function ActivitiesIndex({ activities, events }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Activity Logs" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <ManagementPageHeader title="Activity Logs" description="View all activities in the system.">
+                <ManagementPageHeader title="Activity Logs" description="View activity logs in the system.">
                     <Button variant="outline" onClick={() => window.location.reload()}>
                         Refresh
                     </Button>
                 </ManagementPageHeader>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Activities</CardTitle>
-                        <CardDescription>A record of all activities performed in the system.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <DataTable columns={columns} data={personalData} filters={personalFilters} />
-                    </CardContent>
-                </Card>
+                <CheckUserPermission
+                    permission={['view_other_activities', 'view_other_activity_details']}
+                    fallback={
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Activities</CardTitle>
+                                <CardDescription>A record of activities performed by you in the system.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <DataTable columns={columns} data={personalData} filters={personalFilters} />
+                            </CardContent>
+                        </Card>
+                    }
+                >
+                    <Tabs defaultValue="personal" onValueChange={setActiveTab} value={activeTab} className="w-full">
+                        <TabsList className="mb-4">
+                            <TabsTrigger value="personal">Personal Activities</TabsTrigger>
+                            {canViewOtherActivities && <TabsTrigger value="all">All Users Activities</TabsTrigger>}
+                        </TabsList>
+                        <TabsContent value="personal">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Activities</CardTitle>
+                                    <CardDescription>A record of activities performed by you in the system.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <DataTable columns={columns} data={personalData} filters={personalFilters} />
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        {canViewOtherActivities && (
+                            <TabsContent value="all">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Activities</CardTitle>
+                                        <CardDescription>A record of activities performed by all users in the system.</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <DataTable columns={columns} data={allData} filters={allFilters} />
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                        )}
+                    </Tabs>
+                </CheckUserPermission>
             </div>
         </AppLayout>
     );
