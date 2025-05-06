@@ -28,7 +28,9 @@ const personalInfoSchema = z.object({
     email: z.string().email('Invalid email address.'),
     department_id: z.string().min(1, 'Department is required.'),
     gender: z.string().min(1, 'Gender is required.'),
-    avatar: z.string().min(1, 'Avatar is required.'),
+    avatar: z.union([z.string().min(1, 'Please upload a profile picture.'), z.null()]).refine((val) => val !== null && val !== '', {
+        message: 'Profile picture is required. Please upload an image.',
+    }),
 });
 
 const passwordSchema = z
