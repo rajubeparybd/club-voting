@@ -3,7 +3,7 @@ import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, Side
 import { type NavItem } from '@/types';
 import { type ComponentPropsWithoutRef } from 'react';
 
-export function NavFooter({
+export function AdminNavFooter({
     items,
     className,
     ...props

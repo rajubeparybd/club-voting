@@ -96,7 +96,7 @@ function NavMenuItem({ item }: { item: NavItem }) {
     );
 }
 
-export function NavMain({ items = [] }: { items: NavItem[] }) {
+export function AdminNavMain({ items = [] }: { items: NavItem[] }) {
     return (
         <SidebarGroup className="px-2 py-0">
             <SidebarGroupLabel>Platform</SidebarGroupLabel>

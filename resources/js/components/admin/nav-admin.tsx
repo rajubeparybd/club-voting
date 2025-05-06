@@ -1,13 +1,13 @@
+import { AdminInfo } from '@/components/admin/admin-info';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
-import { UserInfo } from '@/components/admin/user-info';
-import { UserMenuContent } from '@/components/admin/user-menu-content';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { ChevronsUpDown } from 'lucide-react';
+import { AdminMenuContent } from './admin-menu-content';
 
-export function NavUser() {
+export function NavAdmin() {
     const { auth } = usePage<SharedData>().props;
     const { state } = useSidebar();
     const isMobile = useIsMobile();
@@ -18,7 +18,7 @@ export function NavUser() {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton size="lg" className="text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent group">
-                            <UserInfo user={auth.user} />
+                            <AdminInfo user={auth.user} />
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
@@ -27,7 +27,7 @@ export function NavUser() {
                         align="end"
                         side={isMobile ? 'bottom' : state === 'collapsed' ? 'left' : 'bottom'}
                     >
-                        <UserMenuContent user={auth.user} />
+                        <AdminMenuContent user={auth.user} />
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

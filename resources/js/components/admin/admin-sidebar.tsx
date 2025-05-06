@@ -1,13 +1,13 @@
-import { NavFooter } from '@/components/admin/nav-footer';
-import { NavMain } from '@/components/admin/nav-main';
-import { NavUser } from '@/components/admin/nav-user';
+import { AdminNavFooter } from '@/components/admin/admin-nav-footer';
+import { AdminNavMain } from '@/components/admin/admin-nav-main';
+import { NavAdmin } from '@/components/admin/nav-admin';
 import AppLogo from '@/components/app/app-logo';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { adminFooterNavItems, adminSidebarNavItems } from '@/config/admin-menu';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
-export function AppSidebar() {
+export function AdminSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -23,12 +23,12 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={adminSidebarNavItems} />
+                <AdminNavMain items={adminSidebarNavItems} />
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={adminFooterNavItems} className="mt-auto" />
-                <NavUser />
+                <AdminNavFooter items={adminFooterNavItems} className="mt-auto" />
+                <NavAdmin />
             </SidebarFooter>
         </Sidebar>
     );

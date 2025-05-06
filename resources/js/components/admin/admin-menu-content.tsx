@@ -10,7 +10,7 @@ interface UserMenuContentProps {
     user: User;
 }
 
-export function UserMenuContent({ user }: UserMenuContentProps) {
+export function AdminMenuContent({ user }: UserMenuContentProps) {
     const cleanup = useMobileNavigation();
 
     return (
