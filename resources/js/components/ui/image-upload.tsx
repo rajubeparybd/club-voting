@@ -11,6 +11,8 @@ interface ImageUploadProps {
     onChange: (value: string) => void;
     onFileChange?: (file: File | null) => void;
     disabled?: boolean;
+    className?: string;
+    previewImage?: string;
 }
 
 export const ImageUpload = ({
@@ -19,10 +21,12 @@ export const ImageUpload = ({
     onFileChange,
     disabled,
     hasError,
+    className,
+    previewImage
 }: ImageUploadProps) => {
     const [isMounted, setIsMounted] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
-    const [preview, setPreview] = useState<string | null>(null);
+    const [preview, setPreview] = useState<string | null>(previewImage || null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Prevent hydration errors
@@ -130,7 +134,7 @@ export const ImageUpload = ({
         <div className="w-full space-y-4">
             <div className="flex w-full items-center justify-center">
                 {preview ? (
-                    <div className="relative h-64 w-full overflow-hidden rounded-lg">
+                    <div className={cn("relative h-64 w-full overflow-hidden rounded-lg", className)}>
                         <div className="absolute top-2 right-2 z-10">
                             <Button
                                 type="button"
@@ -169,7 +173,8 @@ export const ImageUpload = ({
                             isDragging
                                 ? 'border-indigo-500 bg-indigo-500/10'
                                 : 'border-gray-600 bg-gray-800/50 hover:bg-gray-700/50',
-                            hasError && 'border-red-500 bg-red-500/10'
+                            hasError && 'border-red-500 bg-red-500/10',
+                            className
                         )}
                         onClick={() => fileInputRef.current?.click()}
                         onDragOver={handleDragOver}

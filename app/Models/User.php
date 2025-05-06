@@ -49,6 +49,15 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * Register the media collections
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')
+            ->singleFile();
+    }
+
+    /**
      * Get the clubs that the user belongs to.
      */
     public function clubs(): BelongsToMany

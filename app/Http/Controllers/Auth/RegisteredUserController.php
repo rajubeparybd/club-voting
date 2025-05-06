@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\MediaHelper;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,10 +13,54 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Str;
 
 class RegisteredUserController extends Controller
 {
+
+    /**
+     * Store the registration data from the final step.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'student_id'    => 'required|string|max:20|unique:'.User::class,
+            'intake'        => 'required|string',
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'gender'        => 'required|in:M,F,O',
+            'department_id' => 'required|exists:departments,id',
+            'avatar'        => 'required|string',
+            'password'      => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'student_id'    => $validated['student_id'],
+            'intake'        => $validated['intake'],
+            'name'          => $validated['name'],
+            'email'         => $validated['email'],
+            'gender'        => $validated['gender'],
+            'department_id' => $validated['department_id'],
+            'password'      => Hash::make($validated['password']),
+        ]);
+
+        // Handle avatar upload using the helper
+        MediaHelper::addMediaFromBase64($user, $validated['avatar'], 'avatar', 'avatar-' . $user->id);
+
+        $user->assignRole('user');
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        activity()
+            ->causedBy($user)
+            ->event('register')
+            ->log('Register new account using this IP: '.$request->ip());
+
+        return to_route('user.dashboard');
+    }
+
     /**
      * Show the registration page.
      */
@@ -24,31 +69,4 @@ class RegisteredUserController extends Controller
         return Inertia::render('auth/register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $user->assignRole('user');
-
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return to_route('user.dashboard');
-    }
 }

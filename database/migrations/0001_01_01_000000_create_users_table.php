@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->nullable();
             $table->date('birth_date')->nullable();
-            $table->enum('gender', ['M', 'F', 'Other'])->default('M')->nullable();
+            $table->enum('gender', ['M', 'F', 'O'])->default('M')->nullable();
             $table->string('intake')->nullable();
             $table->foreignId('department_id')->nullable()->constrained('departments');
             $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
