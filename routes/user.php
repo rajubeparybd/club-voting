@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\User\Settings\ProfileController;
 use App\Http\Controllers\User\Settings\PasswordController;
+use App\Http\Controllers\ActivityController;
 
 Route::redirect('/', 'dashboard')->name('index');
 
@@ -25,3 +26,6 @@ Route::prefix('settings')->name('settings.')->group(function () {
         return Inertia::render('user/settings/appearance');
     })->name('appearance');
 });
+
+// Activity logs
+Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');

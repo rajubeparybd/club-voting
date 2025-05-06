@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\ActivityResource;
@@ -30,7 +30,7 @@ class ActivityController extends Controller
             ? Activity::orderBy('created_at', 'desc')->get()
             : NULL;
 
-        return Inertia::render('admin/activities/index', [
+        return Inertia::render('common/activities/index', [
             'personalActivities' => ActivityResource::collection($personalActivities),
 
             'allUsersActivities'       => $permissions

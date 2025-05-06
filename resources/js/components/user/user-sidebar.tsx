@@ -7,7 +7,7 @@ import { userFooterNavItems, userSidebarNavItems } from '@/config/user-menu';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
-export function AppSidebar() {
+export function UserSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>

@@ -5,8 +5,8 @@ import HeadingSmall from '@/components/app/heading-small';
 import { type BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
 
-import AppLayout from '@/layouts/user/app-layout';
 import SettingsLayout from '@/layouts/user/settings/layout';
+import AppLayout from '@/layouts/user/user-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
