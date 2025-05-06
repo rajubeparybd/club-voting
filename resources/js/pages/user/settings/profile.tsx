@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import ProcessingButton from '@/components/ui/processing-button';
-import SettingsLayout from '@/layouts/user/settings/layout';
-import AppLayout from '@/layouts/user/user-layout';
+import UserSettingsLayout from '@/layouts/user/settings/user-settings-layout';
+import UserAppLayout from '@/layouts/user/user-layout';
 import { route } from 'ziggy-js';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -41,10 +41,10 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <UserAppLayout breadcrumbs={breadcrumbs}>
             <Head title="Profile settings" />
 
-            <SettingsLayout>
+            <UserSettingsLayout>
                 <div className="space-y-6">
                     <HeadingSmall title="Profile information" description="Update your name and email address" />
 
@@ -121,7 +121,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                 </div>
 
                 {/* <DeleteUser /> */}
-            </SettingsLayout>
-        </AppLayout>
+            </UserSettingsLayout>
+        </UserAppLayout>
     );
 }

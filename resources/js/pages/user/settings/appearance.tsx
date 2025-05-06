@@ -5,8 +5,8 @@ import HeadingSmall from '@/components/app/heading-small';
 import { type BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
 
-import SettingsLayout from '@/layouts/user/settings/layout';
-import AppLayout from '@/layouts/user/user-layout';
+import UserSettingsLayout from '@/layouts/user/settings/user-settings-layout';
+import UserAppLayout from '@/layouts/user/user-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -17,15 +17,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Appearance() {
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <UserAppLayout breadcrumbs={breadcrumbs}>
             <Head title="Appearance settings" />
 
-            <SettingsLayout>
+            <UserSettingsLayout>
                 <div className="space-y-6">
                     <HeadingSmall title="Appearance settings" description="Update your account's appearance settings" />
                     <AppearanceTabs />
                 </div>
-            </SettingsLayout>
-        </AppLayout>
+            </UserSettingsLayout>
+        </UserAppLayout>
     );
 }

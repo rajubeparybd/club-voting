@@ -5,7 +5,7 @@ import { FormEventHandler } from 'react';
 
 import { Button } from '@/components/ui/button';
 import TextLink from '@/components/ui/text-link';
-import AuthLayout from '@/layouts/auth-layout';
+import AuthLayout from '@/layouts/auth/auth-layout';
 
 export default function VerifyEmail({ status }: { status?: string }) {
     const { post, processing } = useForm({});
