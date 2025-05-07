@@ -107,6 +107,7 @@ interface ClubPosition {
 interface ClubUser {
     id: number;
     name: string;
+    student_id: string | null;
     email: string;
     avatar: string | null;
     email_verified_at: string | null;
@@ -282,6 +283,7 @@ function DataTable<T>({ columns, data }: { columns: Column<T>[]; data: T[] }) {
 }
 
 export default function ClubShow({ club }: ClubShowProps) {
+    console.log(club);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [positionFilter, setPositionFilter] = useState('all');
@@ -397,6 +399,11 @@ export default function ClubShow({ club }: ClubShowProps) {
     ];
 
     const memberColumns: Column<ClubUser>[] = [
+        {
+            key: 'student_id',
+            header: 'Student ID',
+            cell: (user) => <span>{user.student_id || '-'}</span>,
+        },
         {
             key: 'name',
             header: 'Name',
