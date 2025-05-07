@@ -1,4 +1,5 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +24,7 @@ interface Props {
 
 export default function UsersIndex({ users, roles = [], departments = [] }: Props) {
     const usersData = users.data;
+    console.log(usersData);
 
     const [isLoading, setIsLoading] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState(false);
@@ -68,6 +70,18 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
             cell: ({ row }) => <div>{row.getValue('email')}</div>,
             enableSorting: true,
             enableHiding: true,
+        },
+        {
+            accessorKey: 'avatar',
+            header: ({ column }) => <DataTableColumnHeader column={column} title="Avatar" />,
+            cell: ({ row }) => (
+                <Avatar className="border-primary size-8 rounded-md border">
+                    <AvatarImage src={row.getValue('avatar')} alt={row.getValue('name')} />
+                    <AvatarFallback>{row.getValue('name')?.toString()?.charAt(0)}</AvatarFallback>
+                </Avatar>
+            ),
+            enableSorting: false,
+            enableHiding: false,
         },
         {
             accessorKey: 'phone',
