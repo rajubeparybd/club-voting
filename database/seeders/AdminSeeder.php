@@ -19,7 +19,6 @@ class AdminSeeder extends Seeder
             'email' => 'admin@gmail.com',
             'password' => Hash::make('12345678'),
             'email_verified_at' => now(),
-            'student_id' => 'A0001',
         ]);
 
         $admin->assignRole('admin');
@@ -29,8 +28,6 @@ class AdminSeeder extends Seeder
             'email' => 'clubmanager@gmail.com',
             'password' => Hash::make('12345678'),
             'email_verified_at' => now(),
-            'student_id' => 'A0002',
-            'department_id' => 2,
         ]);
 
         $clubManager->assignRole('c_admin_club_manager');
