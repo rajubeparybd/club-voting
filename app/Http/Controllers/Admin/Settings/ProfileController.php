@@ -50,6 +50,8 @@ class ProfileController extends Controller
 
         $user->save();
 
+        $this->logActivity(sprintf('updated profile'), 'settings');
+
         return to_route('admin.settings.profile.edit')->with('success', 'Profile updated successfully');
     }
 
@@ -71,6 +73,7 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        $this->logActivity(sprintf('deleted account'), 'settings');
         return redirect('/');
     }
 }

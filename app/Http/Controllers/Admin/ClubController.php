@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClubRequest;
 use App\Models\Club;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -86,6 +87,10 @@ class ClubController extends Controller
 
         $club = Club::create($validated);
 
+        if ($club) {
+            $this->logActivity(sprintf('%s created a new %s club', auth()->user()->name, $club->name), 'club');
+        }
+
         // Create positions
         if (!empty($positions)) {
             foreach ($positions as $position) {
@@ -163,6 +168,10 @@ class ClubController extends Controller
 
         $club->update($validated);
 
+        if ($club) {
+            $this->logActivity(sprintf('%s updated the %s', auth()->user()->name, $club->name), 'club');
+        }
+
         // Update positions
         if (!empty($positions)) {
             // Handle positions sent as JSON string
@@ -203,13 +212,16 @@ class ClubController extends Controller
 
         $club->delete();
 
+        if ($club) {
+            $this->logActivity(sprintf('%s deleted the %s', auth()->user()->name, $club->name), 'club');
+        }
         return to_route('admin.clubs.index')->with('success', 'Club deleted successfully.');
     }
 
     /**
      * Update a member's status in the club.
      */
-    public function updateMemberStatus(Request $request, Club $club, $userId)
+    public function updateMemberStatus(Request $request, Club $club, User $user)
     {
         $response = $this->checkAuthorization('edit_club_users', $request);
         if ($response) {
@@ -220,9 +232,13 @@ class ClubController extends Controller
             'status' => 'required|in:active,inactive,pending,banned',
         ]);
 
-        $club->users()->updateExistingPivot($userId, [
+        $club->users()->updateExistingPivot($user->id, [
             'status' => $request->status,
         ]);
+
+        if ($club) {
+            $this->logActivity(sprintf('%s updated the status of %s in the %s', auth()->user()->name, $user->name, $club->name), 'club');
+        }
 
         return back()->with('success', 'Member status updated successfully.');
     }
@@ -230,7 +246,7 @@ class ClubController extends Controller
     /**
      * Update a member's position assignment in the club.
      */
-    public function updateMemberPosition(Request $request, Club $club, $userId)
+    public function updateMemberPosition(Request $request, Club $club, User $user)
     {
         $response = $this->checkAuthorization('edit_club_users', $request);
         if ($response) {
@@ -241,25 +257,31 @@ class ClubController extends Controller
             'position_id' => 'nullable|exists:club_positions,id,club_id,' . $club->id,
         ]);
 
-        $club->users()->updateExistingPivot($userId, [
+        $club->users()->updateExistingPivot($user->id, [
             'position_id' => $request->position_id,
         ]);
 
+        if ($club) {
+            $this->logActivity(sprintf('%s updated the position of %s in the %s', auth()->user()->name, $user->name, $club->name), 'club');
+        }
         return back()->with('success', 'Member position updated successfully.');
     }
 
     /**
      * Remove a member from the club.
      */
-    public function removeMember(Club $club, $userId, Request $request)
+    public function removeMember(Club $club, User $user, Request $request)
     {
-        $response = $this->checkAuthorization('delete_club_users');
+        $response = $this->checkAuthorization('delete_club_users', $request);
         if ($response) {
             return $response;
         }
 
-        $club->users()->detach($userId);
+        $club->users()->detach($user->id);
 
+        if ($club) {
+            $this->logActivity(sprintf('%s removed %s from the %s', auth()->user()->name, $user->name, $club->name), 'club');
+        }
         return back()->with('success', 'Member removed from club successfully.');
     }
 }

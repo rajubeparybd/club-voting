@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RoleRequest;
+use App\Support\RoleManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,6 +14,8 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
+
+    use RoleManager;
 
     /**
      * Display a listing of the roles.
@@ -44,6 +47,34 @@ class RoleController extends Controller
     }
 
     /**
+     * Store a newly created role in storage.
+     */
+    public function store(RoleRequest $request): RedirectResponse
+    {
+        $response = $this->checkAuthorization('create_roles', $request, true, 'admin.dashboard');
+
+        if ($response) {
+            return $response;
+        }
+
+        $role = Role::create([
+            'name'       => $request->name,
+            'guard_name' => 'web',
+        ]);
+
+        if ($role) {
+            $this->logActivity(sprintf('%s created a new %s role', auth()->user()->name, $this->formatRoleToText($role->name)), 'role');
+        }
+
+        if ($request->permissions) {
+            $role->syncPermissions($request->permissions);
+        }
+
+        return redirect()->route('admin.roles.index')
+            ->with('success', 'Role created successfully!');
+    }
+
+    /**
      * Show the form for creating a new role.
      */
     public function create(Request $request): Response
@@ -62,30 +93,6 @@ class RoleController extends Controller
     }
 
     /**
-     * Store a newly created role in storage.
-     */
-    public function store(RoleRequest $request): RedirectResponse
-    {
-        $response = $this->checkAuthorization('create_roles', $request, true, 'admin.dashboard');
-
-        if ($response) {
-            return $response;
-        }
-
-        $role = Role::create([
-            'name' => $request->name,
-            'guard_name' => 'web',
-        ]);
-
-        if ($request->permissions) {
-            $role->syncPermissions($request->permissions);
-        }
-
-        return redirect()->route('admin.roles.index')
-            ->with('success', 'Role created successfully!');
-    }
-
-    /**
      * Show the form for editing the specified role.
      */
     public function edit(Request $request, Role $role): Response
@@ -100,7 +107,7 @@ class RoleController extends Controller
         $role->load('permissions');
 
         return Inertia::render('admin/roles/edit', [
-            'role' => $role,
+            'role'        => $role,
             'permissions' => $permissions,
         ]);
     }
@@ -116,7 +123,7 @@ class RoleController extends Controller
             return $response;
         }
 
-       if ($role->name === 'admin' || $role->name === 'user') {
+        if ($role->name === 'admin' || $role->name === 'user') {
             return back()->with('error', 'The admin role cannot be renamed.');
         }
 
@@ -124,6 +131,9 @@ class RoleController extends Controller
             'name' => $request->name,
         ]);
 
+        if ($role) {
+            $this->logActivity(sprintf('%s updated the %s role', auth()->user()->name, $this->formatRoleToText($role->name)), 'role');
+        }
         if ($request->permissions) {
             $role->syncPermissions($request->permissions);
         }
@@ -149,6 +159,11 @@ class RoleController extends Controller
 
         $role->delete();
 
+        if ($role) {
+            $this->logActivity(sprintf('%s deleted the %s role', auth()->user()->name, $this->formatRoleToText($role->name)), 'role');
+        }
+
         return back()->with('success', 'Role deleted successfully!');
     }
+
 }

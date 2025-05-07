@@ -63,9 +63,13 @@ class UserController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
+
+
         if ($request->roles) {
             $user->syncRoles($request->roles);
         }
+
+        $this->logActivity(sprintf('%s created %s user', auth()->user()->name, $user->name), 'user');
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User created successfully!');
@@ -111,6 +115,8 @@ class UserController extends Controller
             $user->syncRoles($request->roles);
         }
 
+        $this->logActivity(sprintf('%s updated %s user', auth()->user()->name, $user->name), 'user');
+
         return redirect()->route('admin.users.index')
             ->with('success', 'User updated successfully!');
     }
@@ -133,6 +139,8 @@ class UserController extends Controller
 
         $user->delete();
 
+        $this->logActivity(sprintf('%s deleted %s user', auth()->user()->name, $user->name), 'user');
+
         return back()->with('success', 'User deleted successfully!');
     }
 
@@ -150,6 +158,8 @@ class UserController extends Controller
         ]);
 
         $user->syncRoles($validated['roles'] ?? []);
+
+        $this->logActivity(sprintf('%s updated %s user roles', auth()->user()->name, $user->name), 'user');
 
         return back()->with('success', 'User roles updated successfully!');
     }

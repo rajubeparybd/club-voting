@@ -17,7 +17,7 @@ import { getNoImage } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { ArrowLeft, Award, Ban, CalendarDays, Edit, Lock, LogOut, MoreHorizontal, Search, Shield, Users } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Award, Ban, CalendarDays, Edit, Lock, LogOut, MoreHorizontal, Search, Shield, Users } from 'lucide-react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { route } from 'ziggy-js';
@@ -94,6 +94,57 @@ function PositionAssignmentDialog({ open, onOpenChange, clubPositions, userId, o
     );
 }
 
+// Remove Member Dialog Component
+interface RemoveMemberDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    userId: number;
+    userName: string;
+    onConfirm: (userId: number) => void;
+    isLoading: boolean;
+}
+
+function RemoveMemberDialog({ open, onOpenChange, userId, userName, onConfirm, isLoading }: RemoveMemberDialogProps) {
+    const handleConfirm = () => {
+        onConfirm(userId);
+        onOpenChange(false);
+    };
+
+    return (
+        <Dialog
+            open={open}
+            onOpenChange={(newOpen) => {
+                if (!isLoading) {
+                    onOpenChange(newOpen);
+                }
+            }}
+        >
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Remove Member</DialogTitle>
+                    <DialogDescription>
+                        Are you sure you want to remove <span className="font-medium">{userName}</span> from this club?
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="flex items-center gap-2 rounded-md bg-amber-50 p-3 text-amber-800">
+                    <AlertCircle className="size-5 text-amber-600" />
+                    <p className="text-sm">This action cannot be undone. The member will lose their position and access to this club.</p>
+                </div>
+
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+                        Cancel
+                    </Button>
+                    <ProcessingButton variant="destructive" processing={isLoading} onClick={handleConfirm}>
+                        {isLoading ? 'Removing...' : 'Remove Member'}
+                    </ProcessingButton>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 interface ClubPosition {
     id: number;
     club_id: number;
@@ -159,6 +210,7 @@ interface MemberActionsProps {
 
 function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, onRemoveMember, isLoading }: MemberActionsProps) {
     const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
+    const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
     const currentStatus = user.pivot.status || 'pending';
 
     return (
@@ -173,6 +225,15 @@ function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, 
                     setIsPositionDialogOpen(false);
                 }}
                 currentPositionId={user.pivot.position_id}
+            />
+
+            <RemoveMemberDialog
+                open={isRemoveDialogOpen}
+                onOpenChange={setIsRemoveDialogOpen}
+                userId={user.id}
+                userName={user.name}
+                onConfirm={onRemoveMember}
+                isLoading={isLoading}
             />
 
             <DropdownMenu>
@@ -233,7 +294,7 @@ function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, 
                             <DropdownMenuItem
                                 className="text-red-600 focus:text-red-600"
                                 disabled={isLoading}
-                                onClick={() => onRemoveMember(user.id)}
+                                onClick={() => setIsRemoveDialogOpen(true)}
                             >
                                 <LogOut className="mr-2 size-4" />
                                 Remove from Club
@@ -354,10 +415,6 @@ export default function ClubShow({ club }: ClubShowProps) {
 
     // Handle member removal
     const handleRemoveMember = (userId: number) => {
-        if (!confirm('Are you sure you want to remove this member from the club?')) {
-            return;
-        }
-
         setIsLoading(true);
 
         router.delete(route('admin.clubs.members.remove', { club: club.id, user: userId }), {
