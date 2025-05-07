@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import CheckUserPermission from '@/components/ui/check-user-permission';
 import { DataTablePagination } from '@/components/ui/data-table/pagination';
-import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -63,7 +62,6 @@ interface Props {
 }
 
 export default function ClubsIndex({ clubs }: Props) {
-    useFlashNotifications();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [isLoading, setIsLoading] = useState(false);

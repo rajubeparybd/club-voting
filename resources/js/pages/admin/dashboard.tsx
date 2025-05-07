@@ -1,5 +1,4 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -13,8 +12,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard() {
-    useFlashNotifications();
-
     return (
         <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />

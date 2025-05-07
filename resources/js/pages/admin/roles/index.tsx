@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import CheckUserPermission from '@/components/ui/check-user-permission';
 import { DataTablePagination } from '@/components/ui/data-table/pagination';
 import { DeleteConfirmationDialog } from '@/components/ui/DeleteConfirmationDialog';
-import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { BreadcrumbItem, PaginatedData, Role } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -18,7 +17,6 @@ interface Props {
 }
 
 export default function RolesIndex({ roles }: Props) {
-    useFlashNotifications();
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [perPage, setPerPage] = useState<string>('10');

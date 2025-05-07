@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { StatusBadge, StatusVariant } from '@/components/ui/status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { getNoImage } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
@@ -283,7 +282,6 @@ function DataTable<T>({ columns, data }: { columns: Column<T>[]; data: T[] }) {
 }
 
 export default function ClubShow({ club }: ClubShowProps) {
-    useFlashNotifications();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [positionFilter, setPositionFilter] = useState('all');

@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { BreadcrumbItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -54,8 +53,6 @@ interface EditClubProps {
 }
 
 export default function EditClub({ club }: EditClubProps) {
-    useFlashNotifications();
-
     const [clubImage, setClubImage] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 

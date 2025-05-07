@@ -6,7 +6,6 @@ import CheckUserPermission from '@/components/ui/check-user-permission';
 import DataTable, { DataTableActions, DataTableColumnHeader, DataTableFilter } from '@/components/ui/data-table';
 import { DeleteConfirmationDialog } from '@/components/ui/DeleteConfirmationDialog';
 import { StatusBadge } from '@/components/ui/status-badge';
-import useFlashNotifications from '@/hooks/use-flash-notifications';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { formatRoleToText } from '@/lib/utils';
 import { BreadcrumbItem, Department, Role, User } from '@/types';
@@ -23,7 +22,6 @@ interface Props {
 }
 
 export default function UsersIndex({ users, roles = [], departments = [] }: Props) {
-    useFlashNotifications();
     const usersData = users.data;
 
     const [isLoading, setIsLoading] = useState(false);

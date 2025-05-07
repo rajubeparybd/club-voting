@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import CheckUserPermission from '@/components/ui/check-user-permission';
 import DataTable, { DataTableColumnHeader, DataTableFilter } from '@/components/ui/data-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import useFlashNotifications from '@/hooks/use-flash-notifications';
 import CommonLayout from '@/layouts/common-layout';
 import { formatFilter } from '@/lib/utils';
 import { BreadcrumbItem, User } from '@/types';
@@ -36,7 +35,6 @@ export default function ActivitiesIndex({
     allUsersActivitiesEvents,
     canViewOtherActivities,
 }: Props) {
-    useFlashNotifications();
     const [activeTab, setActiveTab] = useState<string>('personal');
 
     const personalData = useMemo(() => personalActivities.data, [personalActivities.data]);
