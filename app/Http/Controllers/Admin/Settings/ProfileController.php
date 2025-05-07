@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Support\MediaHelper;
 
 class ProfileController extends Controller
 {
@@ -29,15 +30,27 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validated = $request->validated();
+        $user      = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Handle the avatar file upload if present
+        if ($request->hasFile('avatar_file')) {
+            $media = MediaHelper::isValidBase64Image($validated['avatar'])
+                ? MediaHelper::addMediaFromBase64($user, $validated['avatar'], 'avatar', $user->student_id)
+                : MediaHelper::addMediaFromUpload($user, $request->file('avatar_file'), 'avatar', $user->student_id);
+            unset($validated['avatar']);
+            unset($validated['avatar_file']);
         }
 
-        $request->user()->save();
+        $user->fill($validated);
 
-        return to_route('admin.settings.profile.edit');
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = NULL;
+        }
+
+        $user->save();
+
+        return to_route('admin.settings.profile.edit')->with('success', 'Profile updated successfully');
     }
 
     /**
