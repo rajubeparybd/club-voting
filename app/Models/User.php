@@ -35,6 +35,15 @@ class User extends Authenticatable implements HasMedia
     ];
 
     /**
+     * The attributes that should be appended to arrays.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'avatar',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
