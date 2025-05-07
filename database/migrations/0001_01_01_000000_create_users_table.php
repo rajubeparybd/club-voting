@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('student_id')->unique();
             $table->string('name')->nullable();
             $table->string('email')->unique();
+            $table->string('bio')->nullable();
             $table->string('phone')->nullable();
             $table->date('birth_date')->nullable();
             $table->enum('gender', ['M', 'F', 'O'])->default('M')->nullable();

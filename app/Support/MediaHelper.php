@@ -13,6 +13,20 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class MediaHelper {
     /**
+     * Validate if the given string is a valid base64 image.
+     *
+     * @param  string  $base64String
+     *
+     * @return bool
+     */
+    public static function isValidBase64Image(string $base64String)
+    {
+        $base64String = preg_replace('#^data:image/\w+;base64,#i', '', $base64String);
+        $base64String = trim($base64String);
+
+        return ! ($base64String == NULL);
+    }
+    /**
      * Add a base64 encoded image to a model's media collection
      *
      * @param  HasMedia     $model           The model to add media to

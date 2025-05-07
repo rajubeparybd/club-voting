@@ -4,6 +4,8 @@ namespace App\Http\Controllers\User\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Settings\ProfileUpdateRequest;
+use App\Models\Department;
+use App\Support\MediaHelper;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +15,7 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
+
     /**
      * Show the user's profile settings page.
      */
@@ -20,7 +23,8 @@ class ProfileController extends Controller
     {
         return Inertia::render('user/settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => $request->session()->get('status'),
+            'status'          => $request->session()->get('status'),
+            'departments'     => Department::select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -29,15 +33,27 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validated = $request->validated();
+        $user      = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Handle the avatar file upload if present
+        if ($request->hasFile('avatar_file')) {
+            $media = MediaHelper::isValidBase64Image($validated['avatar'])
+                ? MediaHelper::addMediaFromBase64($user, $validated['avatar'], 'avatar', $user->student_id)
+                : MediaHelper::addMediaFromUpload($user, $request->file('avatar_file'), 'avatar', $user->student_id);
+            unset($validated['avatar']);
+            unset($validated['avatar_file']);
         }
 
-        $request->user()->save();
+        $user->fill($validated);
 
-        return to_route('user.settings.profile.edit');
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = NULL;
+        }
+
+        $user->save();
+
+        return to_route('user.settings.profile.edit')->with('success', 'Profile updated successfully');
     }
 
     /**
@@ -60,4 +76,5 @@ class ProfileController extends Controller
 
         return redirect('/');
     }
+
 }
