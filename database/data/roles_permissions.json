@@ -91,6 +91,34 @@
                 "name": "view_other_activity_details",
                 "description": "View detailed information about specific activities of other users"
             }
+        ],
+        "nominations": [
+            {
+                "name": "view_nominations",
+                "description": "View All the Nominations"
+            },
+            {
+                "name": "edit_nominations",
+                "description": "Edit a Nomination"
+            },
+            {
+                "name": "delete_nominations",
+                "description": "Delete a Nomination"
+            },
+            {
+                "name": "create_nominations",
+                "description": "Create a new Nomination"
+            }
+        ],
+        "nomination_applications": [
+            {
+                "name": "view_nomination_applications",
+                "description": "View All the Nomination Applications"
+            },
+            {
+                "name": "edit_nomination_applications",
+                "description": "Edit a Nomination Application"
+            }
         ]
     },
     "roles": {

@@ -1,13 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use App\Http\Controllers\Admin\Settings\ProfileController;
-use App\Http\Controllers\Admin\Settings\PasswordController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Admin\ClubController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\NominationApplicationController;
+use App\Http\Controllers\Admin\NominationController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\Settings\PasswordController;
+use App\Http\Controllers\Admin\Settings\ProfileController;
+use App\Http\Controllers\Admin\UserController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::redirect('/', 'dashboard')->name('index');
 
@@ -46,3 +48,12 @@ Route::resource('roles', RoleController::class);
 
 // Activity logs
 Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
+
+Route::resource('nominations', NominationController::class);
+Route::get('clubs/{club}/positions', [NominationController::class, 'getClubPositions'])
+    ->name('clubs.positions');
+
+// Nomination Application routes
+Route::resource('applications', NominationApplicationController::class);
+Route::post('applications/batch-update', [NominationApplicationController::class, 'batchUpdate'])
+    ->name('applications.batch-update');

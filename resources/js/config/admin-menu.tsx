@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { ActivitySquare, BookOpen, Folder, LayoutGrid, Settings, ShieldCheck, User2, Users } from 'lucide-react';
+import { ActivitySquare, LayoutGrid, MailCheck, Settings, ShieldCheck, User2, Users } from 'lucide-react';
 
 export const adminSidebarNavItems: NavItem[] = [
     {
@@ -13,6 +13,12 @@ export const adminSidebarNavItems: NavItem[] = [
         href: route('admin.clubs.index'),
         icon: Users,
         permissions: ['view_clubs', 'create_clubs', 'edit_clubs', 'delete_clubs'],
+    },
+    {
+        title: 'Nominations Management',
+        href: route('admin.nominations.index'),
+        icon: MailCheck,
+        permissions: ['view_nominations', 'create_nominations', 'edit_nominations', 'delete_nominations'],
     },
     {
         title: 'Users & Roles',
@@ -37,16 +43,7 @@ export const adminSidebarNavItems: NavItem[] = [
 ];
 
 export const adminFooterNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
+    // Footer nav items
 ];
 
 export const userContextMenuItems: NavItem[] = [

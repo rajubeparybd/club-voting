@@ -147,3 +147,14 @@ export interface Department {
     created_at: string;
     updated_at: string;
 }
+
+export interface Nomination {
+    id: number;
+    club_id: number;
+    title: string;
+    description: string;
+    status: 'active' | 'inactive' | 'pending';
+    start_date: string;
+    end_date: string;
+    club?: Club;
+}
