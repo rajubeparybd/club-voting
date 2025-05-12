@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { ActivitySquare, BookOpen, Folder, LayoutGrid, Settings } from 'lucide-react';
+import { ActivitySquare, LayoutGrid, Settings } from 'lucide-react';
 
 export const userSidebarNavItems: NavItem[] = [
     {
@@ -10,16 +10,7 @@ export const userSidebarNavItems: NavItem[] = [
 ];
 
 export const userFooterNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
+    // Footer Nav Items
 ];
 
 export const userContextMenuItems: NavItem[] = [
