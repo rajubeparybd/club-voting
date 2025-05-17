@@ -1,11 +1,16 @@
 import { NavItem } from '@/types';
-import { ActivitySquare, LayoutGrid, Settings } from 'lucide-react';
+import { ActivitySquare, LayoutGrid, Receipt, Settings } from 'lucide-react';
 
 export const userSidebarNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: route('user.dashboard'),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Payment Logs',
+        href: route('user.payment-logs.index'),
+        icon: Receipt,
     },
 ];
 

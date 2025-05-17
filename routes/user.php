@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\User\ClubMembershipController;
 use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\PaymentLogController;
 use App\Http\Controllers\User\Settings\PasswordController;
 use App\Http\Controllers\User\Settings\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -36,3 +37,6 @@ Route::prefix('settings')->name('settings.')->group(function () {
 
 // Activity logs
 Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
+
+// Payment logs
+Route::get('payment-logs', [PaymentLogController::class, 'index'])->name('payment-logs.index');

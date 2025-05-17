@@ -177,3 +177,19 @@ export interface PaymentMethod {
     created_at: string;
     updated_at: string;
 }
+
+export interface PaymentLog {
+    id: number;
+    user_id: number;
+    club_id: number;
+    payment_method_id: number;
+    amount: string;
+    transaction_id: string;
+    status: 'pending' | 'approved' | 'rejected';
+    notes?: string;
+    screenshot_url?: string;
+    created_at: string;
+    updated_at: string;
+    club?: Club;
+    payment_method?: PaymentMethod;
+}
