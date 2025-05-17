@@ -39,6 +39,7 @@ Route::resource('clubs', ClubController::class);
 Route::post('clubs/{club}/members/{user}/update-status', [ClubController::class, 'updateMemberStatus'])->name('clubs.members.update-status');
 Route::post('clubs/{club}/members/{user}/update-position', [ClubController::class, 'updateMemberPosition'])->name('clubs.members.update-position');
 Route::delete('clubs/{club}/members/{user}/remove', [ClubController::class, 'removeMember'])->name('clubs.members.remove');
+Route::post('clubs/{club}/members/{user}/payment/{payment}/update-status', [ClubController::class, 'updatePaymentStatus'])->name('clubs.members.update-payment-status');
 
 // User management
 Route::resource('users', UserController::class);

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\User\ClubMembershipController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\Settings\PasswordController;
 use App\Http\Controllers\User\Settings\ProfileController;
@@ -10,6 +11,13 @@ use Inertia\Inertia;
 Route::redirect('/', 'dashboard')->name('index');
 
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+// Club Membership
+Route::prefix('clubs')->name('clubs.')->group(function () {
+    Route::get('/', [ClubMembershipController::class, 'index'])->name('index');
+    Route::get('/{club}', [ClubMembershipController::class, 'show'])->name('show');
+    Route::post('/join', [ClubMembershipController::class, 'join'])->name('join');
+});
 
 Route::prefix('settings')->name('settings.')->group(function () {
     Route::redirect('/', 'profile')->name('index');

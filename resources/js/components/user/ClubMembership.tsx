@@ -9,24 +9,59 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { StatusBadge } from '@/components/ui/status-badge';
 import { getNoImage } from '@/lib/utils';
 import { Club, PaymentMethod, type User } from '@/types';
+import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 export function JoinClubModal({ club, userId, paymentMethods }: { club: Club; userId?: string; paymentMethods: PaymentMethod[] }) {
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        club_id: club.id,
+        user_id: userId,
+        payment_method_id: '',
+        sender_account_number: '',
+        transaction_id: '',
+        transaction_amount: club.join_fee.toString(),
+        screenshot: '',
+    });
 
     const handlePaymentMethodChange = (value: string) => {
         const selectedPaymentMethod = paymentMethods.find((method) => method.id === Number(value));
         setPaymentMethod(selectedPaymentMethod || null);
+        setFormData({
+            ...formData,
+            payment_method_id: value,
+        });
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target;
+        setFormData({
+            ...formData,
+            [id]: value,
+        });
+    };
+
+    const handleImageChange = (base64Image: string) => {
+        setFormData({
+            ...formData,
+            screenshot: base64Image,
+        });
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
 
-        // TODO: Implement the submit logic
-
-        setIsLoading(false);
+        // Submit the form data using Inertia
+        router.post('/user/clubs/join', formData, {
+            onSuccess: () => {
+                setIsLoading(false);
+            },
+            onError: () => {
+                setIsLoading(false);
+            },
+        });
     };
 
     return (
@@ -43,7 +78,7 @@ export function JoinClubModal({ club, userId, paymentMethods }: { club: Club; us
                 <div className="grid gap-4">
                     <div className="mt-2">
                         <Label htmlFor="payment_method">Payment Method</Label>
-                        <Select value={paymentMethod?.id.toString()} onValueChange={handlePaymentMethodChange}>
+                        <Select value={formData.payment_method_id} onValueChange={handlePaymentMethodChange}>
                             <SelectTrigger id="payment_method">
                                 <SelectValue placeholder="Select payment method" />
                             </SelectTrigger>
@@ -81,33 +116,53 @@ export function JoinClubModal({ club, userId, paymentMethods }: { club: Club; us
                     </div>
                     <div className="mt-2">
                         <Label htmlFor="sender_account_number">Sender Account Number</Label>
-                        <Input id="sender_account_number" placeholder="Enter sender account number" />
+                        <Input
+                            id="sender_account_number"
+                            placeholder="Enter sender account number"
+                            value={formData.sender_account_number}
+                            onChange={handleInputChange}
+                            required
+                        />
                     </div>
                     <div className="mt-2">
                         <Label htmlFor="transaction_id">Transaction ID</Label>
-                        <Input id="transaction_id" placeholder="Enter transaction ID" />
+                        <Input
+                            id="transaction_id"
+                            placeholder="Enter transaction ID"
+                            value={formData.transaction_id}
+                            onChange={handleInputChange}
+                            required
+                        />
                     </div>
                     <div className="mt-2">
                         <Label htmlFor="transaction_amount">Transaction Amount</Label>
-                        <Input type="number" id="transaction_amount" placeholder="Enter transaction amount" />
+                        <Input
+                            type="number"
+                            id="transaction_amount"
+                            placeholder="Enter transaction amount"
+                            value={formData.transaction_amount}
+                            onChange={handleInputChange}
+                            required
+                        />
                     </div>
                     <div className="mt-2">
                         <Label htmlFor="screenshot">Screenshot</Label>
-                        <ImageUpload onChange={() => {}} value={''} />
+                        <ImageUpload onChange={handleImageChange} value={formData.screenshot} />
                     </div>
                 </div>
+                <DialogFooter className="mt-4">
+                    <ProcessingButton type="submit" processing={isLoading} disabled={!paymentMethod || isLoading}>
+                        {isLoading ? 'Joining...' : 'Join Club'}
+                    </ProcessingButton>
+                </DialogFooter>
             </form>
-            <DialogFooter>
-                <ProcessingButton type="submit" processing={isLoading} disabled={!paymentMethod || isLoading}>
-                    {isLoading ? 'Joining...' : 'Join Club'}
-                </ProcessingButton>
-            </DialogFooter>
         </DialogContent>
     );
 }
 
 function CardClubMembership({ club, userId, paymentMethods }: { club: Club; userId?: string; paymentMethods: PaymentMethod[] }) {
     const isMember = club.users?.some((user) => user.id === Number(userId)) || false;
+    const user = club.users?.find((user) => user.id === Number(userId));
 
     return (
         <div className="rounded-2xl bg-[#252834] p-4 transition-transform duration-300 hover:scale-[1.02] lg:p-6">
@@ -124,7 +179,7 @@ function CardClubMembership({ club, userId, paymentMethods }: { club: Club; user
             </div>
             <div className="mt-2 flex items-center justify-end">
                 {isMember ? (
-                    <span className="font-poppins rounded-lg bg-green-600/10 px-4 py-2 text-sm font-medium text-green-500">Joined</span>
+                    <StatusBadge status={user?.pivot?.status || 'pending'} />
                 ) : (
                     <Dialog>
                         <DialogTrigger asChild>

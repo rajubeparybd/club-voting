@@ -116,4 +116,11 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(NominationApplication::class);
     }
 
+    /**
+     * Get the payment logs for the user.
+     */
+    public function paymentLogs(): HasMany
+    {
+        return $this->hasMany(PaymentLog::class);
+    }
 }

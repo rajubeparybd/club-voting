@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClubRequest;
 use App\Models\Club;
+use App\Models\PaymentLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -42,7 +42,7 @@ class ClubController extends Controller
         $per_page = $request->get('per_page', 10);
 
         return Inertia::render('admin/clubs/index', [
-            'clubs' => $query->latest()->paginate($per_page)
+            'clubs' => $query->latest()->paginate($per_page),
         ]);
     }
 
@@ -80,8 +80,8 @@ class ClubController extends Controller
 
         // Handle image upload if present
         if ($request->hasFile('club_image')) {
-            $file = $request->file('club_image');
-            $path = $file->store('clubs', 'public');
+            $file               = $request->file('club_image');
+            $path               = $file->store('clubs', 'public');
             $validated['image'] = '/storage/' . $path;
         }
 
@@ -92,12 +92,12 @@ class ClubController extends Controller
         }
 
         // Create positions
-        if (!empty($positions)) {
+        if (! empty($positions)) {
             foreach ($positions as $position) {
                 $club->positions()->create([
-                    'name' => $position['name'],
+                    'name'        => $position['name'],
                     'description' => $position['description'] ?? null,
-                    'is_active' => $position['is_active'] ?? true,
+                    'is_active'   => $position['is_active'] ?? true,
                 ]);
             }
         }
@@ -115,7 +115,11 @@ class ClubController extends Controller
             return $response;
         }
 
-        $club->load(['positions', 'users']);
+        $club->load([
+            'positions',
+            'users',
+            'users.paymentLogs.paymentMethod',
+        ]);
 
         return Inertia::render('admin/clubs/show', [
             'club' => $club,
@@ -161,8 +165,8 @@ class ClubController extends Controller
             }
 
             // Store new image
-            $file = $request->file('club_image');
-            $path = $file->store('clubs', 'public');
+            $file               = $request->file('club_image');
+            $path               = $file->store('clubs', 'public');
             $validated['image'] = '/storage/' . $path;
         }
 
@@ -173,7 +177,7 @@ class ClubController extends Controller
         }
 
         // Update positions
-        if (!empty($positions)) {
+        if (! empty($positions)) {
             // Handle positions sent as JSON string
             if (is_string($positions)) {
                 $positions = json_decode($positions, true);
@@ -185,9 +189,9 @@ class ClubController extends Controller
             // Create new positions
             foreach ($positions as $position) {
                 $club->positions()->create([
-                    'name' => $position['name'],
+                    'name'        => $position['name'],
                     'description' => $position['description'] ?? null,
-                    'is_active' => $position['is_active'] ?? true,
+                    'is_active'   => $position['is_active'] ?? true,
                 ]);
             }
         }
@@ -283,5 +287,50 @@ class ClubController extends Controller
             $this->logActivity(sprintf('%s removed %s from the %s', auth()->user()->name, $user->name, $club->name), 'club');
         }
         return back()->with('success', 'Member removed from club successfully.');
+    }
+
+    /**
+     * Update payment status and member status based on payment approval/rejection
+     */
+    public function updatePaymentStatus(Request $request, Club $club, User $user, PaymentLog $payment)
+    {
+        $response = $this->checkAuthorization('edit_club_users', $request);
+        if ($response) {
+            return $response;
+        }
+
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+        ]);
+
+        // Update payment status
+        $payment->update([
+            'status' => $request->status,
+        ]);
+
+        // If payment is approved, activate the member
+        if ($request->status === 'approved') {
+            $club->users()->updateExistingPivot($user->id, [
+                'status' => 'active',
+            ]);
+
+            $actionMessage = 'approved';
+        } else {
+            $club->users()->updateExistingPivot($user->id, [
+                'status' => 'inactive',
+            ]);
+            $actionMessage = 'rejected';
+        }
+
+        $this->logActivity(
+            sprintf('%s %s payment for %s in the %s club',
+                auth()->user()->name,
+                $actionMessage,
+                $user->name,
+                $club->name),
+            'payment'
+        );
+
+        return back()->with('success', "Payment and member status {$actionMessage} successfully.");
     }
 }

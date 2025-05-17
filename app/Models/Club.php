@@ -49,6 +49,14 @@ class Club extends Model
     }
 
     /**
+     * Get the payment logs for the club.
+     */
+    public function paymentLogs(): HasMany
+    {
+        return $this->hasMany(PaymentLog::class);
+    }
+
+    /**
      * Get active nominations for this club.
      */
     public function activeNominations()

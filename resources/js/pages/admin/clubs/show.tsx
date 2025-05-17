@@ -23,6 +23,7 @@ import {
     Award,
     Ban,
     CalendarDays,
+    CreditCard,
     Edit,
     Lock,
     LogOut,
@@ -30,6 +31,8 @@ import {
     PlusCircle,
     Search,
     Shield,
+    ThumbsDown,
+    ThumbsUp,
     Users,
 } from 'lucide-react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -159,6 +162,140 @@ function RemoveMemberDialog({ open, onOpenChange, userId, userName, onConfirm, i
     );
 }
 
+// Payment Dialog Component
+interface Payment {
+    id: number;
+    user_id: number;
+    club_id: number;
+    payment_method_id: number;
+    transaction_id: string;
+    amount: string;
+    sender_account_number: string;
+    status: 'pending' | 'approved' | 'rejected';
+    created_at: string;
+    updated_at: string;
+    screenshot_url: string | null;
+    payment_method?: {
+        id: number;
+        name: string;
+        logo: string | null;
+    } | null;
+}
+
+interface PaymentDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    payment: Payment | null;
+    userName: string;
+    onApprove: (paymentId: number) => void;
+    onReject: (paymentId: number) => void;
+    isLoading: boolean;
+}
+
+function PaymentDialog({ open, onOpenChange, payment, userName, onApprove, onReject, isLoading }: PaymentDialogProps) {
+    if (!payment) return null;
+
+    return (
+        <Dialog
+            open={open}
+            onOpenChange={(newOpen) => {
+                if (!isLoading) {
+                    onOpenChange(newOpen);
+                }
+            }}
+        >
+            <DialogContent className="sm:max-w-xl">
+                <DialogHeader>
+                    <DialogTitle>Payment Details</DialogTitle>
+                    <DialogDescription>
+                        Payment information for <span className="font-medium">{userName}</span>
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <h3 className="text-sm font-medium text-gray-500">Payment Method</h3>
+                            <div className="mt-1 flex items-center gap-2">
+                                {payment.payment_method?.logo && (
+                                    <img src={payment.payment_method.logo} alt="Payment Method" className="h-6 w-6 rounded-md object-contain" />
+                                )}
+                                <p className="font-medium">{payment.payment_method?.name || 'Unknown'}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-medium text-gray-500">Amount</h3>
+                            <p className="mt-1 font-medium">{payment.amount}৳</p>
+                        </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <h3 className="text-sm font-medium text-gray-500">Transaction ID</h3>
+                            <p className="mt-1 font-mono">{payment.transaction_id}</p>
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-medium text-gray-500">Sender Account</h3>
+                            <p className="mt-1 font-mono">{payment.sender_account_number}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 className="text-sm font-medium text-gray-500">Payment Date</h3>
+                        <p className="mt-1">{format(new Date(payment.created_at), 'PPP p')}</p>
+                    </div>
+
+                    <div>
+                        <h3 className="text-sm font-medium text-gray-500">Status</h3>
+                        <StatusBadge status={payment.status} />
+                    </div>
+
+                    {payment.screenshot_url && (
+                        <div>
+                            <h3 className="mb-2 text-sm font-medium text-gray-500">Payment Screenshot</h3>
+                            <a href={payment.screenshot_url} target="_blank" rel="noopener noreferrer">
+                                <img
+                                    src={payment.screenshot_url}
+                                    alt="Payment Screenshot"
+                                    className="max-h-44 rounded-md border border-gray-200 object-contain"
+                                />
+                            </a>
+                        </div>
+                    )}
+                </div>
+
+                {payment.status === 'pending' && (
+                    <DialogFooter className="flex flex-col gap-2 sm:flex-row">
+                        <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+                            Cancel
+                        </Button>
+                        <div className="flex gap-2">
+                            <ProcessingButton
+                                variant="destructive"
+                                processing={isLoading}
+                                onClick={() => onReject(payment.id)}
+                                disabled={payment.status !== 'pending'}
+                            >
+                                <ThumbsDown className="mr-2 size-4" />
+                                {isLoading ? 'Processing...' : 'Reject Payment'}
+                            </ProcessingButton>
+                            <ProcessingButton
+                                variant="default"
+                                processing={isLoading}
+                                onClick={() => onApprove(payment.id)}
+                                disabled={payment.status !== 'pending'}
+                            >
+                                <ThumbsUp className="mr-2 size-4" />
+                                {isLoading ? 'Processing...' : 'Approve Payment'}
+                            </ProcessingButton>
+                        </div>
+                    </DialogFooter>
+                )}
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 interface ClubPosition {
     id: number;
     club_id: number;
@@ -186,6 +323,7 @@ interface ClubUser {
         joined_at: string;
     };
     position?: ClubPosition | null;
+    paymentLogs?: Payment[];
 }
 
 interface Club {
@@ -220,13 +358,17 @@ interface MemberActionsProps {
     onStatusChange: (userId: number, status: string) => void;
     onPositionChange: (userId: number, positionId: number | null) => void;
     onRemoveMember: (userId: number) => void;
+    onViewPayment: (userId: number) => void;
     isLoading: boolean;
 }
 
-function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, onRemoveMember, isLoading }: MemberActionsProps) {
+function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, onRemoveMember, onViewPayment, isLoading }: MemberActionsProps) {
     const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
     const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
     const currentStatus = user.pivot.status || 'pending';
+
+    // Check if user has pending payment for this specific club
+    const hasPendingPayment = user.paymentLogs?.some((payment) => payment.status === 'pending' && payment.club_id === user.pivot.club_id);
 
     return (
         <>
@@ -270,6 +412,16 @@ function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, 
                         }
                     >
                         <CheckUserPermission permission="edit_club_users">
+                            {/* View Payment (only show for pending payments) */}
+                            {hasPendingPayment && (
+                                <DropdownMenuItem disabled={isLoading} onClick={() => onViewPayment(user.id)}>
+                                    <CreditCard className="mr-2 size-4 text-blue-600" />
+                                    View Payment
+                                </DropdownMenuItem>
+                            )}
+
+                            {hasPendingPayment && <DropdownMenuSeparator />}
+
                             <DropdownMenuItem disabled={currentStatus === 'active' || isLoading} onClick={() => onStatusChange(user.id, 'active')}>
                                 <Shield className="mr-2 size-4 text-green-600" />
                                 Activate Member
@@ -363,6 +515,9 @@ export default function ClubShow({ club }: ClubShowProps) {
     const [statusFilter, setStatusFilter] = useState('all');
     const [positionFilter, setPositionFilter] = useState('all');
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+    const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<ClubUser | null>(null);
 
     const breadcrumbs: BreadcrumbItem[] = useMemo(
         () => [
@@ -390,12 +545,10 @@ export default function ClubShow({ club }: ClubShowProps) {
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    toast.success(`Member status updated to ${status}`);
                     setIsLoading(false);
                 },
                 onError: (errors) => {
                     console.error(errors);
-                    toast.error('Failed to update member status');
                     setIsLoading(false);
                 },
             },
@@ -415,12 +568,10 @@ export default function ClubShow({ club }: ClubShowProps) {
                 preserveScroll: true,
                 preserveState: true,
                 onSuccess: () => {
-                    toast.success(positionId ? 'Position assigned successfully' : 'Position removed successfully');
                     setIsLoading(false);
                 },
                 onError: (errors) => {
                     console.error(errors);
-                    toast.error('Failed to update position');
                     setIsLoading(false);
                 },
             },
@@ -434,15 +585,95 @@ export default function ClubShow({ club }: ClubShowProps) {
         router.delete(route('admin.clubs.members.remove', { club: club.id, user: userId }), {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Member removed from club');
                 setIsLoading(false);
             },
             onError: (errors) => {
                 console.error(errors);
-                toast.error('Failed to remove member');
                 setIsLoading(false);
             },
         });
+    };
+
+    // Handle viewing payment
+    const handleViewPayment = (userId: number) => {
+        const user = club.users.find((u) => u.id === userId);
+        if (!user || !user.paymentLogs || user.paymentLogs.length === 0) {
+            toast.error('No payment information available');
+            return;
+        }
+
+        // Get pending payments for this specific club
+        const pendingPayments = user.paymentLogs.filter((payment) => payment.status === 'pending' && payment.club_id === club.id);
+
+        if (pendingPayments.length === 0) {
+            toast.error('No pending payments found for this club');
+            return;
+        }
+
+        // Get the most recent pending payment
+        const latestPayment = [...pendingPayments].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+
+        setSelectedPayment(latestPayment);
+        setSelectedUser(user);
+        setIsPaymentDialogOpen(true);
+    };
+
+    // Handle payment approval
+    const handleApprovePayment = (paymentId: number) => {
+        if (!selectedUser) return;
+
+        setIsLoading(true);
+
+        router.post(
+            route('admin.clubs.members.update-payment-status', {
+                club: club.id,
+                user: selectedUser.id,
+                payment: paymentId,
+            }),
+            {
+                status: 'approved',
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsLoading(false);
+                    setIsPaymentDialogOpen(false);
+                },
+                onError: (errors) => {
+                    console.error(errors);
+                    setIsLoading(false);
+                },
+            },
+        );
+    };
+
+    // Handle payment rejection
+    const handleRejectPayment = (paymentId: number) => {
+        if (!selectedUser) return;
+
+        setIsLoading(true);
+
+        router.post(
+            route('admin.clubs.members.update-payment-status', {
+                club: club.id,
+                user: selectedUser.id,
+                payment: paymentId,
+            }),
+            {
+                status: 'rejected',
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsLoading(false);
+                    setIsPaymentDialogOpen(false);
+                },
+                onError: (errors) => {
+                    console.error(errors);
+                    setIsLoading(false);
+                },
+            },
+        );
     };
 
     const positionColumns: Column<ClubPosition>[] = [
@@ -525,6 +756,7 @@ export default function ClubShow({ club }: ClubShowProps) {
                     onStatusChange={handleStatusChange}
                     onPositionChange={handlePositionChange}
                     onRemoveMember={handleRemoveMember}
+                    onViewPayment={handleViewPayment}
                     isLoading={isLoading}
                 />
             ),
@@ -561,6 +793,19 @@ export default function ClubShow({ club }: ClubShowProps) {
             <Head title={`Club: ${club.name}`} />
             <div className="relative flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {isLoading && <Processing />}
+
+                {/* Payment Dialog */}
+                {selectedUser && (
+                    <PaymentDialog
+                        open={isPaymentDialogOpen}
+                        onOpenChange={setIsPaymentDialogOpen}
+                        payment={selectedPayment}
+                        userName={selectedUser.name}
+                        onApprove={handleApprovePayment}
+                        onReject={handleRejectPayment}
+                        isLoading={isLoading}
+                    />
+                )}
 
                 <ManagementPageHeader title={club.name} description={`Complete information about ${club.name.toLowerCase()} club`}>
                     <div className="flex gap-2">

@@ -108,6 +108,9 @@ export interface User {
     roles?: Role[];
     created_at: string;
     updated_at: string;
+    pivot?: {
+        status: 'active' | 'inactive' | 'pending' | 'banned';
+    };
     [key: string]: unknown;
 }
 
