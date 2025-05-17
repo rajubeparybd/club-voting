@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('bio')->nullable();
             $table->string('phone')->nullable();
             $table->date('birth_date')->nullable();
+            $table->boolean('is_candidate')->default(false);
             $table->enum('gender', ['M', 'F', 'O'])->default('M')->nullable();
             $table->string('intake')->nullable();
             $table->foreignId('department_id')->nullable()->constrained('departments');
