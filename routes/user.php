@@ -1,16 +1,15 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\Settings\PasswordController;
+use App\Http\Controllers\User\Settings\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\User\Settings\ProfileController;
-use App\Http\Controllers\User\Settings\PasswordController;
-use App\Http\Controllers\ActivityController;
 
 Route::redirect('/', 'dashboard')->name('index');
 
-Route::get('dashboard', function () {
-    return Inertia::render('user/dashboard');
-})->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::prefix('settings')->name('settings.')->group(function () {
     Route::redirect('/', 'profile')->name('index');

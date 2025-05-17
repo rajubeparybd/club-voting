@@ -21,6 +21,7 @@ export interface Club {
     name: string;
     description: string;
     status: 'active' | 'inactive' | 'pending';
+    join_fee: number;
     image: string;
     open_date: string | null;
     created_at: string;
@@ -28,6 +29,8 @@ export interface Club {
     users_count: number;
     positions_count: number;
     positions?: ClubPosition[];
+    members_count: number;
+    users?: User[];
 }
 
 export interface PaginatedData<T> {

@@ -1,17 +1,16 @@
 <?php
-
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasMedia
 {
@@ -44,6 +43,10 @@ class User extends Authenticatable implements HasMedia
         'avatar',
     ];
 
+    protected $with = [
+        'department',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -53,8 +56,8 @@ class User extends Authenticatable implements HasMedia
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'birth_date' => 'date',
+            'password'          => 'hashed',
+            'birth_date'        => 'date',
         ];
     }
 
@@ -67,7 +70,6 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->getFirstMediaUrl('avatar');
     }
-
 
     /**
      * Register the media collections

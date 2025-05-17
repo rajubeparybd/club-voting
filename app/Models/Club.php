@@ -13,6 +13,15 @@ class Club extends Model
         'open_date' => 'datetime',
     ];
 
+    protected $appends = ['members_count'];
+
+    protected $with = ['positions'];
+
+    public function getMembersCountAttribute()
+    {
+        return $this->users()->count();
+    }
+
     /**
      * Get the users that belong to the club.
      */
