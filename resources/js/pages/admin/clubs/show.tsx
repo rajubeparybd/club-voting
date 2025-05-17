@@ -323,7 +323,7 @@ interface ClubUser {
         joined_at: string;
     };
     position?: ClubPosition | null;
-    paymentLogs?: Payment[];
+    payment_logs?: Payment[];
 }
 
 interface Club {
@@ -368,7 +368,7 @@ function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, 
     const currentStatus = user.pivot.status || 'pending';
 
     // Check if user has pending payment for this specific club
-    const hasPendingPayment = user.paymentLogs?.some((payment) => payment.status === 'pending' && payment.club_id === user.pivot.club_id);
+    const hasPendingPayment = user.payment_logs?.some((payment) => payment.status === 'pending' && payment.club_id === user.pivot.club_id);
 
     return (
         <>
@@ -597,13 +597,13 @@ export default function ClubShow({ club }: ClubShowProps) {
     // Handle viewing payment
     const handleViewPayment = (userId: number) => {
         const user = club.users.find((u) => u.id === userId);
-        if (!user || !user.paymentLogs || user.paymentLogs.length === 0) {
+        if (!user || !user.payment_logs || user.payment_logs.length === 0) {
             toast.error('No payment information available');
             return;
         }
 
         // Get pending payments for this specific club
-        const pendingPayments = user.paymentLogs.filter((payment) => payment.status === 'pending' && payment.club_id === club.id);
+        const pendingPayments = user.payment_logs.filter((payment) => payment.status === 'pending' && payment.club_id === club.id);
 
         if (pendingPayments.length === 0) {
             toast.error('No pending payments found for this club');
