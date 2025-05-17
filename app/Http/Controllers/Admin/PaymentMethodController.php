@@ -56,6 +56,8 @@ class PaymentMethodController extends Controller
             $paymentMethod->addMediaFromRequest('logo')->toMediaCollection('payment_methods');
         }
 
+        $this->logActivity('Payment method created successfully', 'payment method');
+
         return redirect()->route('admin.payment-methods.index')->with('success', 'Payment method created successfully');
     }
 
@@ -100,6 +102,8 @@ class PaymentMethodController extends Controller
             $paymentMethod->addMediaFromRequest('logo')->toMediaCollection('payment_methods');
         }
 
+        $this->logActivity('Payment method updated successfully', 'payment method');
+
         return redirect()->route('admin.payment-methods.index')->with('success', 'Payment method updated successfully');
     }
 
@@ -114,6 +118,9 @@ class PaymentMethodController extends Controller
         }
 
         $paymentMethod->delete();
+
+        $this->logActivity('Payment method deleted successfully', 'payment method');
+
         return redirect()->route('admin.payment-methods.index')->with('success', 'Payment method deleted successfully');
     }
 }
