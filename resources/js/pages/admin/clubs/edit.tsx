@@ -27,6 +27,7 @@ const positionSchema = z.object({
 const clubFormSchema = z.object({
     name: z.string().min(3, 'Club name must be at least 3 characters'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
+    join_fee: z.coerce.number().min(0, 'Join fee must be greater than 0'),
     status: z.enum(['active', 'inactive', 'pending']),
     open_date: z.string().optional(),
     image: z.string().optional(),
@@ -40,6 +41,7 @@ interface EditClubProps {
         id: number;
         name: string;
         description: string;
+        join_fee: number;
         status: 'active' | 'inactive' | 'pending';
         open_date: string | null;
         image: string | null;
@@ -74,6 +76,7 @@ export default function EditClub({ club }: EditClubProps) {
         defaultValues: {
             name: club.name,
             description: club.description,
+            join_fee: club.join_fee,
             status: club.status,
             open_date: formatOpenDate(club.open_date),
             image: club.image || '',
@@ -186,6 +189,21 @@ export default function EditClub({ club }: EditClubProps) {
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
                                                 <Textarea placeholder="Enter club description" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Join Fee */}
+                                <FormField
+                                    control={form.control}
+                                    name="join_fee"
+                                    render={({ field }) => (
+                                        <FormItem className="mb-4">
+                                            <FormLabel>Join Fee</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="Enter join fee" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

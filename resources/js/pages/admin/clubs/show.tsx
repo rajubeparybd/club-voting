@@ -17,7 +17,21 @@ import { getNoImage } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { AlertCircle, ArrowLeft, Award, Ban, CalendarDays, Edit, Lock, LogOut, MoreHorizontal, Search, Shield, Users } from 'lucide-react';
+import {
+    AlertCircle,
+    ArrowLeft,
+    Award,
+    Ban,
+    CalendarDays,
+    Edit,
+    Lock,
+    LogOut,
+    MoreHorizontal,
+    PlusCircle,
+    Search,
+    Shield,
+    Users,
+} from 'lucide-react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { route } from 'ziggy-js';
@@ -185,6 +199,7 @@ interface Club {
     updated_at: string;
     positions: ClubPosition[];
     users: ClubUser[];
+    join_fee: number;
 }
 
 interface ClubShowProps {
@@ -344,7 +359,6 @@ function DataTable<T>({ columns, data }: { columns: Column<T>[]; data: T[] }) {
 }
 
 export default function ClubShow({ club }: ClubShowProps) {
-    console.log(club);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [positionFilter, setPositionFilter] = useState('all');
@@ -592,7 +606,14 @@ export default function ClubShow({ club }: ClubShowProps) {
                                 </div>
 
                                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                                    <Users className="size-4" />
+                                    <div className="flex items-center gap-1">
+                                        <PlusCircle className="size-4" />
+                                        <span>
+                                            Join Fee: <span className="font-bold">{club.join_fee}৳</span>
+                                        </span>
+                                    </div>
+
+                                    <Users className="ml-2 size-4" />
                                     <span>{club.users.length} Members</span>
 
                                     <Award className="ml-2 size-4" />

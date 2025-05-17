@@ -17,6 +17,7 @@ interface Club {
     id: number;
     name: string;
     description: string;
+    join_fee: number;
     status: 'active' | 'inactive' | 'pending';
     image: string;
     open_date: string | null;
@@ -40,6 +41,7 @@ export function ClubsTable({ clubs, onDeleteClick, isLoading }: ClubsTableProps)
                 <TableHeader>
                     <TableRow>
                         <TableHead>Name</TableHead>
+                        <TableHead>Join Fee</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Positions</TableHead>
                         <TableHead>Members</TableHead>
@@ -69,6 +71,7 @@ export function ClubsTable({ clubs, onDeleteClick, isLoading }: ClubsTableProps)
                                         </div>
                                     </div>
                                 </TableCell>
+                                <TableCell>{club.join_fee}৳</TableCell>
                                 <TableCell>
                                     <StatusBadge status={club.status} />
                                 </TableCell>

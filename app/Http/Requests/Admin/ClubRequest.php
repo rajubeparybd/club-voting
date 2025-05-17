@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -22,13 +21,14 @@ class ClubRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name'        => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
-            'image' => ['nullable', 'string'],
-            'status' => ['required', 'in:active,inactive,pending'],
-            'open_date' => ['nullable', 'date'],
-            'club_image' => ['nullable', 'file', 'image', 'max:2048'],
-            'positions' => ['required', 'string'],
+            'join_fee'    => ['required', 'numeric', 'min:0'],
+            'image'       => ['nullable', 'string'],
+            'status'      => ['required', 'in:active,inactive,pending'],
+            'open_date'   => ['nullable', 'date'],
+            'club_image'  => ['nullable', 'file', 'image', 'max:2048'],
+            'positions'   => ['required', 'string'],
         ];
     }
 }

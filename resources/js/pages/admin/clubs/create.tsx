@@ -26,6 +26,7 @@ const positionSchema = z.object({
 const clubFormSchema = z.object({
     name: z.string().min(3, 'Club name must be at least 3 characters'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
+    join_fee: z.coerce.number().min(0, 'Join fee must be greater than 0'),
     status: z.enum(['active', 'inactive', 'pending']),
     open_date: z.string().optional(),
     image: z.string().min(1, 'Club image is required'),
@@ -44,6 +45,7 @@ export default function CreateClub() {
         defaultValues: {
             name: '',
             description: '',
+            join_fee: 0,
             status: 'active',
             open_date: new Date().toISOString().split('T')[0],
             image: '',
@@ -82,6 +84,7 @@ export default function CreateClub() {
         // Add regular form fields to FormData
         formData.append('name', data.name);
         formData.append('description', data.description);
+        formData.append('join_fee', data.join_fee.toString());
         formData.append('status', data.status);
         formData.append('image', data.image);
 
@@ -156,6 +159,21 @@ export default function CreateClub() {
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
                                                 <Textarea placeholder="Enter club description" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Join Fee */}
+                                <FormField
+                                    control={form.control}
+                                    name="join_fee"
+                                    render={({ field }) => (
+                                        <FormItem className="mb-4">
+                                            <FormLabel>Join Fee</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="Enter join fee" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

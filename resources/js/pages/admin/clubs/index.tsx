@@ -27,6 +27,7 @@ interface Club {
     id: number;
     name: string;
     description: string;
+    join_fee: number;
     status: 'active' | 'inactive' | 'pending';
     image: string;
     open_date: string | null;
