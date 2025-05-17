@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { ActivitySquare, LayoutGrid, MailCheck, Settings, ShieldCheck, User2, Users } from 'lucide-react';
+import { ActivitySquare, CreditCard, LayoutGrid, MailCheck, Settings, ShieldCheck, User2, Users } from 'lucide-react';
 
 export const adminSidebarNavItems: NavItem[] = [
     {
@@ -37,6 +37,20 @@ export const adminSidebarNavItems: NavItem[] = [
                 href: route('admin.roles.index'),
                 icon: ShieldCheck,
                 permissions: ['view_roles', 'create_roles', 'edit_roles', 'delete_roles'],
+            },
+        ],
+    },
+    {
+        title: 'Site Settings',
+        href: route('admin.payment-methods.index'),
+        icon: Settings,
+        permissions: ['view_settings', 'edit_settings'],
+        submenu: [
+            {
+                title: 'Payment Methods',
+                href: route('admin.payment-methods.index'),
+                icon: CreditCard,
+                permissions: ['view_payment_methods', 'edit_payment_methods', 'delete_payment_methods', 'create_payment_methods'],
             },
         ],
     },

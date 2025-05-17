@@ -119,6 +119,34 @@
                 "name": "edit_nomination_applications",
                 "description": "Edit a Nomination Application"
             }
+        ],
+        "settings": [
+            {
+                "name": "view_settings",
+                "description": "View All the Site Settings"
+            },
+            {
+                "name": "edit_settings",
+                "description": "Edit a Site Setting"
+            }
+        ],
+        "payment_methods": [
+            {
+                "name": "view_payment_methods",
+                "description": "View All the Payment Methods"
+            },
+            {
+                "name": "edit_payment_methods",
+                "description": "Edit a Payment Method"
+            },
+            {
+                "name": "delete_payment_methods",
+                "description": "Delete a Payment Method"
+            },
+            {
+                "name": "create_payment_methods",
+                "description": "Create a new Payment Method"
+            }
         ]
     },
     "roles": {

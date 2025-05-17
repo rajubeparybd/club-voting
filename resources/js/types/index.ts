@@ -158,3 +158,16 @@ export interface Nomination {
     end_date: string;
     club?: Club;
 }
+
+export interface PaymentMethod {
+    id: number;
+    name: string;
+    description?: string;
+    type: 'manual' | 'automatic';
+    provider: 'bkash' | 'rocket' | 'nagad' | 'bank' | 'cash';
+    metadata: Record<string, unknown>;
+    is_active: boolean;
+    logo: string;
+    created_at: string;
+    updated_at: string;
+}
