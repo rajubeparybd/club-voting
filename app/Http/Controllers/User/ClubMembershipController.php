@@ -4,9 +4,11 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Club;
 use App\Models\PaymentLog;
+use App\Models\PaymentMethod;
 use App\Support\MediaHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class ClubMembershipController extends Controller
 {
@@ -15,7 +17,21 @@ class ClubMembershipController extends Controller
      */
     public function index()
     {
-        //
+        $user = auth()->user();
+
+        $clubs = Club::where('status', 'active')
+            ->withCount('users as members_count')
+            ->with(['users' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
+            ->paginate(9);
+
+        $paymentMethods = PaymentMethod::where('is_active', true)->get();
+
+        return Inertia::render('user/clubs/index', [
+            'clubs'          => $clubs,
+            'paymentMethods' => $paymentMethods,
+        ]);
     }
 
     /**
