@@ -67,11 +67,9 @@ class VotingEventController extends Controller
             ->where('status', 'active')
             ->count();
 
-        $hasNoNominations = Nomination::where('club_id', $validated['club_id'])
-            ->whereIn('status', ['closed', 'archived'])
-            ->count();
+        $hasNoNominations = Nomination::where('club_id', $validated['club_id'])->whereIn('status', ['closed', 'archived'])->count();
 
-        if ($hasNoNominations > 0) {
+        if ($hasNoNominations < 1) {
             return back()->with('error', 'This club has no nominations. Please create a nomination before creating a voting event.');
         }
 

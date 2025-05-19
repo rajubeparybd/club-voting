@@ -59,7 +59,7 @@ export default function VotingEventForm({ votingEvent, clubs, onSuccess }: Votin
                   club_id: '',
                   title: '',
                   description: '',
-                  status: 'draft',
+                  status: 'active',
                   start_date: '',
                   end_date: '',
               },

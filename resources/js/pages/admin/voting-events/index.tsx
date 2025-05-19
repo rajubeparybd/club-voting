@@ -1,4 +1,5 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
+import VotingEventForm from '@/components/admin/nominations/voting-event-form';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +15,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { formatDate } from 'date-fns';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
-import VotingEventForm from './voting-event-form';
 
 interface Props {
     votingEvents: VotingEvent[];
