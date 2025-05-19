@@ -2,7 +2,7 @@ import ClubMembership from '@/components/user/ClubMembership';
 import ClubNomination from '@/components/user/ClubNomination';
 import UserInfoCard from '@/components/user/UserInfoCard';
 import AppLayout from '@/layouts/user/user-layout';
-import { Club, PaymentMethod, SharedData, type BreadcrumbItem, type Nomination, type User } from '@/types';
+import { Club, PaymentMethod, SharedData, type BreadcrumbItem, type Nomination, type NominationApplication, type User } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
@@ -17,10 +17,12 @@ export default function Dashboard({
     clubs,
     paymentMethods,
     nominations,
+    applications,
 }: {
     clubs: Club[];
     paymentMethods: PaymentMethod[];
     nominations: Nomination[];
+    applications: NominationApplication[];
 }) {
     const { auth } = usePage<SharedData>().props;
     const user = auth.user as User;
@@ -35,7 +37,7 @@ export default function Dashboard({
                     <div className="lg:col-span-8">
                         <div className="space-y-4 lg:space-y-6">
                             {/* <OngoingElections /> */}
-                            {nominations.length > 0 && <ClubNomination nominations={nominations} />}
+                            {nominations.length > 0 && <ClubNomination nominations={nominations} applications={applications} />}
                             <ClubMembership clubs={clubs} user={user} paymentMethods={paymentMethods} />
                         </div>
                     </div>
