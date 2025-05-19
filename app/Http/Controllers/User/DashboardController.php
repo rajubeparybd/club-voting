@@ -18,7 +18,7 @@ class DashboardController extends Controller
             'clubs'          => Club::where('status', 'active')->with('users')->get(),
             'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
             'nominations'    => Nomination::with(['club'])->whereIn('club_id', $userClubs)->where('status', 'active')->where('end_date', '>=', now())->get(),
-            'applications'   => NominationApplication::where('user_id', auth()->user()->id)->with(['club', 'clubPosition', 'nomination'])->get(),
+            'applications'   => NominationApplication::where('user_id', auth()->user()->id)->with(['club', 'clubPosition'])->get(),
         ]);
     }
 }
