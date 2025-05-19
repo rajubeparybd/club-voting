@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('transaction_id');
             $table->decimal('amount', 10, 2);
             $table->string('sender_account_number');
-            $table->enum('status', ['pending', 'verified', 'rejected'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('admin_notes')->nullable();
             $table->timestamps();
         });
