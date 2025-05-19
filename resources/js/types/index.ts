@@ -99,6 +99,7 @@ export interface User {
     gender?: 'M' | 'F' | 'Other';
     email: string;
     password: string;
+    is_candidate: boolean;
     email_verified_at?: string | null;
     remember_token?: string | null;
     status: 'active' | 'inactive' | 'banned';
@@ -156,13 +157,17 @@ export interface Department {
 
 export interface Nomination {
     id: number;
-    club_id: number;
     title: string;
-    description: string;
-    status: 'active' | 'inactive' | 'pending';
+    description?: string;
+    club_id: number;
     start_date: string;
     end_date: string;
+    status: 'active' | 'inactive' | 'archived';
+    eligibility_criteria?: Record<string, unknown>;
     club?: Club;
+    positions?: ClubPosition[];
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface PaymentMethod {

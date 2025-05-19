@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { ActivitySquare, LayoutGrid, Receipt, Settings, Users } from 'lucide-react';
+import { ActivitySquare, Award, LayoutGrid, Receipt, Settings, Users } from 'lucide-react';
 
 export const userSidebarNavItems: NavItem[] = [
     {
@@ -11,6 +11,11 @@ export const userSidebarNavItems: NavItem[] = [
         title: 'Clubs',
         href: route('user.clubs.index'),
         icon: Users,
+    },
+    {
+        title: 'Nominations',
+        href: route('user.nominations.index'),
+        icon: Award,
     },
     {
         title: 'Payment Logs',

@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\User\ClubMembershipController;
 use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\NominationController;
 use App\Http\Controllers\User\PaymentLogController;
 use App\Http\Controllers\User\Settings\PasswordController;
 use App\Http\Controllers\User\Settings\ProfileController;
@@ -18,6 +19,12 @@ Route::prefix('clubs')->name('clubs.')->group(function () {
     Route::get('/', [ClubMembershipController::class, 'index'])->name('index');
     Route::get('/{club}', [ClubMembershipController::class, 'show'])->name('show');
     Route::post('/join', [ClubMembershipController::class, 'join'])->name('join');
+});
+
+// Nominations
+Route::prefix('nominations')->name('nominations.')->group(function () {
+    Route::get('/', [NominationController::class, 'index'])->name('index');
+    Route::post('/become-candidate', [NominationController::class, 'becomeCandidate'])->name('become-candidate');
 });
 
 Route::prefix('settings')->name('settings.')->group(function () {

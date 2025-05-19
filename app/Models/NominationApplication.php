@@ -13,6 +13,8 @@ class NominationApplication extends Model implements HasMedia
 
     protected $guarded = ['id'];
 
+    protected $appends = ['cv_url'];
+
     /**
      * Get the nomination that this application belongs to.
      */
@@ -45,7 +47,16 @@ class NominationApplication extends Model implements HasMedia
      */
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('na_statement');
+        $this->addMediaCollection('cv')
+            ->singleFile();
+    }
+
+    /**
+     * Get the CV URL.
+     */
+    public function getCvUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('cv');
     }
 
     /**
