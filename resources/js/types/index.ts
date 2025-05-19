@@ -162,7 +162,7 @@ export interface Nomination {
     club_id: number;
     start_date: string;
     end_date: string;
-    status: 'active' | 'inactive' | 'archived';
+    status: 'active' | 'draft' | 'closed' | 'archived';
     eligibility_criteria?: Record<string, unknown>;
     club?: Club;
     positions?: ClubPosition[];

@@ -54,6 +54,8 @@ Route::get('activities', [ActivityController::class, 'index'])->name('activities
 Route::resource('nominations', NominationController::class);
 Route::get('clubs/{club}/positions', [NominationController::class, 'getClubPositions'])
     ->name('clubs.positions');
+Route::put('nominations/{nomination}/status', [NominationController::class, 'updateStatus'])
+    ->name('nominations.update-status');
 
 // Nomination Application routes
 Route::put('applications/{application}/update', [NominationController::class, 'updateApplication'])

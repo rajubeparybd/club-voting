@@ -34,6 +34,7 @@ const variants = {
     neutral: 'bg-gray-600 text-white',
     archived: 'bg-gray-600 text-white',
     expired: 'bg-gray-600 text-white',
+    closed: 'bg-gray-600 text-white',
 
     // Special states
     premium: 'bg-purple-600 text-white',

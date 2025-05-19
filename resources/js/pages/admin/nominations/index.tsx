@@ -1,4 +1,5 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
+import UpdateStatusModal from '@/components/admin/nominations/UpdateStatusModal';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,17 +12,24 @@ import { BreadcrumbItem, Nomination } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDate } from 'date-fns';
-import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Activity, Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 export default function NominationsIndex({ nominations }: { nominations: Nomination[] }) {
     const [isLoading, setIsLoading] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [nominationToDelete, setNominationToDelete] = useState<number | null>(null);
+    const [statusDialog, setStatusDialog] = useState(false);
+    const [nominationToUpdate, setNominationToUpdate] = useState<Nomination | null>(null);
 
     const handleDeleteClick = useCallback((id: number) => {
         setNominationToDelete(id);
         setDeleteDialog(true);
+    }, []);
+
+    const handleStatusClick = useCallback((nomination: Nomination) => {
+        setNominationToUpdate(nomination);
+        setStatusDialog(true);
     }, []);
 
     const columns: ColumnDef<Nomination>[] = useMemo(
@@ -125,6 +133,12 @@ export default function NominationsIndex({ nominations }: { nominations: Nominat
                                     title: 'Edit Nomination',
                                     icon: <Pencil className="mr-2 size-4" />,
                                     link: route('admin.nominations.edit', nomination.id),
+                                },
+                                {
+                                    permission: 'edit_nominations',
+                                    title: 'Change Status',
+                                    icon: <Activity className="mr-2 size-4" />,
+                                    onClick: () => handleStatusClick(nomination),
                                     separatorAfter: true,
                                 },
                                 {
@@ -141,7 +155,7 @@ export default function NominationsIndex({ nominations }: { nominations: Nominat
                 },
             },
         ],
-        [handleDeleteClick, isLoading],
+        [handleDeleteClick, handleStatusClick, isLoading],
     );
 
     const initialHiddenColumns: string[] = useMemo(() => ['description'], []);
@@ -233,6 +247,15 @@ export default function NominationsIndex({ nominations }: { nominations: Nominat
                     onConfirm={handleDelete}
                     onCancel={handleCancelDelete}
                     isLoading={isLoading}
+                />
+
+                <UpdateStatusModal
+                    isOpen={statusDialog}
+                    onOpenChange={setStatusDialog}
+                    nomination={nominationToUpdate}
+                    onSuccess={() => {
+                        setNominationToUpdate(null);
+                    }}
                 />
 
                 <ManagementPageHeader title="Nominations" description="Manage all nominations.">

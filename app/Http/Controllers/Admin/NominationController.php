@@ -180,4 +180,26 @@ class NominationController extends Controller
 
         return redirect()->back()->with('success', "Application updated successfully.");
     }
+
+    /**
+     * Update the status of a nomination.
+     */
+    public function updateStatus(Nomination $nomination, Request $request)
+    {
+        $response = $this->checkAuthorization("edit_nominations", $request);
+        if ($response) {
+            return $response;
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:draft,active,closed,archived',
+        ]);
+
+        $oldStatus = $nomination->status;
+        $nomination->update(['status' => $validated['status']]);
+
+        $this->logActivity("Updated {$nomination->title} status from {$oldStatus} to {$validated['status']}", "nomination");
+
+        return redirect()->back()->with('success', 'Nomination status updated successfully.');
+    }
 }
