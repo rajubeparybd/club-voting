@@ -17,10 +17,12 @@ class NominationController extends Controller
      */
     public function index(Request $request)
     {
-        // Get user's club memberships
-        $userClubs = $request->user()->clubs()->pluck('clubs.id');
+        // Get only active club memberships
+        $userClubs = $request->user()->clubs()
+            ->where('club_user.status', 'active')
+            ->pluck('clubs.id');
 
-        // Get active nominations for clubs where the user is a member
+        // Get active nominations for clubs where the user is an active member
         $nominations = Nomination::with(['club'])
             ->whereIn('club_id', $userClubs)
             ->where('status', 'active')
