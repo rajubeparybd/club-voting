@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Admin\ClubController;
-use App\Http\Controllers\Admin\NominationApplicationController;
 use App\Http\Controllers\Admin\NominationController;
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\RoleController;
@@ -56,9 +55,8 @@ Route::get('clubs/{club}/positions', [NominationController::class, 'getClubPosit
     ->name('clubs.positions');
 
 // Nomination Application routes
-Route::resource('applications', NominationApplicationController::class);
-Route::post('applications/batch-update', [NominationApplicationController::class, 'batchUpdate'])
-    ->name('applications.batch-update');
+Route::put('applications/{application}/update', [NominationController::class, 'updateApplication'])
+    ->name('applications.update');
 
 // Payment methods
 Route::resource('payment-methods', PaymentMethodController::class);

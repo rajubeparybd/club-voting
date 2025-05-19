@@ -79,6 +79,16 @@ const MyApplicationsSection: React.FC<MyApplicationsSectionProps> = ({ applicati
                 },
             },
             {
+                accessorKey: 'admin_notes',
+                header: ({ column }) => <DataTableColumnHeader column={column} title="Admin Notes" />,
+                cell: ({ row }) => {
+                    const adminNotes = row.getValue('admin_notes') as string;
+                    return adminNotes ? adminNotes : 'N/A';
+                },
+                enableSorting: true,
+                enableHiding: true,
+            },
+            {
                 accessorKey: 'created_at',
                 header: ({ column }) => <DataTableColumnHeader column={column} title="Created" />,
                 cell: ({ row }) => {

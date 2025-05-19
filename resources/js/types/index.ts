@@ -194,6 +194,7 @@ export interface NominationApplication {
     admin_notes: string;
     created_at: string;
     updated_at: string;
+    cv_url?: string;
     positions?: ClubPosition[];
     nomination?: Nomination;
     club?: Club;

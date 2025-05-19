@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\NominationRequest;
 use App\Models\Club;
 use App\Models\Nomination;
+use App\Models\NominationApplication;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -82,11 +83,9 @@ class NominationController extends Controller
             return $response;
         }
 
-        $nomination->load('club', 'applications');
-
         return Inertia::render('admin/nominations/show', [
-            'nomination'   => $nomination,
-            'applications' => $nomination->applications,
+            'nomination'   => $nomination->load(['club:id,name,image']),
+            'applications' => $nomination->applications->load(['user', 'club:id,name,image', 'clubPosition:id,name']),
         ]);
     }
 
@@ -154,5 +153,31 @@ class NominationController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete nomination. ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Update multiple applications at once.
+     */
+    public function updateApplication(NominationApplication $application, Request $request)
+    {
+        $response = $this->checkAuthorization("edit_nomination_applications", $request);
+        if ($response) {
+            return $response;
+        }
+
+        $validated = $request->validate([
+            'status'      => 'required|in:pending,approved,rejected',
+            'admin_notes' => 'nullable|string',
+        ]);
+
+        $application->update([
+            'status'      => $validated['status'],
+            'admin_notes' => $validated['admin_notes'],
+        ]);
+
+        $statusText = ucfirst($validated['status']);
+        $this->logActivity("{$statusText} {$application->id} application", "nomination");
+
+        return redirect()->back()->with('success', "Application updated successfully.");
     }
 }

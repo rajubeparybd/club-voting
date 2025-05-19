@@ -1,32 +1,43 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import ViewNominationModal from '@/components/admin/nominations/ViewNominationModal';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import CheckUserPermission from '@/components/ui/check-user-permission';
 import DataTable, { DataTableActions, DataTableColumnHeader, DataTableFilter } from '@/components/ui/data-table';
 import { DeleteConfirmationDialog } from '@/components/ui/DeleteConfirmationDialog';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { useInitials } from '@/hooks/use-initials';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
-import { BreadcrumbItem, Nomination } from '@/types';
+import { formatFilter } from '@/lib/utils';
+import { BreadcrumbItem, Nomination, NominationApplication } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { formatDate } from 'date-fns';
-import { ArrowLeft, Eye, Pencil, Trash2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { ArrowLeft, Eye, Pencil } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 export default function NominationShow({ nomination, applications }: { nomination: Nomination; applications: NominationApplication[] }) {
     const [isLoading, setIsLoading] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [nominationToDelete, setNominationToDelete] = useState<number | null>(null);
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [selectedApplication, setSelectedApplication] = useState<NominationApplication | null>(null);
+    const getInitials = useInitials();
 
-    console.log(applications);
+    const clubNames = useMemo(() => [...new Set(applications.map((application) => application.club?.name))], [applications]);
+    const clubPositions = useMemo(() => [...new Set(applications.map((application) => application.club_position?.name))], [applications]);
 
-    const handleDeleteClick = useCallback((id: number) => {
-        setNominationToDelete(id);
-        setDeleteDialog(true);
-    }, []);
+    const handleViewApplication = (application: NominationApplication) => {
+        setSelectedApplication(application);
+        setViewModalOpen(true);
+    };
 
-    const columns: ColumnDef<Nomination>[] = useMemo(
+    const handleModalSuccess = () => {
+        router.reload();
+    };
+
+    const columns: ColumnDef<NominationApplication>[] = useMemo(
         () => [
             {
                 accessorKey: 'club.name',
@@ -46,41 +57,58 @@ export default function NominationShow({ nomination, applications }: { nominatio
                 enableHiding: true,
             },
             {
-                accessorKey: 'title',
-                header: ({ column }) => <DataTableColumnHeader column={column} title="Title" />,
+                accessorKey: 'user.name',
+                header: ({ column }) => <DataTableColumnHeader column={column} title="User Info" />,
                 cell: ({ row }) => {
-                    return <span className="line-clamp-1">{row.getValue('title')}</span>;
+                    const user = row.original.user;
+                    return (
+                        <div className="flex items-center gap-2">
+                            <Avatar className="size-8 rounded-md border">
+                                <AvatarImage src={user?.avatar ?? undefined} alt={user?.name ?? 'User'} />
+                                <AvatarFallback>{user?.name ? getInitials(user.name) : '-'}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-medium">{user?.name ?? '-'}</span>
+                                <span className="text-muted-foreground text-xs">{user?.email ?? '-'}</span>
+                                <span className="text-muted-foreground text-xs">
+                                    ID: {user?.student_id ?? '-'} | Dept:{user?.department?.name ?? '-'}
+                                </span>
+                            </div>
+                        </div>
+                    );
                 },
                 enableSorting: true,
                 enableHiding: true,
             },
             {
-                accessorKey: 'description',
-                header: ({ column }) => <DataTableColumnHeader column={column} title="Description" />,
-                cell: ({ row }) => {
-                    return <span className="line-clamp-1">{row.getValue('description')}</span>;
-                },
-                enableSorting: true,
-                enableHiding: true,
+                accessorKey: 'club_position.name',
+                header: ({ column }) => <DataTableColumnHeader column={column} title="Position" />,
             },
             {
-                accessorKey: 'start_date',
-                header: ({ column }) => <DataTableColumnHeader column={column} title="Start Date" />,
+                accessorKey: 'statement',
+                header: ({ column }) => <DataTableColumnHeader column={column} title="Statement" />,
                 cell: ({ row }) => {
-                    const date = new Date(row.getValue('start_date'));
-                    return formatDate(date, 'dd MMM, yyyy hh:mm a');
+                    const statement = row.getValue('statement') as string;
+                    if (statement.length > 50) {
+                        return `${statement.substring(0, 50)}...`;
+                    }
+                    return statement;
                 },
-                enableSorting: true,
-                enableHiding: true,
             },
             {
-                accessorKey: 'end_date',
-                header: ({ column }) => <DataTableColumnHeader column={column} title="End Date" />,
+                accessorKey: 'cv_url',
+                header: ({ column }) => <DataTableColumnHeader column={column} title="CV" />,
                 cell: ({ row }) => {
-                    const date = new Date(row.getValue('end_date'));
-                    return formatDate(date, 'dd MMM, yyyy hh:mm a');
+                    const cvUrl = row.getValue('cv_url') as string;
+                    return cvUrl ? (
+                        <a href={cvUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-blue-600 hover:underline">
+                            <Eye className="mr-1 size-4" /> View
+                        </a>
+                    ) : (
+                        <span className="text-gray-400">No CV</span>
+                    );
                 },
-                enableSorting: true,
+                enableSorting: false,
                 enableHiding: true,
             },
             {
@@ -97,11 +125,31 @@ export default function NominationShow({ nomination, applications }: { nominatio
                 },
             },
             {
+                accessorKey: 'admin_notes',
+                header: ({ column }) => <DataTableColumnHeader column={column} title="Admin Notes" />,
+                cell: ({ row }) => {
+                    const adminNotes = row.getValue('admin_notes') as string;
+                    return adminNotes ? adminNotes : 'N/A';
+                },
+                enableSorting: true,
+                enableHiding: true,
+            },
+            {
                 accessorKey: 'created_at',
                 header: ({ column }) => <DataTableColumnHeader column={column} title="Created" />,
                 cell: ({ row }) => {
                     const date = new Date(row.getValue('created_at'));
-                    return formatDate(date, 'dd MMM, yyyy');
+                    return format(date, 'dd MMM, yyyy hh:mm a');
+                },
+                enableSorting: true,
+                enableHiding: true,
+            },
+            {
+                accessorKey: 'updated_at',
+                header: ({ column }) => <DataTableColumnHeader column={column} title="Updated" />,
+                cell: ({ row }) => {
+                    const date = new Date(row.getValue('updated_at'));
+                    return format(date, 'dd MMM, yyyy hh:mm a');
                 },
                 enableSorting: true,
                 enableHiding: true,
@@ -112,30 +160,15 @@ export default function NominationShow({ nomination, applications }: { nominatio
                 enableHiding: false,
                 enableSorting: false,
                 cell: ({ row }) => {
-                    const nomination = row.original;
+                    const application = row.original;
                     return (
                         <DataTableActions
                             actions={[
                                 {
-                                    permission: 'view_nominations',
-                                    title: 'View Nomination',
+                                    permission: 'view_nomination_applications',
+                                    title: 'View Application',
                                     icon: <Eye className="mr-2 size-4" />,
-                                    link: route('admin.nominations.show', nomination.id),
-                                },
-                                {
-                                    permission: 'edit_nominations',
-                                    title: 'Edit Nomination',
-                                    icon: <Pencil className="mr-2 size-4" />,
-                                    link: route('admin.nominations.edit', nomination.id),
-                                    separatorAfter: true,
-                                },
-                                {
-                                    permission: 'delete_nominations',
-                                    title: 'Delete Nomination',
-                                    icon: <Trash2 className="mr-2 size-4" />,
-                                    onClick: () => handleDeleteClick(nomination.id),
-                                    danger: true,
-                                    disabled: isLoading,
+                                    onClick: () => handleViewApplication(application),
                                 },
                             ]}
                         />
@@ -143,20 +176,33 @@ export default function NominationShow({ nomination, applications }: { nominatio
                 },
             },
         ],
-        [handleDeleteClick, isLoading],
+        [getInitials],
     );
 
-    const initialHiddenColumns: string[] = useMemo(() => ['description'], []);
+    const initialHiddenColumns: string[] = useMemo(() => ['updated_at'], []);
 
-    const data = useMemo(() => [nomination], [nomination]);
+    const data = useMemo(() => applications, [applications]);
 
     const filters: Record<string, DataTableFilter> = useMemo(
         () => ({
+            user_name: {
+                label: 'User',
+                placeholder: 'Search...',
+                type: 'global',
+                className: 'flex-1',
+            },
             club_name: {
-                label: 'Search Club',
-                placeholder: 'Search by club name...',
-                type: 'input',
+                label: 'Club',
+                type: 'select',
                 columnId: 'club.name',
+                options: formatFilter(clubNames as string[]),
+                className: 'flex-1',
+            },
+            club_position_name: {
+                label: 'Position',
+                type: 'select',
+                columnId: 'club_position.name',
+                options: formatFilter(clubPositions as string[]),
                 className: 'flex-1',
             },
             status: {
@@ -165,14 +211,14 @@ export default function NominationShow({ nomination, applications }: { nominatio
                 columnId: 'status',
                 options: [
                     { label: 'All', value: 'all' },
-                    { label: 'Active', value: 'active' },
-                    { label: 'Draft', value: 'draft' },
-                    { label: 'Archived', value: 'archived' },
+                    { label: 'Pending', value: 'pending' },
+                    { label: 'Approved', value: 'approved' },
+                    { label: 'Rejected', value: 'rejected' },
                 ],
                 className: 'flex-1',
             },
         }),
-        [],
+        [clubNames, clubPositions],
     );
 
     const breadcrumbs: BreadcrumbItem[] = useMemo(
@@ -181,8 +227,12 @@ export default function NominationShow({ nomination, applications }: { nominatio
                 title: 'Nominations Management',
                 href: route('admin.nominations.index'),
             },
+            {
+                title: 'Applications',
+                href: route('admin.nominations.show', nomination.id),
+            },
         ],
-        [],
+        [nomination],
     );
 
     const handleDelete = useCallback(() => {
@@ -225,8 +275,6 @@ export default function NominationShow({ nomination, applications }: { nominatio
         );
     }
 
-    // TODO: Show All Applications
-
     return (
         <AdminAppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Nomination - ${nomination.title}`} />
@@ -239,7 +287,14 @@ export default function NominationShow({ nomination, applications }: { nominatio
                     isLoading={isLoading}
                 />
 
-                <ManagementPageHeader title={`Applications - ${nomination.title}`} description="Manage all applications.">
+                <ViewNominationModal
+                    isOpen={viewModalOpen}
+                    onOpenChange={setViewModalOpen}
+                    application={selectedApplication}
+                    onSuccess={handleModalSuccess}
+                />
+
+                <ManagementPageHeader title={`Applications for ${nomination.club?.name}`} description="Manage all applications.">
                     <div className="flex items-center gap-2">
                         <CheckUserPermission permission="edit_nominations">
                             <Button asChild>
@@ -259,7 +314,9 @@ export default function NominationShow({ nomination, applications }: { nominatio
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>{nomination.title}</CardTitle>
+                        <CardTitle>
+                            {nomination.club?.name} - {nomination.title}
+                        </CardTitle>
                         <CardDescription>{nomination.description}</CardDescription>
                     </CardHeader>
                     <CardContent>

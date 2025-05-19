@@ -122,11 +122,15 @@ export function NominationApplicationDialog({ isOpen, onOpenChange, nomination, 
                                 <SelectValue placeholder="Select a position" />
                             </SelectTrigger>
                             <SelectContent>
-                                {positions?.map((position: ClubPosition) => (
-                                    <SelectItem key={position.id} value={position.id.toString()}>
-                                        {position.name}
-                                    </SelectItem>
-                                ))}
+                                {positions && positions.length > 0 ? (
+                                    positions?.map((position: ClubPosition) => (
+                                        <SelectItem key={position.id} value={position.id.toString()}>
+                                            {position.name}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    <SelectItem value="no-positions">No positions available</SelectItem>
+                                )}
                             </SelectContent>
                         </Select>
                         {getError('position_id') && <p className="mt-1 text-xs text-red-500">{getError('position_id')}</p>}
