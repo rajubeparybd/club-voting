@@ -85,3 +85,28 @@ export const formatFilter = (filters: string[]) => {
         return { label: formattedItem, value: item };
     });
 };
+
+// Helper function to format time remaining
+export const formatTimeRemaining = (endDate: string) => {
+    const now = new Date();
+    const end = new Date(endDate);
+    const diffTime = end.getTime() - now.getTime();
+
+    if (diffTime <= 0) {
+        return { text: 'Ended', isExpired: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+    const diffSeconds = Math.floor((diffTime % (1000 * 60)) / 1000);
+
+    return {
+        text: `${diffDays}d ${diffHours}h ${diffMinutes}m ${diffSeconds}s`,
+        isExpired: false,
+        days: diffDays,
+        hours: diffHours,
+        minutes: diffMinutes,
+        seconds: diffSeconds,
+    };
+};
