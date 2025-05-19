@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { formatTimeRemaining } from '@/lib/utils';
-import type { Nomination } from '@/types';
+import type { Nomination, NominationApplication } from '@/types';
 import { formatDate } from 'date-fns';
 import { Award, CalendarClock, CalendarIcon, ClockIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -8,9 +8,10 @@ import { NominationApplicationDialog } from './NominationApplicationDialog';
 
 interface NominationCardProps {
     nomination: Nomination;
+    applications: NominationApplication[];
 }
 
-const NominationCard: React.FC<NominationCardProps> = ({ nomination }) => {
+const NominationCard: React.FC<NominationCardProps> = ({ nomination, applications }) => {
     const [timeRemaining, setTimeRemaining] = useState(formatTimeRemaining(nomination.end_date));
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -108,7 +109,7 @@ const NominationCard: React.FC<NominationCardProps> = ({ nomination }) => {
             </div>
 
             {/* Application Dialog */}
-            <NominationApplicationDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} nomination={nomination} />
+            <NominationApplicationDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} nomination={nomination} applications={applications} />
         </div>
     );
 };

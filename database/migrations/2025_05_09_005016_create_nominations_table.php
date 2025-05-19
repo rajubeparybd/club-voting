@@ -28,17 +28,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('nomination_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->text('statement')->nullable();
-            $table->timestamps();
-        });
-
-        Schema::create('nomination_application_positions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('nomination_application_id')->constrained()->onDelete('cascade');
+            $table->foreignId('club_id')->constrained()->onDelete('cascade');
             $table->foreignId('club_position_id')->constrained()->onDelete('cascade');
-            $table->text('additional_requirements')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->integer('max_applicants')->nullable()->comment('Maximum number of applicants that can be accepted for this position');
+            $table->text('statement')->nullable();
             $table->text('admin_notes')->nullable();
             $table->timestamps();
         });
@@ -52,6 +45,5 @@ return new class extends Migration
     {
         Schema::dropIfExists('nominations');
         Schema::dropIfExists('nomination_applications');
-        Schema::dropIfExists('nomination_application_positions');
     }
 };

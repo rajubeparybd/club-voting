@@ -183,6 +183,24 @@ export interface PaymentMethod {
     updated_at: string;
 }
 
+export interface NominationApplication {
+    id: number;
+    user_id: number;
+    nomination_id: number;
+    club_id: number;
+    club_position_id: number;
+    status: 'pending' | 'approved' | 'rejected';
+    statement: string;
+    admin_notes: string;
+    created_at: string;
+    updated_at: string;
+    positions?: ClubPosition[];
+    nomination?: Nomination;
+    club?: Club;
+    user?: User;
+    club_position?: ClubPosition;
+}
+
 export interface PaymentLog {
     id: number;
     user_id: number;

@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import ProcessingButton from '@/components/ui/processing-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ClubPosition, Nomination } from '@/types';
+import { ClubPosition, Nomination, NominationApplication } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
@@ -12,22 +12,30 @@ interface NominationApplicationDialogProps {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
     nomination: Nomination;
+    applications: NominationApplication[];
 }
 
 type ApplicationFormData = {
     nomination_id: string;
+    club_id: string;
     position_id: string;
     statement: string;
     cv: File | null;
 };
 
-export function NominationApplicationDialog({ isOpen, onOpenChange, nomination }: NominationApplicationDialogProps) {
+export function NominationApplicationDialog({ isOpen, onOpenChange, nomination, applications }: NominationApplicationDialogProps) {
     const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm<ApplicationFormData>({
         nomination_id: nomination?.id?.toString() || '',
+        club_id: nomination?.club?.id?.toString() || '',
         position_id: '',
         statement: '',
         cv: null,
     });
+
+    // Filter out the positions that the user has already applied for
+    const positions = nomination?.club?.positions?.filter(
+        (position) => !applications.some((application) => application.club_position_id === position.id),
+    );
 
     const [validationErrors, setValidationErrors] = useState<Partial<Record<keyof ApplicationFormData, string>>>({});
     const [wordCount, setWordCount] = useState<number>(0);
@@ -114,7 +122,7 @@ export function NominationApplicationDialog({ isOpen, onOpenChange, nomination }
                                 <SelectValue placeholder="Select a position" />
                             </SelectTrigger>
                             <SelectContent>
-                                {nomination?.club?.positions?.map((position: ClubPosition) => (
+                                {positions?.map((position: ClubPosition) => (
                                     <SelectItem key={position.id} value={position.id.toString()}>
                                         {position.name}
                                     </SelectItem>

@@ -3,7 +3,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -32,14 +31,19 @@ class NominationApplication extends Model implements HasMedia
     }
 
     /**
-     * Get the positions that this application is for.
+     * Get the club that this application is for.
      */
-    public function positions(): BelongsToMany
+    public function club(): BelongsTo
     {
-        return $this->belongsToMany(ClubPosition::class, 'nomination_application_position')
-            ->using(NominationApplicationPosition::class)
-            ->withPivot('additional_requirements', 'status', 'max_applicants', 'admin_notes')
-            ->withTimestamps();
+        return $this->belongsTo(Club::class);
+    }
+
+    /**
+     * Get the club position that this application is for.
+     */
+    public function clubPosition(): BelongsTo
+    {
+        return $this->belongsTo(ClubPosition::class);
     }
 
     /**

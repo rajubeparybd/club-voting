@@ -38,7 +38,7 @@ class Nomination extends Model
     public function positions(): BelongsToMany
     {
         return $this->belongsToMany(ClubPosition::class, 'nomination_positions')
-            ->withPivot('max_applicants', 'additional_requirements')
+            ->withPivot('max_applicants', 'additional_requirements', 'status', 'admin_notes')
             ->withTimestamps();
     }
 

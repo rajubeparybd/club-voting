@@ -1,14 +1,15 @@
 import { Card } from '@/components/ui/card';
-import type { Nomination } from '@/types';
+import type { Nomination, NominationApplication } from '@/types';
 import { CalendarClock, Info } from 'lucide-react';
 import React from 'react';
 import NominationCard from './NominationCard';
 
 interface ActiveNominationsCardProps {
     nominations: Nomination[];
+    applications: NominationApplication[];
 }
 
-const ActiveNominationsCard: React.FC<ActiveNominationsCardProps> = ({ nominations }) => {
+const ActiveNominationsCard: React.FC<ActiveNominationsCardProps> = ({ nominations, applications }) => {
     return (
         <Card className="w-full rounded-2xl bg-[#191B22] p-4 lg:p-6">
             <div className="flex items-center justify-between">
@@ -32,7 +33,7 @@ const ActiveNominationsCard: React.FC<ActiveNominationsCardProps> = ({ nominatio
             ) : (
                 <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
                     {nominations.map((nomination) => (
-                        <NominationCard key={nomination.id} nomination={nomination} />
+                        <NominationCard key={nomination.id} nomination={nomination} applications={applications} />
                     ))}
                 </div>
             )}
