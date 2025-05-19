@@ -21,7 +21,9 @@ class VotingEventController extends Controller
         }
 
         $votingEvents = VotingEvent::with(['club'])->get();
-        $clubs        = Club::select('id', 'name')->where('status', 'active')->get();
+        $clubs        = Club::select('id', 'name')->where('status', 'active')->whereHas('nominations', function ($query) {
+            $query->whereIn('status', ['closed', 'archived']);
+        })->get();
 
         return Inertia::render('admin/voting-events/index', [
             'votingEvents' => $votingEvents,
@@ -63,9 +65,17 @@ class VotingEventController extends Controller
 
         $activeNominations = Nomination::where('club_id', $validated['club_id'])
             ->where('status', 'active')
-            ->get();
+            ->count();
 
-        if ($activeNominations) {
+        $hasNoNominations = Nomination::where('club_id', $validated['club_id'])
+            ->whereIn('status', ['closed', 'archived'])
+            ->count();
+
+        if ($hasNoNominations > 0) {
+            return back()->with('error', 'This club has no nominations. Please create a nomination before creating a voting event.');
+        }
+
+        if ($activeNominations > 0) {
             return back()->with('error', 'This club has an active nomination. Please close the nomination before creating a voting event.');
         }
 
