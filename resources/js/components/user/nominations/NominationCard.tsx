@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { formatTimeRemaining } from '@/lib/utils';
 import type { Nomination } from '@/types';
-import { Link } from '@inertiajs/react';
 import { formatDate } from 'date-fns';
 import { Award, CalendarClock, CalendarIcon, ClockIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { NominationApplicationDialog } from './NominationApplicationDialog';
 
 interface NominationCardProps {
     nomination: Nomination;
@@ -12,6 +12,7 @@ interface NominationCardProps {
 
 const NominationCard: React.FC<NominationCardProps> = ({ nomination }) => {
     const [timeRemaining, setTimeRemaining] = useState(formatTimeRemaining(nomination.end_date));
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -20,6 +21,10 @@ const NominationCard: React.FC<NominationCardProps> = ({ nomination }) => {
 
         return () => clearInterval(timer);
     }, [nomination.end_date]);
+
+    const handleApplyNow = () => {
+        setIsDialogOpen(true);
+    };
 
     return (
         <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-950">
@@ -97,10 +102,13 @@ const NominationCard: React.FC<NominationCardProps> = ({ nomination }) => {
                 </div>
 
                 {/* Action Button */}
-                <Button asChild className="mt-auto w-full">
-                    <Link href="">Apply Now</Link>
+                <Button className="mt-auto w-full" onClick={handleApplyNow} disabled={timeRemaining.isExpired}>
+                    Apply Now
                 </Button>
             </div>
+
+            {/* Application Dialog */}
+            <NominationApplicationDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} nomination={nomination} />
         </div>
     );
 };

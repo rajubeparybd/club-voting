@@ -25,6 +25,7 @@ Route::prefix('clubs')->name('clubs.')->group(function () {
 Route::prefix('nominations')->name('nominations.')->group(function () {
     Route::get('/', [NominationController::class, 'index'])->name('index');
     Route::post('/become-candidate', [NominationController::class, 'becomeCandidate'])->name('become-candidate');
+    Route::post('/apply', [NominationController::class, 'apply'])->name('apply');
 });
 
 Route::prefix('settings')->name('settings.')->group(function () {
