@@ -217,3 +217,18 @@ export interface PaymentLog {
     club?: Club;
     payment_method?: PaymentMethod;
 }
+
+export interface VotingEvent {
+    id: number;
+    title: string;
+    description?: string;
+    club_id: number;
+    nomination_id?: number | null;
+    start_date: string;
+    end_date: string;
+    status: 'active' | 'draft' | 'closed' | 'archived';
+    club?: Club;
+    nomination?: Nomination;
+    created_at?: string;
+    updated_at?: string;
+}

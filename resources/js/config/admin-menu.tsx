@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { ActivitySquare, CreditCard, LayoutGrid, MailCheck, Settings, ShieldCheck, User2, Users } from 'lucide-react';
+import { ActivitySquare, Calendar, CreditCard, LayoutGrid, MailCheck, Settings, ShieldCheck, User2, Users } from 'lucide-react';
 
 export const adminSidebarNavItems: NavItem[] = [
     {
@@ -19,6 +19,12 @@ export const adminSidebarNavItems: NavItem[] = [
         href: route('admin.nominations.index'),
         icon: MailCheck,
         permissions: ['view_nominations', 'create_nominations', 'edit_nominations', 'delete_nominations'],
+    },
+    {
+        title: 'Voting Events',
+        href: route('admin.voting-events.index'),
+        icon: Calendar,
+        permissions: ['view_voting_events', 'create_voting_events', 'edit_voting_events', 'delete_voting_events'],
     },
     {
         title: 'Users & Roles',

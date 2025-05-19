@@ -147,6 +147,24 @@
                 "name": "create_payment_methods",
                 "description": "Create a new Payment Method"
             }
+        ],
+        "voting_events": [
+            {
+                "name": "view_voting_events",
+                "description": "View voting events"
+            },
+            {
+                "name": "create_voting_events",
+                "description": "Create voting events"
+            },
+            {
+                "name": "edit_voting_events",
+                "description": "Edit voting events"
+            },
+            {
+                "name": "delete_voting_events",
+                "description": "Delete voting events"
+            }
         ]
     },
     "roles": {

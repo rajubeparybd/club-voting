@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\Settings\PasswordController;
 use App\Http\Controllers\Admin\Settings\ProfileController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VotingEventController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -60,3 +61,6 @@ Route::put('applications/{application}/update', [NominationController::class, 'u
 
 // Payment methods
 Route::resource('payment-methods', PaymentMethodController::class);
+
+// Voting Events
+Route::resource('voting-events', VotingEventController::class);
