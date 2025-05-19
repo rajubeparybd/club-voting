@@ -15,13 +15,15 @@ const NominationCard: React.FC<NominationCardProps> = ({ nomination, application
     const [timeRemaining, setTimeRemaining] = useState(formatTimeRemaining(nomination.end_date));
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    const hasStarted = new Date(nomination.start_date) <= new Date();
+
     useEffect(() => {
         const timer = setInterval(() => {
-            setTimeRemaining(formatTimeRemaining(nomination.end_date));
+            setTimeRemaining(formatTimeRemaining(hasStarted ? nomination.end_date : nomination.start_date));
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [nomination.end_date]);
+    }, [nomination.end_date, nomination.start_date, hasStarted]);
 
     const handleApplyNow = () => {
         setIsDialogOpen(true);
@@ -51,7 +53,9 @@ const NominationCard: React.FC<NominationCardProps> = ({ nomination, application
                 <div className="mb-4 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/30">
                     <div className="mb-2 flex items-center gap-2">
                         <ClockIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                        <span className="font-medium text-blue-700 dark:text-blue-300">Time Remaining</span>
+                        <span className="font-medium text-blue-700 dark:text-blue-300">
+                            Time Remaining to {hasStarted ? 'End' : 'Start'} Application
+                        </span>
                     </div>
 
                     {timeRemaining.isExpired ? (
@@ -103,9 +107,15 @@ const NominationCard: React.FC<NominationCardProps> = ({ nomination, application
                 </div>
 
                 {/* Action Button */}
-                <Button className="mt-auto w-full" onClick={handleApplyNow} disabled={timeRemaining.isExpired}>
-                    Apply Now
-                </Button>
+                {hasStarted ? (
+                    <Button className="mt-auto w-full" onClick={handleApplyNow} disabled={timeRemaining.isExpired}>
+                        Apply Now
+                    </Button>
+                ) : (
+                    <Button className="mt-auto w-full" disabled={true}>
+                        Upcoming
+                    </Button>
+                )}
             </div>
 
             {/* Application Dialog */}
