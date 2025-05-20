@@ -254,6 +254,14 @@ class VotingEventController extends Controller
         ]);
 
         $oldStatus = $votingEvent->status;
+
+        // Prevent changing from closed/archived to any other status
+        if (($oldStatus === 'closed' || $oldStatus === 'archived') && $validated['status'] !== $oldStatus) {
+            return redirect()->back()->withErrors([
+                'error' => 'Closed or archived voting events cannot be changed to any other status. Please create a new voting event instead.',
+            ]);
+        }
+
         $votingEvent->update([
             'status' => $validated['status'],
         ]);

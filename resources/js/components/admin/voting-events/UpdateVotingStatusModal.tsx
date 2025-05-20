@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { NominationApplication, VotingEvent } from '@/types';
 import { router } from '@inertiajs/react';
 import axios from 'axios';
+import { AlertTriangle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import TiebreakModal from './TiebreakModal';
 
@@ -19,6 +20,7 @@ export default function UpdateVotingStatusModal({ isOpen, onOpenChange, votingEv
     const [status, setStatus] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showTiebreakModal, setShowTiebreakModal] = useState(false);
+    const [showStatusWarning, setShowStatusWarning] = useState(false);
     const [tieData, setTieData] = useState<{
         ties: Record<string, NominationApplication[]>;
         winners: Record<string, number>;
@@ -28,6 +30,7 @@ export default function UpdateVotingStatusModal({ isOpen, onOpenChange, votingEv
     useEffect(() => {
         if (votingEvent) {
             setStatus(votingEvent.status);
+            setShowStatusWarning(false);
         }
     }, [votingEvent]);
 
@@ -36,8 +39,23 @@ export default function UpdateVotingStatusModal({ isOpen, onOpenChange, votingEv
         if (!isOpen) {
             setStatus('');
             setTieData(null);
+            setShowStatusWarning(false);
         }
     }, [isOpen]);
+
+    // Check if voting event is in a terminal state (closed or archived)
+    const isTerminalState = votingEvent?.status === 'closed' || votingEvent?.status === 'archived';
+
+    // Handle status change
+    const handleStatusChange = (newStatus: string) => {
+        // Show warning when trying to change from closed/archived to any other status
+        if (isTerminalState && newStatus !== votingEvent?.status) {
+            setShowStatusWarning(true);
+        } else {
+            setShowStatusWarning(false);
+        }
+        setStatus(newStatus);
+    };
 
     // Check for tied votes in session
     useEffect(() => {
@@ -56,6 +74,11 @@ export default function UpdateVotingStatusModal({ isOpen, onOpenChange, votingEv
 
     const handleSubmit = () => {
         if (!votingEvent || !status) return;
+
+        // Prevent changing from closed/archived to any other status
+        if (isTerminalState && status !== votingEvent.status) {
+            return;
+        }
 
         // If changing to closed status, check for ties first
         if (status === 'closed' && votingEvent.status !== 'closed') {
@@ -135,7 +158,7 @@ export default function UpdateVotingStatusModal({ isOpen, onOpenChange, votingEv
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="status">Status</Label>
-                            <Select value={status} onValueChange={setStatus} disabled={isSubmitting}>
+                            <Select value={status} onValueChange={handleStatusChange} disabled={isSubmitting || isTerminalState}>
                                 <SelectTrigger id="status">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
@@ -147,7 +170,26 @@ export default function UpdateVotingStatusModal({ isOpen, onOpenChange, votingEv
                                 </SelectContent>
                             </Select>
                         </div>
-                        {status === 'closed' && votingEvent?.status !== 'closed' && (
+
+                        {showStatusWarning && (
+                            <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-700">
+                                <AlertTriangle className="h-5 w-5 flex-shrink-0 text-amber-600" />
+                                <p className="text-sm">
+                                    Closed or archived voting events cannot be changed to any other status. Please create a new voting event instead.
+                                </p>
+                            </div>
+                        )}
+
+                        {isTerminalState && (
+                            <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-700">
+                                <AlertTriangle className="h-5 w-5 flex-shrink-0 text-amber-600" />
+                                <p className="text-sm">
+                                    This voting event is {votingEvent?.status} and cannot be modified. Please create a new voting event if needed.
+                                </p>
+                            </div>
+                        )}
+
+                        {status === 'closed' && votingEvent?.status !== 'closed' && !isTerminalState && (
                             <div className="text-sm text-amber-600">
                                 <p>Closing a voting event will finalize the results and update club positions based on the vote counts.</p>
                                 <p>If there are tied votes, you will be prompted to manually select winners.</p>
@@ -159,7 +201,7 @@ export default function UpdateVotingStatusModal({ isOpen, onOpenChange, votingEv
                         <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSubmit} disabled={isSubmitting || !status || votingEvent?.status === status}>
+                        <Button onClick={handleSubmit} disabled={isSubmitting || !status || votingEvent?.status === status || isTerminalState}>
                             {isSubmitting ? 'Processing...' : 'Update Status'}
                         </Button>
                     </DialogFooter>

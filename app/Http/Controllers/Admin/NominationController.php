@@ -196,6 +196,14 @@ class NominationController extends Controller
         ]);
 
         $oldStatus = $nomination->status;
+
+        // Prevent changing from closed/archived to any other status
+        if (($oldStatus === 'closed' || $oldStatus === 'archived') && $validated['status'] !== $oldStatus) {
+            return redirect()->back()->withErrors([
+                'error' => 'Closed or archived nominations cannot be changed to any other status. Please create a new nomination instead.',
+            ]);
+        }
+
         $nomination->update(['status' => $validated['status']]);
 
         $this->logActivity("Updated {$nomination->title} status from {$oldStatus} to {$validated['status']}", "nomination");
