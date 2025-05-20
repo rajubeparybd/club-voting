@@ -1,5 +1,6 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import VotingEventForm from '@/components/admin/nominations/voting-event-form';
+import UpdateVotingStatusModal from '@/components/admin/voting-events/UpdateVotingStatusModal';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +14,7 @@ import { BreadcrumbItem, Club, VotingEvent } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDate } from 'date-fns';
-import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Activity, Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 interface Props {
@@ -28,6 +29,8 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<VotingEvent | null>(null);
+    const [statusDialog, setStatusDialog] = useState(false);
+    const [eventToUpdate, setEventToUpdate] = useState<VotingEvent | null>(null);
 
     const handleDeleteClick = useCallback((id: number) => {
         setEventToDelete(id);
@@ -37,6 +40,11 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
     const handleEditClick = useCallback((event: VotingEvent) => {
         setSelectedEvent(event);
         setEditDialogOpen(true);
+    }, []);
+
+    const handleStatusClick = useCallback((event: VotingEvent) => {
+        setEventToUpdate(event);
+        setStatusDialog(true);
     }, []);
 
     const columns: ColumnDef<VotingEvent>[] = useMemo(
@@ -140,6 +148,12 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
                                     title: 'Edit Event',
                                     icon: <Pencil className="mr-2 size-4" />,
                                     onClick: () => handleEditClick(event),
+                                },
+                                {
+                                    permission: 'edit_voting_events',
+                                    title: 'Change Status',
+                                    icon: <Activity className="mr-2 size-4" />,
+                                    onClick: () => handleStatusClick(event),
                                     separatorAfter: true,
                                 },
                                 {
@@ -156,7 +170,7 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
                 },
             },
         ],
-        [handleDeleteClick, handleEditClick, isLoading],
+        [handleDeleteClick, handleEditClick, handleStatusClick, isLoading],
     );
 
     const initialHiddenColumns: string[] = useMemo(() => ['description'], []);
@@ -248,6 +262,15 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
                     onConfirm={handleDelete}
                     onCancel={handleCancelDelete}
                     isLoading={isLoading}
+                />
+
+                <UpdateVotingStatusModal
+                    isOpen={statusDialog}
+                    onOpenChange={setStatusDialog}
+                    votingEvent={eventToUpdate}
+                    onSuccess={() => {
+                        setEventToUpdate(null);
+                    }}
                 />
 
                 <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>

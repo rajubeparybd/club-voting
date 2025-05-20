@@ -66,3 +66,5 @@ Route::resource('payment-methods', PaymentMethodController::class);
 
 // Voting Events
 Route::resource('voting-events', VotingEventController::class);
+Route::put('voting-events/{votingEvent}/status', [VotingEventController::class, 'updateStatus'])
+    ->name('voting-events.update-status');

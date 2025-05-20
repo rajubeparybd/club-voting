@@ -236,4 +236,29 @@ class VotingEventController extends Controller
             return back()->with('error', 'Failed to delete voting event. ' . $e->getMessage());
         }
     }
+
+    /**
+     * Update the status of a voting event.
+     */
+    public function updateStatus(Request $request, VotingEvent $votingEvent)
+    {
+        $response = $this->checkAuthorization("edit_voting_events", $request);
+        if ($response) {
+            return $response;
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:active,draft,closed,archived',
+        ]);
+
+        $oldStatus = $votingEvent->status;
+        $votingEvent->update([
+            'status' => $validated['status'],
+        ]);
+
+        $this->logActivity("Updated Voting Event Status: {$votingEvent->title} from {$oldStatus} to {$validated['status']}", "voting_event");
+
+        return redirect()->back()
+            ->with('success', 'Voting event status updated successfully.');
+    }
 }
