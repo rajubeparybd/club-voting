@@ -10,6 +10,11 @@ import { formatDate } from 'date-fns';
 import { Clock, Info, Users, Vote } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import ManagementPageHeader from '@/components/admin/common/management-page-header';
+import { Button } from '@/components/ui/button';
+import { Link } from '@inertiajs/react';
+import { ArrowLeft } from 'lucide-react';
+
 interface VotingEventShowProps {
     votingEvent: VotingEvent;
     positions: ClubPosition[];
@@ -39,8 +44,16 @@ export default function VotingEventShow({ votingEvent, positions, candidatesByPo
                 { title: votingEvent.title, href: route('user.voting-events.show', votingEvent.id) },
             ]}
         >
-            <div className="p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <Head title={`Vote: ${votingEvent.title}`} />
+                <ManagementPageHeader title="Vote Now" description={`Attend and vote for ${votingEvent.club?.name} club's positions`}>
+                    <Button variant="outline" asChild>
+                        <Link href={route('user.voting-events.index')}>
+                            <ArrowLeft className="size-4" />
+                            Go Back
+                        </Link>
+                    </Button>
+                </ManagementPageHeader>
 
                 <div className="mb-8 grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
@@ -72,19 +85,21 @@ export default function VotingEventShow({ votingEvent, positions, candidatesByPo
                                 </div>
 
                                 {timeRemaining.isExpired ? (
-                                    <Alert className="mt-4">
+                                    <Alert className="mt-4 border-gray-500 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-gray-900/20 dark:text-gray-300">
                                         <Info className="h-4 w-4" />
                                         <AlertTitle>Voting has ended</AlertTitle>
                                         <AlertDescription>The voting period for this election has ended.</AlertDescription>
                                     </Alert>
                                 ) : hasVotedForAll ? (
-                                    <Alert className="mt-4">
+                                    <Alert className="mt-4 border-green-500 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/20 dark:text-green-300">
                                         <Vote className="h-4 w-4" />
                                         <AlertTitle>Thank you for voting</AlertTitle>
-                                        <AlertDescription>You have successfully voted for all available positions in this election.</AlertDescription>
+                                        <AlertDescription className="text-green-600 dark:text-green-300/80">
+                                            You have successfully voted for all available positions in this election.
+                                        </AlertDescription>
                                     </Alert>
                                 ) : (
-                                    <Alert className="mt-4">
+                                    <Alert className="mt-4 border-gray-500 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-gray-900/20 dark:text-gray-300">
                                         <Vote className="h-4 w-4" />
                                         <AlertTitle>Voting is open</AlertTitle>
                                         <AlertDescription>
@@ -160,7 +175,15 @@ export default function VotingEventShow({ votingEvent, positions, candidatesByPo
 
                     <Tabs defaultValue="voting" className="space-y-6">
                         <TabsContent value="voting" className="space-y-6">
-                            {Object.keys(candidatesByPosition).length > 0 ? (
+                            {positions.length === 0 ? (
+                                <Card>
+                                    <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                                        <Vote className="mb-4 h-12 w-12 text-gray-400" />
+                                        <h3 className="mb-2 text-lg font-medium">No Positions Available</h3>
+                                        <p className="text-sm text-gray-500">There are no positions defined for this club's election.</p>
+                                    </CardContent>
+                                </Card>
+                            ) : Object.keys(candidatesByPosition).length > 0 ? (
                                 Object.keys(candidatesByPosition).map((positionId) => {
                                     const position = positions.find((p) => p.id === Number(positionId));
                                     const candidates = candidatesByPosition[Number(positionId)];

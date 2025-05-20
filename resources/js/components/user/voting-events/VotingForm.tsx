@@ -66,7 +66,7 @@ export function VotingForm({ votingEvent, position, candidates, userVotes }: Vot
                             className="space-y-3"
                             disabled={hasVotedForPosition || processing}
                         >
-                            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                                 {candidates.map((candidate) => (
                                     <div
                                         key={candidate.id}
@@ -85,7 +85,7 @@ export function VotingForm({ votingEvent, position, candidates, userVotes }: Vot
                                             className={!hasVotedForPosition && !processing ? 'cursor-pointer' : 'cursor-not-allowed'}
                                         />
                                         <div className="flex flex-1 items-center space-x-3">
-                                            <Avatar className="size-10 overflow-hidden rounded-full">
+                                            <Avatar className="size-10 overflow-hidden rounded-lg">
                                                 <AvatarImage src={candidate.user?.avatar || ''} alt={candidate.user?.name || ''} />
                                                 <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
                                                     {getInitials(candidate.user?.name || '')}
@@ -117,10 +117,17 @@ export function VotingForm({ votingEvent, position, candidates, userVotes }: Vot
                             </div>
                         </RadioGroup>
 
-                        {!hasVotedForPosition && (
+                        {!hasVotedForPosition ? (
                             <Button type="submit" className="mt-4 w-full transition-colors" disabled={!data.nomination_application_id || processing}>
                                 {processing ? 'Submitting...' : 'Submit Vote'}
                             </Button>
+                        ) : (
+                            <div className="mt-4 flex items-center justify-center">
+                                <div className="inline-flex items-center rounded-md bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300">
+                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                    You have already voted for this position
+                                </div>
+                            </div>
                         )}
                     </form>
                 </CardContent>

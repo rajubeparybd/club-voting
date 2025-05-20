@@ -37,19 +37,36 @@ class VotingEventController extends Controller
             ->where('start_date', '>', now())
             ->get();
 
+        // Get completed voting events
+        $completedVotingEvents = VotingEvent::with(['club'])
+            ->whereIn('club_id', $userClubs)
+            ->where(function ($query) {
+                $query->where('status', 'closed')
+                    ->orWhere(function ($q) {
+                        $q->where('status', 'active')
+                            ->where('end_date', '<', now());
+                    });
+            })
+            ->orderBy('end_date', 'desc')
+            ->limit(10) // Limit to recent events
+            ->get();
+
         // Get user's votes
         $userVotes = Vote::where('user_id', $request->user()->id)->get();
 
         // Group votes by voting event
         $votesByEvent = $userVotes->groupBy('voting_event_id');
 
-        // Check which voting events the user has completed voting for all positions
-        foreach ($activeVotingEvents as $votingEvent) {
-            // Get all available positions in this voting event's club
-            $availablePositions = ClubPosition::where('club_id', $votingEvent->club_id)->get();
-            $positionIds        = $availablePositions->pluck('id')->toArray();
+        // Process all voting events to check voting status
+        $allEvents = $activeVotingEvents->concat($upcomingVotingEvents)->concat($completedVotingEvents);
 
-            // Get all candidates for this voting event
+        foreach ($allEvents as $votingEvent) {
+            // Get all available positions in this voting event's club
+            $availablePositions = ClubPosition::where('club_id', $votingEvent->club_id)
+                ->where('is_active', true)
+                ->get();
+
+            // Get all candidates for this voting event's club that have approved applications
             $candidates = NominationApplication::whereHas('nomination', function ($query) use ($votingEvent) {
                 $query->where('club_id', $votingEvent->club_id);
             })
@@ -59,35 +76,48 @@ class VotingEventController extends Controller
             // Group candidates by position
             $candidatesByPosition = $candidates->groupBy('club_position_id');
 
-            // Check if user has voted for all positions that have candidates
-            $hasVotedForAllPositions = true;
+            // Default to false
+            $votingEvent->has_voted_all = false;
 
-            foreach ($candidatesByPosition as $positionId => $positionCandidates) {
-                // Check if user has voted for this position
-                $hasVotedForPosition = false;
+            // Only check voting status if there are actual candidates
+            if ($candidatesByPosition->count() > 0) {
+                // Check if user has voted for all positions that have candidates
+                $hasVotedForAllPositions = true;
 
-                if (isset($votesByEvent[$votingEvent->id])) {
-                    foreach ($votesByEvent[$votingEvent->id] as $vote) {
-                        $candidatePositionId = $candidates->firstWhere('id', $vote->nomination_application_id)->club_position_id ?? null;
-                        if ($candidatePositionId == $positionId) {
-                            $hasVotedForPosition = true;
+                foreach ($candidatesByPosition as $positionId => $positionCandidates) {
+                    // Only check positions that actually have candidates
+                    if ($positionCandidates->count() > 0) {
+                        // Check if user has voted for this position
+                        $hasVotedForPosition = false;
+
+                        if (isset($votesByEvent[$votingEvent->id])) {
+                            foreach ($votesByEvent[$votingEvent->id] as $vote) {
+                                $candidatePositionId = $candidates->firstWhere('id', $vote->nomination_application_id)->club_position_id ?? null;
+                                if ($candidatePositionId == $positionId) {
+                                    $hasVotedForPosition = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (! $hasVotedForPosition) {
+                            $hasVotedForAllPositions = false;
                             break;
                         }
                     }
                 }
 
-                if (! $hasVotedForPosition && $positionCandidates->count() > 0) {
-                    $hasVotedForAllPositions = false;
-                    break;
-                }
+                $votingEvent->has_voted_all = $hasVotedForAllPositions;
             }
 
-            $votingEvent->has_voted_all = $hasVotedForAllPositions;
+            // For completed events, also check if the user has cast any votes
+            $votingEvent->has_any_votes = isset($votesByEvent[$votingEvent->id]) && $votesByEvent[$votingEvent->id]->count() > 0;
         }
 
         return Inertia::render('user/voting-events/index', [
-            'activeVotingEvents'   => $activeVotingEvents,
-            'upcomingVotingEvents' => $upcomingVotingEvents,
+            'activeVotingEvents'    => $activeVotingEvents,
+            'upcomingVotingEvents'  => $upcomingVotingEvents,
+            'completedVotingEvents' => $completedVotingEvents,
         ]);
     }
 
@@ -206,6 +236,7 @@ class VotingEventController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }

@@ -233,4 +233,5 @@ export interface VotingEvent {
     created_at?: string;
     updated_at?: string;
     has_voted_all?: boolean;
+    has_any_votes?: boolean;
 }
