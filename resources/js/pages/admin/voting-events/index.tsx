@@ -251,7 +251,7 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
                 />
 
                 <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-                    <DialogContent className="min-w-2xl">
+                    <DialogContent className="min-w-3xl">
                         <DialogHeader>
                             <DialogTitle>Create Voting Event</DialogTitle>
                             <DialogDescription>Fill in the details to create a new voting event.</DialogDescription>
@@ -261,7 +261,7 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
                 </Dialog>
 
                 <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                    <DialogContent className="max-w-4xl">
+                    <DialogContent className="min-w-3xl">
                         <DialogHeader>
                             <DialogTitle>Edit Voting Event</DialogTitle>
                             <DialogDescription>Update the details of this voting event.</DialogDescription>

@@ -86,4 +86,12 @@ class NominationApplication extends Model implements HasMedia
     {
         return $this->positions()->where('status', 'rejected')->exists();
     }
+
+    /**
+     * Get the votes for this nomination application (candidate).
+     */
+    public function votes()
+    {
+        return $this->hasMany(Vote::class);
+    }
 }

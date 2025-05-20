@@ -123,4 +123,12 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasMany(PaymentLog::class);
     }
+
+    /**
+     * Get the votes cast by the user.
+     */
+    public function votes(): HasMany
+    {
+        return $this->hasMany(Vote::class);
+    }
 }

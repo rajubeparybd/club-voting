@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Club;
 use App\Models\Nomination;
+use App\Models\NominationApplication;
+use App\Models\Vote;
 use App\Models\VotingEvent;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -104,10 +106,65 @@ class VotingEventController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
+        // Get candidates (approved nomination applications)
+        $candidates = collect([]);
+        if ($lastNomination) {
+            $candidates = NominationApplication::where('nomination_id', $lastNomination->id)
+                ->where('status', 'approved')
+                ->with(['user:id,name,email,student_id,avatar,department_id', 'clubPosition:id,name'])
+                ->get();
+
+            // Load vote counts for each candidate
+            foreach ($candidates as $candidate) {
+                $candidate->votes_count = Vote::where('nomination_application_id', $candidate->id)
+                    ->where('voting_event_id', $votingEvent->id)
+                    ->count();
+            }
+        }
+
+        // Get voting statistics
+        $totalVotes          = Vote::where('voting_event_id', $votingEvent->id)->count();
+        $totalEligibleVoters = $votingEvent->club->users()->count();
+        $totalCandidates     = $candidates->count();
+        $totalPositions      = $candidates->pluck('club_position_id')->unique()->count();
+        $votingPercentage    = $totalEligibleVoters > 0 ? ($totalVotes / $totalEligibleVoters) * 100 : 0;
+
+        // Get recent voters
+        $recentVoters = Vote::where('voting_event_id', $votingEvent->id)
+            ->with('user:id,name')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get()
+            ->map(function ($vote) {
+                $timeDiff = $vote->created_at->diffForHumans();
+                return [
+                    'id'         => $vote->user_id,
+                    'name'       => $vote->user->name,
+                    'student_id' => $vote->user->student_id,
+                    'avatar'     => $vote->user->avatar,
+                    'timestamp'  => $timeDiff,
+                ];
+            });
+
+        $daysRemaining     = round(now()->diffInDays($votingEvent->end_date, false));
+        $daysRemainingText = $daysRemaining > 0
+        ? "{$daysRemaining} days remaining"
+        : "Voting has ended";
+
         return Inertia::render('admin/voting-events/show', [
             'votingEvent'    => $votingEvent,
             'club'           => $votingEvent->club,
             'lastNomination' => $lastNomination,
+            'candidates'     => $candidates,
+            'votingStats'    => [
+                'totalVotes'          => $totalVotes,
+                'totalEligibleVoters' => $totalEligibleVoters,
+                'totalCandidates'     => $totalCandidates,
+                'totalPositions'      => $totalPositions,
+                'votingPercentage'    => round($votingPercentage, 1),
+                'daysRemaining'       => $daysRemainingText,
+                'recentVoters'        => $recentVoters,
+            ],
         ]);
     }
 

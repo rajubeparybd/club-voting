@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VotingEvent extends Model
 {
@@ -32,6 +33,14 @@ class VotingEvent extends Model
     public function club(): BelongsTo
     {
         return $this->belongsTo(Club::class);
+    }
+
+    /**
+     * Get the votes for this voting event.
+     */
+    public function votes(): HasMany
+    {
+        return $this->hasMany(Vote::class);
     }
 
 }
