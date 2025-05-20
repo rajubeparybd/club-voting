@@ -220,7 +220,6 @@ export default function VotingEventShow({
                                                 position={position}
                                                 candidates={candidates}
                                                 userVotes={userVotes}
-                                                isVotingClosed={isVotingClosed}
                                             />
                                         );
                                     })
