@@ -11,8 +11,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-
         $schedule->command('nominations:close-expired')->everyMinute();
+        $schedule->command('voting-events:close-expired')->everyMinute();
     }
 
     /**

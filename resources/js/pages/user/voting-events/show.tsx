@@ -2,12 +2,14 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { VotingForm } from '@/components/user/voting-events/VotingForm';
+import { VotingResults } from '@/components/user/voting-events/VotingResults';
+import { VotingStats } from '@/components/user/voting-events/VotingStats';
 import UserAppLayout from '@/layouts/user/user-layout';
 import { formatTimeRemaining } from '@/lib/utils';
 import { ClubPosition, NominationApplication, VotingEvent } from '@/types';
 import { Head } from '@inertiajs/react';
 import { formatDate } from 'date-fns';
-import { Clock, Info, Users, Vote } from 'lucide-react';
+import { Clock, Info, PieChart, Trophy, Users, Vote } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
@@ -20,10 +22,24 @@ interface VotingEventShowProps {
     positions: ClubPosition[];
     candidatesByPosition: Record<number, NominationApplication[]>;
     userVotes: number[];
+    isVotingClosed: boolean;
+    votingStats: {
+        totalVotes: number;
+        totalEligibleVoters: number;
+        votingPercentage: number;
+    };
 }
 
-export default function VotingEventShow({ votingEvent, positions, candidatesByPosition, userVotes }: VotingEventShowProps) {
+export default function VotingEventShow({
+    votingEvent,
+    positions,
+    candidatesByPosition,
+    userVotes,
+    isVotingClosed,
+    votingStats,
+}: VotingEventShowProps) {
     const [timeRemaining, setTimeRemaining] = useState(formatTimeRemaining(votingEvent.end_date));
+    const [activeTab, setActiveTab] = useState<string>(isVotingClosed ? 'results' : 'voting');
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -37,6 +53,12 @@ export default function VotingEventShow({ votingEvent, positions, candidatesByPo
         candidatesByPosition[Number(positionId)].some((candidate) => userVotes.includes(candidate.id)),
     );
 
+    // Set page title based on voting status
+    const pageTitle = isVotingClosed ? 'Election Results' : 'Vote Now';
+    const pageDescription = isVotingClosed
+        ? `View results for ${votingEvent.club?.name} club's election`
+        : `Attend and vote for ${votingEvent.club?.name} club's positions`;
+
     return (
         <UserAppLayout
             breadcrumbs={[
@@ -45,8 +67,8 @@ export default function VotingEventShow({ votingEvent, positions, candidatesByPo
             ]}
         >
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <Head title={`Vote: ${votingEvent.title}`} />
-                <ManagementPageHeader title="Vote Now" description={`Attend and vote for ${votingEvent.club?.name} club's positions`}>
+                <Head title={`${isVotingClosed ? 'Results' : 'Vote'}: ${votingEvent.title}`} />
+                <ManagementPageHeader title={pageTitle} description={pageDescription}>
                     <Button variant="outline" asChild>
                         <Link href={route('user.voting-events.index')}>
                             <ArrowLeft className="size-4" />
@@ -171,15 +193,61 @@ export default function VotingEventShow({ votingEvent, positions, candidatesByPo
                 </div>
 
                 <div className="mb-6">
-                    <h2 className="mb-4 text-xl font-semibold">Cast Your Vote</h2>
+                    <h2 className="mb-4 text-xl font-semibold">{isVotingClosed ? 'Election Results' : 'Cast Your Vote'}</h2>
 
-                    <Tabs defaultValue="voting" className="space-y-6">
-                        <TabsContent value="voting" className="space-y-6">
+                    <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                        {!isVotingClosed && (
+                            <TabsContent value="voting" className="space-y-6">
+                                {positions.length === 0 ? (
+                                    <Card>
+                                        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                                            <Vote className="mb-4 h-12 w-12 text-gray-400" />
+                                            <h3 className="mb-2 text-lg font-medium">No Positions Available</h3>
+                                            <p className="text-sm text-gray-500">There are no positions defined for this club's election.</p>
+                                        </CardContent>
+                                    </Card>
+                                ) : Object.keys(candidatesByPosition).length > 0 ? (
+                                    Object.keys(candidatesByPosition).map((positionId) => {
+                                        const position = positions.find((p) => p.id === Number(positionId));
+                                        const candidates = candidatesByPosition[Number(positionId)];
+
+                                        if (!position || candidates.length === 0) return null;
+
+                                        return (
+                                            <VotingForm
+                                                key={position.id}
+                                                votingEvent={votingEvent}
+                                                position={position}
+                                                candidates={candidates}
+                                                userVotes={userVotes}
+                                                isVotingClosed={isVotingClosed}
+                                            />
+                                        );
+                                    })
+                                ) : (
+                                    <Card>
+                                        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                                            <Vote className="mb-4 h-12 w-12 text-gray-400" />
+                                            <h3 className="mb-2 text-lg font-medium">No candidates available</h3>
+                                            <p className="text-sm text-gray-500">There are no candidates to vote for in this election.</p>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </TabsContent>
+                        )}
+
+                        <TabsContent value="results" className="space-y-6">
+                            <VotingStats
+                                totalVotes={votingStats.totalVotes}
+                                totalEligibleVoters={votingStats.totalEligibleVoters}
+                                votingPercentage={votingStats.votingPercentage}
+                            />
+
                             {positions.length === 0 ? (
                                 <Card>
                                     <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                                        <Vote className="mb-4 h-12 w-12 text-gray-400" />
-                                        <h3 className="mb-2 text-lg font-medium">No Positions Available</h3>
+                                        <PieChart className="mb-4 h-12 w-12 text-gray-400" />
+                                        <h3 className="mb-2 text-lg font-medium">No Results Available</h3>
                                         <p className="text-sm text-gray-500">There are no positions defined for this club's election.</p>
                                     </CardContent>
                                 </Card>
@@ -190,22 +258,14 @@ export default function VotingEventShow({ votingEvent, positions, candidatesByPo
 
                                     if (!position || candidates.length === 0) return null;
 
-                                    return (
-                                        <VotingForm
-                                            key={position.id}
-                                            votingEvent={votingEvent}
-                                            position={position}
-                                            candidates={candidates}
-                                            userVotes={userVotes}
-                                        />
-                                    );
+                                    return <VotingResults key={position.id} position={position} candidates={candidates} userVotes={userVotes} />;
                                 })
                             ) : (
                                 <Card>
                                     <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                                        <Vote className="mb-4 h-12 w-12 text-gray-400" />
+                                        <Trophy className="mb-4 h-12 w-12 text-gray-400" />
                                         <h3 className="mb-2 text-lg font-medium">No candidates available</h3>
-                                        <p className="text-sm text-gray-500">There are no candidates to vote for in this election.</p>
+                                        <p className="text-sm text-gray-500">There are no candidates in this election to show results for.</p>
                                     </CardContent>
                                 </Card>
                             )}

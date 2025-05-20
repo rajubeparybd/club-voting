@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
@@ -115,8 +116,8 @@ class VotingEventController extends Controller
         }
 
         return Inertia::render('user/voting-events/index', [
-            'activeVotingEvents'    => $activeVotingEvents,
-            'upcomingVotingEvents'  => $upcomingVotingEvents,
+            'activeVotingEvents' => $activeVotingEvents,
+            'upcomingVotingEvents' => $upcomingVotingEvents,
             'completedVotingEvents' => $completedVotingEvents,
         ]);
     }
@@ -154,6 +155,13 @@ class VotingEventController extends Controller
             ])
             ->get();
 
+        // Add vote counts for each candidate
+        foreach ($candidates as $candidate) {
+            $candidate->votes_count = Vote::where('nomination_application_id', $candidate->id)
+                ->where('voting_event_id', $votingEvent->id)
+                ->count();
+        }
+
         // Group candidates by position
         $candidatesByPosition = $candidates->groupBy('club_position_id');
 
@@ -163,11 +171,25 @@ class VotingEventController extends Controller
             ->pluck('nomination_application_id')
             ->toArray();
 
+        // Calculate voting statistics
+        $totalVotes = Vote::where('voting_event_id', $votingEvent->id)->count();
+        $totalEligibleVoters = $votingEvent->club->users()->where('club_user.status', 'active')->count();
+        $votingPercentage = $totalEligibleVoters > 0 ? ($totalVotes / $totalEligibleVoters) * 100 : 0;
+
+        // Check if voting is closed
+        $isVotingClosed = $votingEvent->status === 'closed' || $votingEvent->end_date < now();
+
         return Inertia::render('user/voting-events/show', [
-            'votingEvent'          => $votingEvent,
-            'positions'            => $positions,
+            'votingEvent' => $votingEvent,
+            'positions' => $positions,
             'candidatesByPosition' => $candidatesByPosition,
-            'userVotes'            => $userVotes,
+            'userVotes' => $userVotes,
+            'isVotingClosed' => $isVotingClosed,
+            'votingStats' => [
+                'totalVotes' => $totalVotes,
+                'totalEligibleVoters' => $totalEligibleVoters,
+                'votingPercentage' => round($votingPercentage, 1),
+            ],
         ]);
     }
 
@@ -177,12 +199,12 @@ class VotingEventController extends Controller
     public function vote(Request $request)
     {
         $validated = $request->validate([
-            'voting_event_id'           => 'required|exists:voting_events,id',
+            'voting_event_id' => 'required|exists:voting_events,id',
             'nomination_application_id' => 'required|exists:nomination_applications,id',
         ]);
 
         $votingEvent = VotingEvent::findOrFail($validated['voting_event_id']);
-        $candidate   = NominationApplication::findOrFail($validated['nomination_application_id']);
+        $candidate = NominationApplication::findOrFail($validated['nomination_application_id']);
 
         // Check if the voting event is active
         if ($votingEvent->status !== 'active') {
@@ -223,21 +245,21 @@ class VotingEventController extends Controller
 
             // Create the vote
             Vote::create([
-                'user_id'                   => $request->user()->id,
-                'voting_event_id'           => $votingEvent->id,
+                'user_id' => $request->user()->id,
+                'voting_event_id' => $votingEvent->id,
                 'nomination_application_id' => $candidate->id,
             ]);
 
             DB::commit();
 
-            $this->logActivity('Voted in ' . $votingEvent->title, 'vote');
+            $this->logActivity('Voted in '.$votingEvent->title, 'vote');
 
             return back()->with('success', 'Your vote has been recorded successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->with('error', 'An error occurred: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred: '.$e->getMessage());
         }
     }
 }
