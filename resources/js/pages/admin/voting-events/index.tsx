@@ -13,7 +13,7 @@ import { BreadcrumbItem, Club, VotingEvent } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDate } from 'date-fns';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 interface Props {
@@ -129,6 +129,12 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
                     return (
                         <DataTableActions
                             actions={[
+                                {
+                                    permission: 'view_voting_events',
+                                    title: 'View Event',
+                                    icon: <Eye className="mr-2 size-4" />,
+                                    link: route('admin.voting-events.show', event.id),
+                                },
                                 {
                                     permission: 'edit_voting_events',
                                     title: 'Edit Event',

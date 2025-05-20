@@ -92,9 +92,23 @@ class VotingEventController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, VotingEvent $votingEvent)
     {
-        //
+        $response = $this->checkAuthorization("view_voting_events", $request);
+        if ($response) {
+            return $response;
+        }
+
+        $votingEvent->load('club');
+        $lastNomination = Nomination::where('club_id', $votingEvent->club_id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        return Inertia::render('admin/voting-events/show', [
+            'votingEvent'    => $votingEvent,
+            'club'           => $votingEvent->club,
+            'lastNomination' => $lastNomination,
+        ]);
     }
 
     /**
