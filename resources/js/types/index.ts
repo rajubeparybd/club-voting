@@ -232,4 +232,5 @@ export interface VotingEvent {
     nomination?: Nomination;
     created_at?: string;
     updated_at?: string;
+    has_voted_all?: boolean;
 }

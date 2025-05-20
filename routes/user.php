@@ -7,6 +7,7 @@ use App\Http\Controllers\User\NominationController;
 use App\Http\Controllers\User\PaymentLogController;
 use App\Http\Controllers\User\Settings\PasswordController;
 use App\Http\Controllers\User\Settings\ProfileController;
+use App\Http\Controllers\User\VotingEventController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -26,6 +27,13 @@ Route::prefix('nominations')->name('nominations.')->group(function () {
     Route::get('/', [NominationController::class, 'index'])->name('index');
     Route::post('/become-candidate', [NominationController::class, 'becomeCandidate'])->name('become-candidate');
     Route::post('/apply', [NominationController::class, 'apply'])->name('apply');
+});
+
+// Voting Events
+Route::prefix('voting-events')->name('voting-events.')->group(function () {
+    Route::get('/', [VotingEventController::class, 'index'])->name('index');
+    Route::get('/{votingEvent}', [VotingEventController::class, 'show'])->name('show');
+    Route::post('/vote', [VotingEventController::class, 'vote'])->name('vote');
 });
 
 Route::prefix('settings')->name('settings.')->group(function () {
