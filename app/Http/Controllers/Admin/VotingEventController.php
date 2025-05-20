@@ -248,7 +248,9 @@ class VotingEventController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => 'required|in:active,draft,closed,archived',
+            'status'    => 'required|in:active,draft,closed,archived',
+            'winners'   => 'sometimes|array',
+            'winners.*' => 'integer|exists:nomination_applications,id',
         ]);
 
         $oldStatus = $votingEvent->status;
@@ -256,9 +258,178 @@ class VotingEventController extends Controller
             'status' => $validated['status'],
         ]);
 
+        // Process position updates when voting event is closed
+        if ($validated['status'] === 'closed' && $oldStatus !== 'closed') {
+            $this->processVotingResults($votingEvent, $validated['winners'] ?? []);
+        }
+
         $this->logActivity("Updated Voting Event Status: {$votingEvent->title} from {$oldStatus} to {$validated['status']}", "voting_event");
 
         return redirect()->back()
             ->with('success', 'Voting event status updated successfully.');
+    }
+
+    /**
+     * Check for tied votes in a voting event.
+     */
+    public function checkTies(Request $request, VotingEvent $votingEvent)
+    {
+        $response = $this->checkAuthorization("edit_voting_events", $request);
+        if ($response) {
+            return $response;
+        }
+
+        $results = $this->identifyTiesAndWinners($votingEvent);
+
+        // Store in session for the frontend
+        if ($results['needsManualSelection']) {
+            session([
+                'voting_ties' => [
+                    'voting_event_id' => $votingEvent->id,
+                    'ties'            => $results['ties'],
+                    'winners'         => $results['winners'],
+                ],
+            ]);
+        }
+
+        // Return the ties to the frontend
+        return response()->json([
+            'ties'                 => $results['ties'],
+            'winners'              => $results['winners'],
+            'needsManualSelection' => $results['needsManualSelection'],
+        ]);
+    }
+
+    /**
+     * Get candidates grouped by position with vote counts.
+     */
+    private function getCandidatesByPosition(VotingEvent $votingEvent)
+    {
+        $club           = $votingEvent->club;
+        $lastNomination = Nomination::where('club_id', $votingEvent->club_id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (! $lastNomination) {
+            return collect([]);
+        }
+
+        // Get all approved nomination applications
+        $applications = NominationApplication::where('nomination_id', $lastNomination->id)
+            ->where('status', 'approved')
+            ->with(['user', 'clubPosition:id,name'])
+            ->get();
+
+        // Load vote counts for each candidate
+        foreach ($applications as $application) {
+            $application->votes_count = Vote::where('nomination_application_id', $application->id)
+                ->where('voting_event_id', $votingEvent->id)
+                ->count();
+        }
+
+        // Group candidates by position
+        return $applications->groupBy('club_position_id');
+    }
+
+    /**
+     * Identify tied positions and winners.
+     */
+    private function identifyTiesAndWinners(VotingEvent $votingEvent)
+    {
+        $candidatesByPosition = $this->getCandidatesByPosition($votingEvent);
+        $winners              = [];
+        $ties                 = [];
+
+        foreach ($candidatesByPosition as $positionId => $candidates) {
+            // Skip empty positions
+            if ($candidates->isEmpty()) {
+                continue;
+            }
+
+            // Sort candidates by vote count (highest first)
+            $sortedCandidates = $candidates->sortByDesc('votes_count');
+
+            // Get the highest vote count
+            $highestVotes = $sortedCandidates->first()->votes_count;
+
+            // Check if there's a tie for the highest vote count
+            $candidatesWithHighestVotes = $sortedCandidates->filter(function ($candidate) use ($highestVotes) {
+                return $candidate->votes_count === $highestVotes;
+            });
+
+            // If there's more than one candidate with the highest vote count, it's a tie
+            if ($candidatesWithHighestVotes->count() > 1) {
+                $ties[$positionId] = $candidatesWithHighestVotes;
+            } else {
+                // If there's only one candidate with the highest vote count, they're the winner
+                $winners[$positionId] = $sortedCandidates->first()->id;
+            }
+        }
+
+        return [
+            'winners'              => $winners,
+            'ties'                 => $ties,
+            'needsManualSelection' => ! empty($ties),
+            'candidatesByPosition' => $candidatesByPosition,
+        ];
+    }
+
+    /**
+     * Process the voting results and update club positions.
+     */
+    private function processVotingResults(VotingEvent $votingEvent, array $manualWinners = [])
+    {
+        $results = $this->identifyTiesAndWinners($votingEvent);
+        $winners = $results['winners'];
+
+        // If there are ties and no manual winners provided, return the results without updating
+        if ($results['needsManualSelection'] && empty($manualWinners)) {
+            // Store the results in the session for the frontend to display
+            session(['voting_ties' => [
+                'voting_event_id'      => $votingEvent->id,
+                'ties'                 => $results['ties'],
+                'winners'              => $winners,
+                'candidatesByPosition' => $results['candidatesByPosition'],
+            ]]);
+
+            return [
+                'success'              => false,
+                'message'              => 'There are ties that need manual resolution.',
+                'needsManualSelection' => true,
+                'ties'                 => $results['ties'],
+            ];
+        }
+
+        // Merge manual winners with automatic winners
+        foreach ($manualWinners as $positionId => $applicationId) {
+            $winners[$positionId] = $applicationId;
+        }
+
+        // Update club positions for winners
+        $club = $votingEvent->club;
+        foreach ($winners as $positionId => $applicationId) {
+            $application = NominationApplication::find($applicationId);
+            if (! $application) {
+                continue;
+            }
+
+            // Update club_user pivot to set the new position
+            $club->users()->updateExistingPivot($application->user_id, [
+                'position_id' => $positionId,
+            ]);
+
+            // Log the position update
+            $position = $application->clubPosition;
+            $this->logActivity(
+                "Updated user {$application->user->name} to position {$position->name} in {$club->name} based on voting results",
+                "club"
+            );
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Positions updated successfully based on voting results.',
+            'winners' => $winners,
+        ];
     }
 }
