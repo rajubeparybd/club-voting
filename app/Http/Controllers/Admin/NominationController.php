@@ -21,7 +21,7 @@ class NominationController extends Controller
             return $response;
         }
 
-        $nominations = Nomination::with('club')->get();
+        $nominations = Nomination::with('club')->orderBy('created_at', 'desc')->get();
 
         $clubs = Club::select('id', 'name')->get();
 

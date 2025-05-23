@@ -5,7 +5,7 @@ import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CheckUserPermission from '@/components/ui/check-user-permission';
-import DataTable, { DataTableActions, DataTableColumnHeader, DataTableFilter } from '@/components/ui/data-table';
+import DataTable, { DataTableActions, DataTableActionType, DataTableColumnHeader, DataTableFilter } from '@/components/ui/data-table';
 import { DeleteConfirmationDialog } from '@/components/ui/DeleteConfirmationDialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -134,39 +134,45 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
                 enableSorting: false,
                 cell: ({ row }) => {
                     const event = row.original;
-                    return (
-                        <DataTableActions
-                            actions={[
-                                {
-                                    permission: 'view_voting_events',
-                                    title: 'View Event',
-                                    icon: <Eye className="mr-2 size-4" />,
-                                    link: route('admin.voting-events.show', event.id),
-                                },
-                                {
-                                    permission: 'edit_voting_events',
-                                    title: 'Edit Event',
-                                    icon: <Pencil className="mr-2 size-4" />,
-                                    onClick: () => handleEditClick(event),
-                                },
-                                {
-                                    permission: 'edit_voting_events',
-                                    title: 'Change Status',
-                                    icon: <Activity className="mr-2 size-4" />,
-                                    onClick: () => handleStatusClick(event),
-                                    separatorAfter: true,
-                                },
-                                {
-                                    permission: 'delete_voting_events',
-                                    title: 'Delete Event',
-                                    icon: <Trash2 className="mr-2 size-4" />,
-                                    onClick: () => handleDeleteClick(event.id),
-                                    danger: true,
-                                    disabled: isLoading,
-                                },
-                            ]}
-                        />
-                    );
+                    const isEventClosed = event.status === 'closed' || event.status === 'archived';
+
+                    const actions: DataTableActionType[] = [
+                        {
+                            permission: 'view_voting_events',
+                            title: 'View Event',
+                            icon: <Eye className="mr-2 size-4" />,
+                            link: route('admin.voting-events.show', event.id),
+                        },
+                    ];
+
+                    // Only add edit, status change and delete actions if event is not closed
+                    if (!isEventClosed) {
+                        actions.push(
+                            {
+                                permission: 'edit_voting_events',
+                                title: 'Edit Event',
+                                icon: <Pencil className="mr-2 size-4" />,
+                                onClick: () => handleEditClick(event),
+                            },
+                            {
+                                permission: 'edit_voting_events',
+                                title: 'Change Status',
+                                icon: <Activity className="mr-2 size-4" />,
+                                onClick: () => handleStatusClick(event),
+                                separatorAfter: true,
+                            },
+                            {
+                                permission: 'delete_voting_events',
+                                title: 'Delete Event',
+                                icon: <Trash2 className="mr-2 size-4" />,
+                                onClick: () => handleDeleteClick(event.id),
+                                danger: true,
+                                disabled: isLoading,
+                            },
+                        );
+                    }
+
+                    return <DataTableActions actions={actions} />;
                 },
             },
         ],

@@ -4,7 +4,7 @@ import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import CheckUserPermission from '@/components/ui/check-user-permission';
-import DataTable, { DataTableActions, DataTableColumnHeader, DataTableFilter } from '@/components/ui/data-table';
+import DataTable, { DataTableActions, DataTableActionType, DataTableColumnHeader, DataTableFilter } from '@/components/ui/data-table';
 import { DeleteConfirmationDialog } from '@/components/ui/DeleteConfirmationDialog';
 import { StatusBadge } from '@/components/ui/status-badge';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
@@ -119,39 +119,44 @@ export default function NominationsIndex({ nominations }: { nominations: Nominat
                 enableSorting: false,
                 cell: ({ row }) => {
                     const nomination = row.original;
-                    return (
-                        <DataTableActions
-                            actions={[
-                                {
-                                    permission: 'view_nominations',
-                                    title: 'View Nomination',
-                                    icon: <Eye className="mr-2 size-4" />,
-                                    link: route('admin.nominations.show', nomination.id),
-                                },
-                                {
-                                    permission: 'edit_nominations',
-                                    title: 'Edit Nomination',
-                                    icon: <Pencil className="mr-2 size-4" />,
-                                    link: route('admin.nominations.edit', nomination.id),
-                                },
-                                {
-                                    permission: 'edit_nominations',
-                                    title: 'Change Status',
-                                    icon: <Activity className="mr-2 size-4" />,
-                                    onClick: () => handleStatusClick(nomination),
-                                    separatorAfter: true,
-                                },
-                                {
-                                    permission: 'delete_nominations',
-                                    title: 'Delete Nomination',
-                                    icon: <Trash2 className="mr-2 size-4" />,
-                                    onClick: () => handleDeleteClick(nomination.id),
-                                    danger: true,
-                                    disabled: isLoading,
-                                },
-                            ]}
-                        />
-                    );
+                    const isNominationClosed = nomination.status === 'closed' || nomination.status === 'archived';
+
+                    const actions: DataTableActionType[] = [
+                        {
+                            permission: 'view_nominations',
+                            title: 'View Nomination',
+                            icon: <Eye className="mr-2 size-4" />,
+                            link: route('admin.nominations.show', nomination.id),
+                        },
+                    ];
+
+                    if (!isNominationClosed) {
+                        actions.push(
+                            {
+                                permission: 'edit_nominations',
+                                title: 'Edit Nomination',
+                                icon: <Pencil className="mr-2 size-4" />,
+                                link: route('admin.nominations.edit', nomination.id),
+                            },
+                            {
+                                permission: 'edit_nominations',
+                                title: 'Change Status',
+                                icon: <Activity className="mr-2 size-4" />,
+                                onClick: () => handleStatusClick(nomination),
+                                separatorAfter: true,
+                            },
+                            {
+                                permission: 'delete_nominations',
+                                title: 'Delete Nomination',
+                                icon: <Trash2 className="mr-2 size-4" />,
+                                onClick: () => handleDeleteClick(nomination.id),
+                                danger: true,
+                                disabled: isLoading,
+                            },
+                        );
+                    }
+
+                    return <DataTableActions actions={actions} />;
                 },
             },
         ],
