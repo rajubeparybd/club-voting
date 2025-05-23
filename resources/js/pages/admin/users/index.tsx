@@ -1,4 +1,6 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
+import { CreateUserDialog } from '@/components/admin/users/CreateUserDialog';
+import { RoleAssignmentDialog } from '@/components/admin/users/RoleAssignmentDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,10 +12,10 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import AdminAppLayout from '@/layouts/admin/admin-layout';
 import { formatRoleToText } from '@/lib/utils';
 import { BreadcrumbItem, Department, Role, User } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDate } from 'date-fns';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, UserCog } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 interface Props {
@@ -24,11 +26,22 @@ interface Props {
 
 export default function UsersIndex({ users, roles = [], departments = [] }: Props) {
     const usersData = users.data;
-    console.log(usersData);
 
     const [isLoading, setIsLoading] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [userToDelete, setUserToDelete] = useState<number | null>(null);
+
+    // State for role assignment dialog
+    const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+    // State for create user dialog
+    const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
+
+    const handleAssignRoleClick = useCallback((user: User) => {
+        setSelectedUser(user);
+        setRoleDialogOpen(true);
+    }, []);
 
     const columns: ColumnDef<User>[] = [
         {
@@ -172,9 +185,9 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
                         actions={[
                             {
                                 permission: 'edit_users',
-                                title: 'Edit User',
-                                icon: <Pencil className="mr-2 size-4" />,
-                                link: route('admin.users.edit', user.id),
+                                title: 'Assign Roles',
+                                icon: <UserCog className="mr-2 size-4" />,
+                                onClick: () => handleAssignRoleClick(user),
                                 separatorAfter: true,
                             },
                             {
@@ -304,12 +317,16 @@ export default function UsersIndex({ users, roles = [], departments = [] }: Prop
                     isLoading={isLoading}
                 />
 
+                {/* Role Assignment Dialog */}
+                {selectedUser && <RoleAssignmentDialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen} user={selectedUser} roles={roles} />}
+
+                {/* Create User Dialog */}
+                <CreateUserDialog open={createUserDialogOpen} onOpenChange={setCreateUserDialogOpen} />
+
                 <ManagementPageHeader title="Users" description="Manage all users and their roles.">
                     <CheckUserPermission permission="create_users">
-                        <Button asChild>
-                            <Link href={route('admin.users.create')}>
-                                <Plus className="mr-2 size-4" /> New User
-                            </Link>
+                        <Button onClick={() => setCreateUserDialogOpen(true)}>
+                            <Plus className="mr-2 size-4" /> Add New User
                         </Button>
                     </CheckUserPermission>
                 </ManagementPageHeader>

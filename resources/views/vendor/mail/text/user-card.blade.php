@@ -1,0 +1,4 @@
+{{ $title ?? 'User Information' }}
+=====================
+
+{{ $slot }}

@@ -61,16 +61,17 @@ export type StatusVariant = keyof typeof variants;
 
 export interface StatusBadgeProps extends VariantProps<typeof statusVariants> {
     status: string;
+    label?: string;
     className?: string;
 }
 
-export function StatusBadge({ status, variant, size, className }: StatusBadgeProps) {
+export function StatusBadge({ status, variant, size, className, label }: StatusBadgeProps) {
     // Convert status to variant if no variant is provided
     const resolvedVariant = variant || (status.toLowerCase() as StatusVariant);
 
     return (
         <div className={cn(statusVariants({ variant: resolvedVariant, size }), className)}>
-            {getStatusText(status)}
+            {label || getStatusText(status)}
         </div>
     );
 }
