@@ -40,6 +40,8 @@ Route::post('clubs/{club}/members/{user}/update-status', [ClubController::class,
 Route::post('clubs/{club}/members/{user}/update-position', [ClubController::class, 'updateMemberPosition'])->name('clubs.members.update-position');
 Route::delete('clubs/{club}/members/{user}/remove', [ClubController::class, 'removeMember'])->name('clubs.members.remove');
 Route::post('clubs/{club}/members/{user}/payment/{payment}/update-status', [ClubController::class, 'updatePaymentStatus'])->name('clubs.members.update-payment-status');
+Route::post('clubs/{club}/members/add', [ClubController::class, 'addMembers'])->name('clubs.members.add');
+Route::get('clubs/{club}/non-members', [ClubController::class, 'getNonMembers'])->name('clubs.non-members');
 
 // User management
 Route::resource('users', UserController::class);

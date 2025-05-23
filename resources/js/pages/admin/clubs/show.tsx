@@ -1,3 +1,4 @@
+import { AddMembersDialog } from '@/components/admin/clubs/AddMembersDialog';
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -33,6 +34,7 @@ import {
     PlusCircle,
     Search,
     Shield,
+    UserPlus,
     Users,
     X,
 } from 'lucide-react';
@@ -551,6 +553,7 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
     const [selectedUser, setSelectedUser] = useState<ClubUser | null>(null);
     const [isPaymentApproved, setIsPaymentApproved] = useState(false);
     const [isPaymentRejected, setIsPaymentRejected] = useState(false);
+    const [isAddMembersDialogOpen, setIsAddMembersDialogOpen] = useState(false);
 
     const breadcrumbs: BreadcrumbItem[] = useMemo(
         () => [
@@ -864,6 +867,9 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
                     />
                 )}
 
+                {/* Add Members Dialog */}
+                <AddMembersDialog open={isAddMembersDialogOpen} onOpenChange={setIsAddMembersDialogOpen} clubId={club.id} />
+
                 <ManagementPageHeader title={club.name} description={`Complete information about ${club.name.toLowerCase()} club`}>
                     <div className="flex gap-2">
                         <Button variant="outline" asChild>
@@ -985,8 +991,18 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
                     <TabsContent value="members" className="border-none p-0 pt-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Members</CardTitle>
-                                <CardDescription>All users who are members of this club</CardDescription>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle>Members</CardTitle>
+                                        <CardDescription>All users who are members of this club</CardDescription>
+                                    </div>
+                                    <CheckUserPermission permission="edit_club_users">
+                                        <Button onClick={() => setIsAddMembersDialogOpen(true)}>
+                                            <UserPlus className="mr-2 h-4 w-4" />
+                                            Add Members
+                                        </Button>
+                                    </CheckUserPermission>
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 <div className="mb-4 flex flex-col gap-4 sm:flex-row">

@@ -150,23 +150,6 @@ class VotingEventController extends Controller
         $totalPositions      = $candidates->pluck('club_position_id')->unique()->count();
         $votingPercentage    = $totalEligibleVoters > 0 ? ($totalVotes / $totalEligibleVoters) * 100 : 0;
 
-        // Get recent voters
-        $recentVoters = Vote::where('voting_event_id', $votingEvent->id)
-            ->with('user:id,name')
-            ->orderBy('created_at', 'desc')
-            ->take(3)
-            ->get()
-            ->map(function ($vote) {
-                $timeDiff = $vote->created_at->diffForHumans();
-                return [
-                    'id'         => $vote->user_id,
-                    'name'       => $vote->user->name,
-                    'student_id' => $vote->user->student_id,
-                    'avatar'     => $vote->user->avatar,
-                    'timestamp'  => $timeDiff,
-                ];
-            });
-
         $daysRemaining     = round(now()->diffInDays($votingEvent->end_date, false));
         $daysRemainingText = $daysRemaining > 0
         ? "{$daysRemaining} days remaining"
@@ -185,7 +168,6 @@ class VotingEventController extends Controller
                 'totalPositions'      => $totalPositions,
                 'votingPercentage'    => round($votingPercentage, 1),
                 'daysRemaining'       => $daysRemainingText,
-                'recentVoters'        => $recentVoters,
             ],
         ]);
     }
@@ -443,7 +425,10 @@ class VotingEventController extends Controller
 
         // Save winners to nomination_winners table
         $club           = $votingEvent->club;
-        $lastNomination = $club->nominations()->orderBy('created_at', 'desc')->first();
+        $lastNomination = $club->nominations()
+            ->where('status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         foreach ($winners as $positionId => $applicationId) {
             $application = NominationApplication::find($applicationId);

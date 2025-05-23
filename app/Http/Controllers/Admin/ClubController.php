@@ -337,4 +337,69 @@ class ClubController extends Controller
 
         return back()->with('success', "Payment and member status {$actionMessage} successfully.");
     }
+
+    /**
+     * Add multiple users to the club at once
+     */
+    public function addMembers(Request $request, Club $club)
+    {
+        $response = $this->checkAuthorization('edit_club_users', $request);
+        if ($response) {
+            return $response;
+        }
+
+        $request->validate([
+            'user_ids'   => 'required|array',
+            'user_ids.*' => 'required|exists:users,id',
+        ]);
+
+        $userIds    = $request->user_ids;
+        $attachData = [];
+
+        // Prepare data for attaching users
+        foreach ($userIds as $userId) {
+            $attachData[$userId] = [
+                'status'    => 'active',
+                'joined_at' => now(),
+            ];
+        }
+
+        // Attach users to club
+        $club->users()->attach($attachData);
+
+        if (count($userIds) > 0) {
+            $this->logActivity(
+                sprintf('%s added %d members to the %s club',
+                    auth()->user()->name,
+                    count($userIds),
+                    $club->name
+                ),
+                'club'
+            );
+        }
+
+        return back()->with('success', count($userIds) . ' members added to club successfully.');
+    }
+
+    /**
+     * Get a list of users who are not members of the specified club
+     */
+    public function getNonMembers(Request $request, Club $club)
+    {
+        $response = $this->checkAuthorization('edit_club_users', $request);
+        if ($response) {
+            return $response;
+        }
+
+        // Get IDs of existing members
+        $existingMemberIds = $club->users()->pluck('users.id')->toArray();
+
+        // Query for users who are not members (limit to 100 for performance)
+        $users = User::whereNotIn('id', $existingMemberIds)
+            ->select(['id', 'name', 'email', 'student_id', 'avatar'])
+            ->take(100)
+            ->get();
+
+        return response()->json($users);
+    }
 }
