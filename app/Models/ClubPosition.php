@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClubPosition extends Model
 {
@@ -40,5 +41,37 @@ class ClubPosition extends Model
             ->using(NominationApplicationPosition::class)
             ->withPivot('additional_requirements', 'status', 'max_applicants', 'admin_notes')
             ->withTimestamps();
+    }
+
+    /**
+     * Get the nomination winners for this position.
+     */
+    public function nominationWinners(): HasMany
+    {
+        return $this->hasMany(NominationWinner::class);
+    }
+
+    /**
+     * Get the current holder of this position based on the most recent voting event.
+     *
+     * @param int|null $clubId Optional club ID to filter by if needed
+     * @return \App\Models\User|null
+     */
+    public function getCurrentHolder($clubId = null)
+    {
+        $query = $this->nominationWinners()
+            ->whereHas('votingEvent', function ($query) use ($clubId) {
+                $query->where('status', 'closed');
+
+                if ($clubId) {
+                    $query->where('club_id', $clubId);
+                }
+            })
+            ->with(['nominationApplication.user', 'votingEvent'])
+            ->orderBy('voting_event_id', 'desc'); // Get the most recent voting event
+
+        $winner = $query->first();
+
+        return $winner ? $winner->nominationApplication->user : null;
     }
 }

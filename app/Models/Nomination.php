@@ -43,6 +43,14 @@ class Nomination extends Model
     }
 
     /**
+     * Get the winners for this nomination.
+     */
+    public function winners(): HasMany
+    {
+        return $this->hasMany(NominationWinner::class);
+    }
+
+    /**
      * Check if the nomination is currently open.
      */
     public function isOpen(): bool

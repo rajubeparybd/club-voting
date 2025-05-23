@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClubPosition;
 use App\Models\NominationApplication;
+use App\Models\NominationWinner;
 use App\Models\Vote;
 use App\Models\VotingEvent;
 use Illuminate\Http\Request;
@@ -116,8 +116,8 @@ class VotingEventController extends Controller
         }
 
         return Inertia::render('user/voting-events/index', [
-            'activeVotingEvents' => $activeVotingEvents,
-            'upcomingVotingEvents' => $upcomingVotingEvents,
+            'activeVotingEvents'    => $activeVotingEvents,
+            'upcomingVotingEvents'  => $upcomingVotingEvents,
             'completedVotingEvents' => $completedVotingEvents,
         ]);
     }
@@ -143,6 +143,9 @@ class VotingEventController extends Controller
         // Get all positions for this club
         $positions = ClubPosition::where('club_id', $votingEvent->club_id)->get();
 
+        // Get the last nomination for this club
+        $lastNomination = $votingEvent->club->nominations()->orderBy('created_at', 'desc')->first();
+
         // Get all candidates (approved nomination applications)
         $candidates = NominationApplication::whereHas('nomination', function ($query) use ($votingEvent) {
             $query->where('club_id', $votingEvent->club_id);
@@ -160,6 +163,17 @@ class VotingEventController extends Controller
             $candidate->votes_count = Vote::where('nomination_application_id', $candidate->id)
                 ->where('voting_event_id', $votingEvent->id)
                 ->count();
+
+            // Check if this candidate is a winner (only for closed events)
+            $candidate->is_winner = false;
+            if (($votingEvent->status === 'closed') && $lastNomination) {
+                $winner = NominationWinner::where('nomination_id', $lastNomination->id)
+                    ->where('voting_event_id', $votingEvent->id)
+                    ->where('nomination_application_id', $candidate->id)
+                    ->exists();
+
+                $candidate->is_winner = $winner;
+            }
         }
 
         // Group candidates by position
@@ -171,24 +185,34 @@ class VotingEventController extends Controller
             ->pluck('nomination_application_id')
             ->toArray();
 
+        // Get winners if the voting is closed
+        $winners = collect([]);
+        if (($votingEvent->status === 'closed') && $lastNomination) {
+            $winners = NominationWinner::where('nomination_id', $lastNomination->id)
+                ->where('voting_event_id', $votingEvent->id)
+                ->with(['nominationApplication.user:id,name,email,student_id,avatar,department_id', 'clubPosition:id,name'])
+                ->get();
+        }
+
         // Calculate voting statistics
-        $totalVotes = Vote::where('voting_event_id', $votingEvent->id)->count();
+        $totalVotes          = Vote::where('voting_event_id', $votingEvent->id)->count();
         $totalEligibleVoters = $votingEvent->club->users()->where('club_user.status', 'active')->count();
-        $votingPercentage = $totalEligibleVoters > 0 ? ($totalVotes / $totalEligibleVoters) * 100 : 0;
+        $votingPercentage    = $totalEligibleVoters > 0 ? ($totalVotes / $totalEligibleVoters) * 100 : 0;
 
         // Check if voting is closed
         $isVotingClosed = $votingEvent->status === 'closed' || $votingEvent->end_date < now();
 
         return Inertia::render('user/voting-events/show', [
-            'votingEvent' => $votingEvent,
-            'positions' => $positions,
+            'votingEvent'          => $votingEvent,
+            'positions'            => $positions,
             'candidatesByPosition' => $candidatesByPosition,
-            'userVotes' => $userVotes,
-            'isVotingClosed' => $isVotingClosed,
-            'votingStats' => [
-                'totalVotes' => $totalVotes,
+            'userVotes'            => $userVotes,
+            'isVotingClosed'       => $isVotingClosed,
+            'winners'              => $winners,
+            'votingStats'          => [
+                'totalVotes'          => $totalVotes,
                 'totalEligibleVoters' => $totalEligibleVoters,
-                'votingPercentage' => round($votingPercentage, 1),
+                'votingPercentage'    => round($votingPercentage, 1),
             ],
         ]);
     }
@@ -199,12 +223,12 @@ class VotingEventController extends Controller
     public function vote(Request $request)
     {
         $validated = $request->validate([
-            'voting_event_id' => 'required|exists:voting_events,id',
+            'voting_event_id'           => 'required|exists:voting_events,id',
             'nomination_application_id' => 'required|exists:nomination_applications,id',
         ]);
 
         $votingEvent = VotingEvent::findOrFail($validated['voting_event_id']);
-        $candidate = NominationApplication::findOrFail($validated['nomination_application_id']);
+        $candidate   = NominationApplication::findOrFail($validated['nomination_application_id']);
 
         // Check if the voting event is active
         if ($votingEvent->status !== 'active') {
@@ -245,21 +269,21 @@ class VotingEventController extends Controller
 
             // Create the vote
             Vote::create([
-                'user_id' => $request->user()->id,
-                'voting_event_id' => $votingEvent->id,
+                'user_id'                   => $request->user()->id,
+                'voting_event_id'           => $votingEvent->id,
                 'nomination_application_id' => $candidate->id,
             ]);
 
             DB::commit();
 
-            $this->logActivity('Voted in '.$votingEvent->title, 'vote');
+            $this->logActivity('Voted in ' . $votingEvent->title, 'vote');
 
             return back()->with('success', 'Your vote has been recorded successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->with('error', 'An error occurred: '.$e->getMessage());
+            return back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 }

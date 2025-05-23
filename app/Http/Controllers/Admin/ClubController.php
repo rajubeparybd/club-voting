@@ -116,13 +116,16 @@ class ClubController extends Controller
         }
 
         $club->load([
-            'positions',
             'users',
             'users.paymentLogs.paymentMethod',
         ]);
 
+        // Get positions with their current holders from nomination winners
+        $positionsWithHolders = $club->getPositionsWithCurrentHolders();
+
         return Inertia::render('admin/clubs/show', [
-            'club' => $club,
+            'club'                 => $club,
+            'positionsWithHolders' => $positionsWithHolders,
         ]);
     }
 
@@ -248,7 +251,8 @@ class ClubController extends Controller
     }
 
     /**
-     * Update a member's position assignment in the club.
+     * Update a member's position assignment in the club manually.
+     * Note: This is separate from position assignments through voting events.
      */
     public function updateMemberPosition(Request $request, Club $club, User $user)
     {
@@ -266,7 +270,7 @@ class ClubController extends Controller
         ]);
 
         if ($club) {
-            $this->logActivity(sprintf('%s updated the position of %s in the %s', auth()->user()->name, $user->name, $club->name), 'club');
+            $this->logActivity(sprintf('%s manually assigned %s to position in the %s', auth()->user()->name, $user->name, $club->name), 'club');
         }
         return back()->with('success', 'Member position updated successfully.');
     }

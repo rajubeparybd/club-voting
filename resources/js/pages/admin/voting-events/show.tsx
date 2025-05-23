@@ -200,13 +200,15 @@ export default function VotingEventShow({ votingEvent, club, lastNomination, can
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <ManagementPageHeader title={votingEvent.title} description={`Voting event for ${club?.name || 'Unknown Club'}`}>
                     <div className="flex items-center gap-2">
-                        <CheckUserPermission permission="edit_voting_events">
-                            <Button asChild>
-                                <Link href={route('admin.voting-events.edit', votingEvent.id)}>
-                                    <Edit className="mr-2 size-4" /> Edit Voting Event
-                                </Link>
-                            </Button>
-                        </CheckUserPermission>
+                        {votingEvent.status !== 'closed' && (
+                            <CheckUserPermission permission="edit_voting_events">
+                                <Button asChild>
+                                    <Link href={route('admin.voting-events.edit', votingEvent.id)}>
+                                        <Edit className="mr-2 size-4" /> Edit Voting Event
+                                    </Link>
+                                </Button>
+                            </CheckUserPermission>
+                        )}
                         <Button variant="outline" asChild>
                             <Link href={route('admin.voting-events.index')}>
                                 <ArrowLeft className="mr-2 size-4" />

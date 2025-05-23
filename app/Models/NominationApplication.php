@@ -94,4 +94,12 @@ class NominationApplication extends Model implements HasMedia
     {
         return $this->hasMany(Vote::class);
     }
+
+    /**
+     * Check if this application is a winner for any position.
+     */
+    public function winner()
+    {
+        return $this->hasOne(NominationWinner::class);
+    }
 }

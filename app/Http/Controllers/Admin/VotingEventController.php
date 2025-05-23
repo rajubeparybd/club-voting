@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Club;
 use App\Models\Nomination;
 use App\Models\NominationApplication;
+use App\Models\NominationWinner;
 use App\Models\Vote;
 use App\Models\VotingEvent;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class VotingEventController extends Controller
             return $response;
         }
 
-        $votingEvents = VotingEvent::with(['club'])->get();
+        $votingEvents = VotingEvent::with(['club'])->orderBy('created_at', 'desc')->get();
         $clubs        = Club::select('id', 'name')->where('status', 'active')->whereHas('nominations', function ($query) {
             $query->whereIn('status', ['closed', 'archived']);
         })->get();
@@ -119,7 +120,27 @@ class VotingEventController extends Controller
                 $candidate->votes_count = Vote::where('nomination_application_id', $candidate->id)
                     ->where('voting_event_id', $votingEvent->id)
                     ->count();
+
+                // Check if this candidate is a winner
+                $candidate->is_winner = false;
+                if ($votingEvent->status === 'closed') {
+                    $winner = NominationWinner::where('nomination_id', $lastNomination->id)
+                        ->where('voting_event_id', $votingEvent->id)
+                        ->where('nomination_application_id', $candidate->id)
+                        ->exists();
+
+                    $candidate->is_winner = $winner;
+                }
             }
+        }
+
+        // Get winners if the voting is closed
+        $winners = collect([]);
+        if (($votingEvent->status === 'closed') && $lastNomination) {
+            $winners = NominationWinner::where('nomination_id', $lastNomination->id)
+                ->where('voting_event_id', $votingEvent->id)
+                ->with(['nominationApplication.user:id,name,email,student_id,avatar,department_id', 'clubPosition:id,name'])
+                ->get();
         }
 
         // Get voting statistics
@@ -156,6 +177,7 @@ class VotingEventController extends Controller
             'club'           => $votingEvent->club,
             'lastNomination' => $lastNomination,
             'candidates'     => $candidates,
+            'winners'        => $winners,
             'votingStats'    => [
                 'totalVotes'          => $totalVotes,
                 'totalEligibleVoters' => $totalEligibleVoters,
@@ -273,8 +295,14 @@ class VotingEventController extends Controller
 
         $this->logActivity("Updated Voting Event Status: {$votingEvent->title} from {$oldStatus} to {$validated['status']}", "voting_event");
 
+        // Add additional success message if voting event was closed
+        $message = 'Voting event status updated successfully.';
+        if ($validated['status'] === 'closed' && $oldStatus !== 'closed') {
+            $message .= ' Winners have been recorded in the system. View current position holders on the club details page.';
+        }
+
         return redirect()->back()
-            ->with('success', 'Voting event status updated successfully.');
+            ->with('success', $message);
     }
 
     /**
@@ -413,30 +441,47 @@ class VotingEventController extends Controller
             $winners[$positionId] = $applicationId;
         }
 
-        // Update club positions for winners
-        $club = $votingEvent->club;
+        // Save winners to nomination_winners table
+        $club           = $votingEvent->club;
+        $lastNomination = $club->nominations()->orderBy('created_at', 'desc')->first();
+
         foreach ($winners as $positionId => $applicationId) {
             $application = NominationApplication::find($applicationId);
             if (! $application) {
                 continue;
             }
 
-            // Update club_user pivot to set the new position
-            $club->users()->updateExistingPivot($application->user_id, [
-                'position_id' => $positionId,
-            ]);
+            // Save to nomination winners table
+            if ($lastNomination) {
+                $votesCount = Vote::where('nomination_application_id', $applicationId)
+                    ->where('voting_event_id', $votingEvent->id)
+                    ->count();
+
+                NominationWinner::updateOrCreate(
+                    [
+                        'nomination_id'    => $lastNomination->id,
+                        'voting_event_id'  => $votingEvent->id,
+                        'club_position_id' => $positionId,
+                    ],
+                    [
+                        'nomination_application_id' => $applicationId,
+                        'votes_count'               => $votesCount,
+                        'is_tie_resolved'           => isset($manualWinners[$positionId]),
+                    ]
+                );
+            }
 
             // Log the position update
             $position = $application->clubPosition;
             $this->logActivity(
-                "Updated user {$application->user->name} to position {$position->name} in {$club->name} based on voting results",
+                "Set user {$application->user->name} as the winner for position {$position->name} in {$club->name} based on voting results",
                 "club"
             );
         }
 
         return [
             'success' => true,
-            'message' => 'Positions updated successfully based on voting results.',
+            'message' => 'Winners saved successfully based on voting results.',
             'winners' => $winners,
         ];
     }

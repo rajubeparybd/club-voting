@@ -43,4 +43,11 @@ class VotingEvent extends Model
         return $this->hasMany(Vote::class);
     }
 
+    /**
+     * Get the winners for this voting event.
+     */
+    public function winners(): HasMany
+    {
+        return $this->hasMany(NominationWinner::class);
+    }
 }
