@@ -31,6 +31,7 @@ import { EyeOff, ArrowDown, ArrowUp, ChevronsUpDown, ChevronsRight, ChevronRight
 import { cn, formatPatternToText } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import CheckUserPermission from "./check-user-permission"
+import { Link } from "@inertiajs/react"
 
 interface DataTableColumnHeaderProps<TData, TValue>
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -164,10 +165,10 @@ export function DataTableActions({ actions, fallbackText = "Access Denied" }: Da
                     disabled={action.disabled}
                 >
                     {action.link ? (
-                    <a href={action.link} className="flex w-full items-center">
+                    <Link href={action.link} className="flex w-full items-center">
                         {action.icon}
                         {action.title}
-                    </a>
+                    </Link>
                     ) : (
                     <div className="flex w-full items-center">
                         {action.icon}
