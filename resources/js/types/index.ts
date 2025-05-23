@@ -201,6 +201,7 @@ export interface NominationApplication {
     user?: User;
     club_position?: ClubPosition;
     votes_count?: number;
+    is_winner?: boolean;
 }
 
 export interface PaymentLog {

@@ -47,4 +47,12 @@ class NominationWinner extends Model
     {
         return $this->belongsTo(ClubPosition::class);
     }
+
+    /**
+     * Get the user who won.
+     */
+    public function winner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'winner_id');
+    }
 }

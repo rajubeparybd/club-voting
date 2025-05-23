@@ -5,7 +5,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useInitials } from '@/hooks/use-initials';
 import { NominationApplication } from '@/types';
 import { router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface TiebreakModalProps {
     isOpen: boolean;
@@ -20,6 +20,13 @@ export default function TiebreakModal({ isOpen, onOpenChange, ties, votingEventI
     const getInitials = useInitials();
     const [selectedWinners, setSelectedWinners] = useState<Record<string, number>>(winners || {});
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Update selected winners when props change
+    useEffect(() => {
+        if (winners && Object.keys(winners).length > 0) {
+            setSelectedWinners(winners);
+        }
+    }, [winners]);
 
     const handleWinnerSelection = (positionId: string, applicationId: number) => {
         setSelectedWinners((prev) => ({

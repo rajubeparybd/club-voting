@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('voting_event_id')->constrained()->onDelete('cascade');
             $table->foreignId('nomination_application_id')->constrained()->onDelete('cascade');
             $table->foreignId('club_position_id')->constrained()->onDelete('cascade');
+            $table->foreignId('winner_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->integer('votes_count')->default(0);
             $table->boolean('is_tie_resolved')->default(false);
             $table->timestamps();

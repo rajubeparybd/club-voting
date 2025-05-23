@@ -1,5 +1,6 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import CheckUserPermission from '@/components/ui/check-user-permission';
@@ -9,8 +10,39 @@ import { formatTimeRemaining } from '@/lib/utils';
 import { BreadcrumbItem, Club, Nomination, NominationApplication, VotingEvent } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { ArrowLeft, BarChart3, BriefcaseIcon, Calendar, ClipboardList, Clock, Edit, UserCogIcon, Users, Users2Icon, VoteIcon } from 'lucide-react';
+import {
+    ArrowLeft,
+    BarChart3,
+    BriefcaseIcon,
+    Calendar,
+    ClipboardList,
+    Clock,
+    Edit,
+    Trophy,
+    UserCogIcon,
+    Users,
+    Users2Icon,
+    VoteIcon,
+} from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+// Define type for NominationWinner object
+interface NominationWinner {
+    id: number;
+    nomination_id: number;
+    voting_event_id: number;
+    nomination_application_id: number;
+    club_position_id: number;
+    votes_count: number;
+    is_tie_resolved: boolean;
+    created_at: string;
+    updated_at: string;
+    nominationApplication?: NominationApplication;
+    clubPosition?: {
+        id: number;
+        name: string;
+    };
+}
 
 interface VotingStats {
     totalVotes: number;
@@ -19,13 +51,6 @@ interface VotingStats {
     totalPositions: number;
     votingPercentage: number;
     daysRemaining: string;
-    recentVoters: Array<{
-        id: number;
-        name: string;
-        student_id: string;
-        avatar: string;
-        timestamp: string;
-    }>;
     isExpired: boolean;
 }
 
@@ -33,6 +58,7 @@ interface Props {
     votingEvent: VotingEvent;
     club: Club;
     lastNomination: Nomination | null;
+    winners: NominationWinner[];
     candidates: NominationApplication[];
     votingStats: VotingStats;
 }
@@ -57,9 +83,27 @@ const formatDate = (dateString: string | undefined, formatString: string): strin
     }
 };
 
-export default function VotingEventShow({ votingEvent, club, lastNomination, candidates, votingStats }: Props) {
+export default function VotingEventShow({ votingEvent, club, winners, lastNomination, candidates, votingStats }: Props) {
     const [timeDetails, setTimeDetails] = useState<TimeDetails>({ days: '0', hours: '0', minutes: '0', seconds: '0', isExpired: false });
     const [timerLabel, setTimerLabel] = useState<string>('');
+
+    console.log('Winners data:', winners);
+    console.log('lastNomination', lastNomination);
+    console.log('candidates', candidates);
+
+    // Helper function to check if a candidate is a winner
+    const isWinner = useCallback(
+        (candidateId: number) => {
+            if (winners && winners.length > 0) {
+                return winners.some((winner) => winner.nomination_application_id === candidateId);
+            }
+
+            // Fallback to is_winner flag on the candidate
+            const candidate = candidates.find((c) => c.id === candidateId);
+            return candidate?.is_winner || false;
+        },
+        [winners, candidates],
+    );
 
     // Memoize the calculation function to avoid recreating it on each render
     const calculateTime = useCallback(() => {
@@ -163,36 +207,6 @@ export default function VotingEventShow({ votingEvent, club, lastNomination, can
     }, [votingStats.totalVotes, votingStats.totalEligibleVoters, votingStats.totalCandidates, votingStats.totalPositions]);
 
     // Memoized recent voters to prevent recreation on each render
-    const recentVotersSection = useMemo(
-        () => (
-            <div>
-                <h3 className="mb-2 text-sm font-medium">Recent Voters</h3>
-                <div className="space-y-2">
-                    {votingStats.recentVoters.map((voter) => (
-                        <div key={voter.id} className="flex items-center justify-between rounded-md border p-2 text-sm">
-                            <div className="flex items-center gap-2">
-                                <Avatar className="size-10 rounded-md border">
-                                    <AvatarImage src={voter.avatar} alt={voter.name} />
-                                    <AvatarFallback>
-                                        {voter.name
-                                            .split(' ')
-                                            .map((n: string) => n[0])
-                                            .join('')}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex flex-col">
-                                    <span className="font-medium">{voter.name}</span>
-                                    <span className="text-muted-foreground text-xs">ID: {voter.student_id}</span>
-                                </div>
-                            </div>
-                            <span className="text-muted-foreground text-xs">{voter.timestamp}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        ),
-        [votingStats.recentVoters],
-    );
 
     return (
         <AdminAppLayout breadcrumbs={breadcrumbs}>
@@ -366,7 +380,15 @@ export default function VotingEventShow({ votingEvent, club, lastNomination, can
                                                             </AvatarFallback>
                                                         </Avatar>
                                                         <div className="flex flex-col">
-                                                            <span>{candidate.user?.name}</span>
+                                                            <span className="flex items-center gap-2">
+                                                                {candidate.user?.name}
+                                                                {votingEvent.status === 'closed' && isWinner(candidate.id) && (
+                                                                    <Badge className="ml-1 bg-yellow-500 text-white" variant="default">
+                                                                        <Trophy className="mr-1 h-3 w-3" />
+                                                                        Winner
+                                                                    </Badge>
+                                                                )}
+                                                            </span>
                                                             <span className="text-muted-foreground text-xs">ID: {candidate.user?.student_id}</span>
                                                         </div>
                                                     </div>
@@ -455,9 +477,6 @@ export default function VotingEventShow({ votingEvent, club, lastNomination, can
                                             </div>
                                         ))}
                                     </div>
-
-                                    {/* Last voted users */}
-                                    {recentVotersSection}
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-8 text-center">
