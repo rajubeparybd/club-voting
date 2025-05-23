@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { formatTimeRemaining } from '@/lib/utils';
 import type { VotingEvent } from '@/types';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { formatDate } from 'date-fns';
 import { CalendarClock, CalendarIcon, CheckCircle, ClockIcon, Eye, History, Trophy, Vote } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -22,10 +22,18 @@ const VotingEventCard: React.FC<VotingEventCardProps> = ({ votingEvent }) => {
         // Only set up timer for non-expired events
         if (!isExpired) {
             const timer = setInterval(() => {
-                setTimeRemaining(formatTimeRemaining(hasStarted ? votingEvent.end_date : votingEvent.start_date));
+                const updatedTimeRemaining = formatTimeRemaining(hasStarted ? votingEvent.end_date : votingEvent.start_date);
+                setTimeRemaining(updatedTimeRemaining);
+
+                // Check if the timer just expired in this interval
+                if (updatedTimeRemaining.isExpired && !isExpired) {
+                    router.reload();
+                }
             }, 1000);
 
-            return () => clearInterval(timer);
+            return () => {
+                clearInterval(timer);
+            };
         }
     }, [votingEvent.end_date, votingEvent.start_date, hasStarted, isExpired]);
 

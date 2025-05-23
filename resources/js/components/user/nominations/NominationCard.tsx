@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { formatTimeRemaining } from '@/lib/utils';
 import type { Nomination, NominationApplication } from '@/types';
+import { router } from '@inertiajs/react';
 import { formatDate } from 'date-fns';
 import { Award, CalendarClock, CalendarIcon, ClockIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -19,7 +20,12 @@ const NominationCard: React.FC<NominationCardProps> = ({ nomination, application
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setTimeRemaining(formatTimeRemaining(hasStarted ? nomination.end_date : nomination.start_date));
+            const updatedTimeRemaining = formatTimeRemaining(hasStarted ? nomination.end_date : nomination.start_date);
+            setTimeRemaining(updatedTimeRemaining);
+
+            if (updatedTimeRemaining.isExpired && !hasStarted) {
+                router.reload();
+            }
         }, 1000);
 
         return () => clearInterval(timer);
