@@ -1,18 +1,20 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
-import { ClubPosition, NominationApplication } from '@/types';
-import { BarChart2, Medal, Trophy, Users } from 'lucide-react';
+import { ClubPosition, NominationApplication, NominationWinner } from '@/types';
+import { BarChart2, Trophy, Users } from 'lucide-react';
 
 interface VotingResultsProps {
     position: ClubPosition;
     candidates: NominationApplication[];
     userVotes: number[];
+    winners?: NominationWinner[];
 }
 
-export function VotingResults({ position, candidates, userVotes }: VotingResultsProps) {
+export function VotingResults({ position, candidates, userVotes, winners = [] }: VotingResultsProps) {
     const getInitials = useInitials();
 
     // Sort candidates by vote count (highest first)
@@ -21,12 +23,15 @@ export function VotingResults({ position, candidates, userVotes }: VotingResults
     // Calculate the total votes for this position
     const totalVotes = sortedCandidates.reduce((sum, candidate) => sum + (candidate.votes_count || 0), 0);
 
-    // Function to get medal icon based on position
-    const getMedalIcon = (index: number) => {
-        if (index === 0) return <Trophy className="h-5 w-5 text-yellow-500" />;
-        if (index === 1) return <Medal className="h-5 w-5 text-gray-400" />;
-        if (index === 2) return <Medal className="h-5 w-5 text-amber-700" />;
-        return null;
+    // Check if a candidate is a winner
+    const isWinner = (candidateId: number) => {
+        // First check the winners array from props
+        if (winners && winners.length > 0) {
+            return winners.some((winner) => winner.nomination_application_id === candidateId && winner.club_position_id === position.id);
+        }
+
+        // Then check the is_winner property on the candidate as fallback
+        return candidates.find((c) => c.id === candidateId)?.is_winner || false;
     };
 
     return (
@@ -40,15 +45,15 @@ export function VotingResults({ position, candidates, userVotes }: VotingResults
             <CardContent>
                 {candidates.length > 0 ? (
                     <div className="space-y-6">
-                        {sortedCandidates.map((candidate, index) => {
+                        {sortedCandidates.map((candidate) => {
                             const votePercentage = totalVotes ? Math.round(((candidate.votes_count || 0) / totalVotes) * 100) : 0;
                             const isUserVote = userVotes.includes(candidate.id);
+                            const hasWon = isWinner(candidate.id);
 
                             return (
                                 <div key={candidate.id} className="space-y-2">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            {getMedalIcon(index)}
                                             <Avatar className="size-10 overflow-hidden rounded-lg">
                                                 <AvatarImage src={candidate.user?.avatar || ''} alt={candidate.user?.name || ''} />
                                                 <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
@@ -62,6 +67,12 @@ export function VotingResults({ position, candidates, userVotes }: VotingResults
                                                         <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
                                                             Your Vote
                                                         </span>
+                                                    )}
+                                                    {hasWon && (
+                                                        <Badge className="ml-1 bg-yellow-500 text-white" variant="default">
+                                                            <Trophy className="mr-1 h-3 w-3" />
+                                                            Winner
+                                                        </Badge>
                                                     )}
                                                 </div>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -81,6 +92,7 @@ export function VotingResults({ position, candidates, userVotes }: VotingResults
                                             isUserVote ? 'bg-gray-100 dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900',
                                             '[&>div]:bg-blue-500',
                                             isUserVote && '[&>div]:bg-green-500',
+                                            hasWon && '[&>div]:bg-yellow-500',
                                         )}
                                     />
                                     <p className="text-right text-xs text-gray-500">{votePercentage}% of votes</p>

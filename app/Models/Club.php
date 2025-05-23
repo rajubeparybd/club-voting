@@ -112,17 +112,20 @@ class Club extends Model
         }
 
         // Get winners from the most recent voting event
-        $winners = NominationWinner::where('voting_event_id', $mostRecentVotingEvent->id)
-            ->where('nomination_id', $lastNomination->id)
-            ->with(['nominationApplication.user', 'clubPosition'])
-            ->get()
-            ->keyBy('club_position_id');
+        $winners = $lastNomination->winners;
 
         // Map positions with their holders
-        return $positions->map(function ($position) use ($winners) {
-            $winner                   = $winners->get($position->id);
-            $position->current_holder = $winner ? $winner->nominationApplication->user : null;
-            $position->votes_count    = $winner ? $winner->votes_count : null;
+        return $positions->map(function ($position) use ($winners, $lastNomination) {
+            $winner = $winners->where('club_position_id', $position->id)->first();
+
+            // First try to get the winner directly from winner_id
+            if ($winner && $winner->winner_id) {
+                $position->current_holder = User::find($winner->winner_id);
+            } else {
+                $position->current_holder = null;
+            }
+
+            $position->votes_count = $winner ? $winner->votes_count : null;
             return $position;
         });
     }

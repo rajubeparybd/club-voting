@@ -6,7 +6,7 @@ import { VotingResults } from '@/components/user/voting-events/VotingResults';
 import { VotingStats } from '@/components/user/voting-events/VotingStats';
 import UserAppLayout from '@/layouts/user/user-layout';
 import { formatTimeRemaining } from '@/lib/utils';
-import { ClubPosition, NominationApplication, VotingEvent } from '@/types';
+import { ClubPosition, NominationApplication, NominationWinner, VotingEvent } from '@/types';
 import { Head } from '@inertiajs/react';
 import { formatDate } from 'date-fns';
 import { Clock, Info, PieChart, Trophy, Users, Vote } from 'lucide-react';
@@ -23,6 +23,7 @@ interface VotingEventShowProps {
     candidatesByPosition: Record<number, NominationApplication[]>;
     userVotes: number[];
     isVotingClosed: boolean;
+    winners: NominationWinner[];
     votingStats: {
         totalVotes: number;
         totalEligibleVoters: number;
@@ -37,6 +38,7 @@ export default function VotingEventShow({
     userVotes,
     isVotingClosed,
     votingStats,
+    winners,
 }: VotingEventShowProps) {
     const [timeRemaining, setTimeRemaining] = useState(formatTimeRemaining(votingEvent.end_date));
     const [activeTab, setActiveTab] = useState<string>(isVotingClosed ? 'results' : 'voting');
@@ -58,6 +60,9 @@ export default function VotingEventShow({
     const pageDescription = isVotingClosed
         ? `View results for ${votingEvent.club?.name} club's election`
         : `Attend and vote for ${votingEvent.club?.name} club's positions`;
+
+    // Add console logging to help with debugging
+    console.log('Winners:', winners);
 
     return (
         <UserAppLayout
@@ -257,7 +262,15 @@ export default function VotingEventShow({
 
                                     if (!position || candidates.length === 0) return null;
 
-                                    return <VotingResults key={position.id} position={position} candidates={candidates} userVotes={userVotes} />;
+                                    return (
+                                        <VotingResults
+                                            key={position.id}
+                                            position={position}
+                                            candidates={candidates}
+                                            userVotes={userVotes}
+                                            winners={winners}
+                                        />
+                                    );
                                 })
                             ) : (
                                 <Card>

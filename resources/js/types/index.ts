@@ -236,3 +236,19 @@ export interface VotingEvent {
     has_voted_all?: boolean;
     has_any_votes?: boolean;
 }
+
+export interface NominationWinner {
+    id: number;
+    nomination_id: number;
+    voting_event_id: number;
+    nomination_application_id: number;
+    club_position_id: number;
+    winner_id: number;
+    votes_count: number;
+    is_tie_resolved: boolean;
+    created_at: string;
+    updated_at: string;
+    nominationApplication?: NominationApplication;
+    clubPosition?: ClubPosition;
+    winner?: User;
+}

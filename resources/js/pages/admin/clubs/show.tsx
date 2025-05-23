@@ -967,9 +967,9 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
                                 <CardDescription>All positions available in this club</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="mb-4 rounded-md bg-blue-50 p-4 text-blue-800">
+                                <div className="mb-4 rounded-md bg-blue-500 p-4 text-white">
                                     <div className="flex items-center">
-                                        <Award className="mr-2 size-5 text-blue-600" />
+                                        <Award className="mr-2 size-5 text-white" />
                                         <h3 className="font-medium">Current Position Holders</h3>
                                     </div>
                                     <p className="mt-1 text-sm">

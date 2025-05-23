@@ -17,6 +17,24 @@ class NominationWinner extends Model
     protected $guarded = ['id'];
 
     /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Auto-set winner_id if not provided but we have nomination_application_id
+        static::creating(function (NominationWinner $winner) {
+            if (empty($winner->winner_id) && ! empty($winner->nomination_application_id)) {
+                $application = NominationApplication::find($winner->nomination_application_id);
+                if ($application) {
+                    $winner->winner_id = $application->user_id;
+                }
+            }
+        });
+    }
+
+    /**
      * Get the nomination that this winner belongs to.
      */
     public function nomination(): BelongsTo
