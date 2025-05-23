@@ -24,6 +24,7 @@ import {
     Award,
     Ban,
     CalendarDays,
+    Check,
     CreditCard,
     Edit,
     Lock,
@@ -32,9 +33,8 @@ import {
     PlusCircle,
     Search,
     Shield,
-    ThumbsDown,
-    ThumbsUp,
     Users,
+    X,
 } from 'lucide-react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -199,17 +199,18 @@ interface PaymentDialogProps {
     userName: string;
     onApprove: (paymentId: number) => void;
     onReject: (paymentId: number) => void;
-    isLoading: boolean;
+    isPaymentApproved: boolean;
+    isPaymentRejected: boolean;
 }
 
-function PaymentDialog({ open, onOpenChange, payment, userName, onApprove, onReject, isLoading }: PaymentDialogProps) {
+function PaymentDialog({ open, onOpenChange, payment, userName, onApprove, onReject, isPaymentApproved, isPaymentRejected }: PaymentDialogProps) {
     if (!payment) return null;
 
     return (
         <Dialog
             open={open}
             onOpenChange={(newOpen) => {
-                if (!isLoading) {
+                if (!isPaymentApproved && !isPaymentRejected) {
                     onOpenChange(newOpen);
                 }
             }}
@@ -276,27 +277,24 @@ function PaymentDialog({ open, onOpenChange, payment, userName, onApprove, onRej
 
                 {payment.status === 'pending' && (
                     <DialogFooter className="flex flex-col gap-2 sm:flex-row">
-                        <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
-                            Cancel
-                        </Button>
                         <div className="flex gap-2">
                             <ProcessingButton
                                 variant="destructive"
-                                processing={isLoading}
+                                processing={isPaymentRejected}
                                 onClick={() => onReject(payment.id)}
                                 disabled={payment.status !== 'pending'}
                             >
-                                <ThumbsDown className="mr-2 size-4" />
-                                {isLoading ? 'Processing...' : 'Reject Payment'}
+                                {!isPaymentRejected && <X className="mr-2 size-4" />}
+                                {isPaymentRejected ? 'Processing...' : 'Reject Payment'}
                             </ProcessingButton>
                             <ProcessingButton
                                 variant="default"
-                                processing={isLoading}
+                                processing={isPaymentApproved}
                                 onClick={() => onApprove(payment.id)}
                                 disabled={payment.status !== 'pending'}
                             >
-                                <ThumbsUp className="mr-2 size-4" />
-                                {isLoading ? 'Processing...' : 'Approve Payment'}
+                                {!isPaymentApproved && <Check className="mr-2 size-4" />}
+                                {isPaymentApproved ? 'Processing...' : 'Approve Payment'}
                             </ProcessingButton>
                         </div>
                     </DialogFooter>
@@ -436,50 +434,58 @@ function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, 
                             </DropdownMenuItem>
                         }
                     >
-                        <CheckUserPermission permission="edit_club_users">
-                            {/* View Payment (only show for pending payments) */}
-                            {hasPendingPayment && (
+                        {/* View Payment (only show for pending payments) */}
+                        {hasPendingPayment && (
+                            <CheckUserPermission permission="edit_club_users">
                                 <DropdownMenuItem disabled={isLoading} onClick={() => onViewPayment(user.id)}>
                                     <CreditCard className="mr-2 size-4 text-blue-600" />
                                     View Payment
                                 </DropdownMenuItem>
-                            )}
+                            </CheckUserPermission>
+                        )}
 
-                            {hasPendingPayment && <DropdownMenuSeparator />}
+                        {!hasPendingPayment && (
+                            <>
+                                <CheckUserPermission permission="edit_club_users">
+                                    <DropdownMenuItem
+                                        disabled={currentStatus === 'active' || isLoading}
+                                        onClick={() => onStatusChange(user.id, 'active')}
+                                    >
+                                        <Shield className="mr-2 size-4 text-green-600" />
+                                        Activate Member
+                                    </DropdownMenuItem>
 
-                            <DropdownMenuItem disabled={currentStatus === 'active' || isLoading} onClick={() => onStatusChange(user.id, 'active')}>
-                                <Shield className="mr-2 size-4 text-green-600" />
-                                Activate Member
-                            </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        disabled={currentStatus === 'inactive' || isLoading}
+                                        onClick={() => onStatusChange(user.id, 'inactive')}
+                                    >
+                                        <Shield className="mr-2 size-4 text-gray-600" />
+                                        Deactivate Member
+                                    </DropdownMenuItem>
 
-                            <DropdownMenuItem
-                                disabled={currentStatus === 'inactive' || isLoading}
-                                onClick={() => onStatusChange(user.id, 'inactive')}
-                            >
-                                <Shield className="mr-2 size-4 text-gray-600" />
-                                Deactivate Member
-                            </DropdownMenuItem>
-
-                            <DropdownMenuItem disabled={currentStatus === 'banned' || isLoading} onClick={() => onStatusChange(user.id, 'banned')}>
-                                <Ban className="mr-2 size-4 text-red-600" />
-                                Ban Member
-                            </DropdownMenuItem>
-                        </CheckUserPermission>
-
-                        {/* Position assignment */}
-                        <CheckUserPermission permission="edit_club_users">
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                disabled={isLoading}
-                                onClick={() => {
-                                    setIsPositionDialogOpen(true);
-                                }}
-                            >
-                                <Award className="mr-2 size-4" />
-                                Assign Position (Manual)
-                            </DropdownMenuItem>
-                        </CheckUserPermission>
-
+                                    <DropdownMenuItem
+                                        disabled={currentStatus === 'banned' || isLoading}
+                                        onClick={() => onStatusChange(user.id, 'banned')}
+                                    >
+                                        <Ban className="mr-2 size-4 text-red-600" />
+                                        Ban Member
+                                    </DropdownMenuItem>
+                                </CheckUserPermission>
+                                {/* Position assignment */}
+                                <CheckUserPermission permission="edit_club_users">
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        disabled={isLoading}
+                                        onClick={() => {
+                                            setIsPositionDialogOpen(true);
+                                        }}
+                                    >
+                                        <Award className="mr-2 size-4" />
+                                        Assign Position (Manual)
+                                    </DropdownMenuItem>
+                                </CheckUserPermission>
+                            </>
+                        )}
                         {/* Remove member */}
                         <CheckUserPermission permission="delete_club_users">
                             <DropdownMenuSeparator />
@@ -543,6 +549,8 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
     const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<ClubUser | null>(null);
+    const [isPaymentApproved, setIsPaymentApproved] = useState(false);
+    const [isPaymentRejected, setIsPaymentRejected] = useState(false);
 
     const breadcrumbs: BreadcrumbItem[] = useMemo(
         () => [
@@ -647,7 +655,7 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
     const handleApprovePayment = (paymentId: number) => {
         if (!selectedUser) return;
 
-        setIsLoading(true);
+        setIsPaymentApproved(true);
 
         router.post(
             route('admin.clubs.members.update-payment-status', {
@@ -661,12 +669,11 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    setIsLoading(false);
+                    setIsPaymentApproved(false);
                     setIsPaymentDialogOpen(false);
                 },
-                onError: (errors) => {
-                    console.error(errors);
-                    setIsLoading(false);
+                onError: () => {
+                    setIsPaymentApproved(false);
                 },
             },
         );
@@ -676,7 +683,7 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
     const handleRejectPayment = (paymentId: number) => {
         if (!selectedUser) return;
 
-        setIsLoading(true);
+        setIsPaymentRejected(true);
 
         router.post(
             route('admin.clubs.members.update-payment-status', {
@@ -690,12 +697,11 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    setIsLoading(false);
+                    setIsPaymentRejected(false);
                     setIsPaymentDialogOpen(false);
                 },
-                onError: (errors) => {
-                    console.error(errors);
-                    setIsLoading(false);
+                onError: () => {
+                    setIsPaymentRejected(false);
                 },
             },
         );
@@ -853,7 +859,8 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
                         userName={selectedUser.name}
                         onApprove={handleApprovePayment}
                         onReject={handleRejectPayment}
-                        isLoading={isLoading}
+                        isPaymentApproved={isPaymentApproved}
+                        isPaymentRejected={isPaymentRejected}
                     />
                 )}
 
