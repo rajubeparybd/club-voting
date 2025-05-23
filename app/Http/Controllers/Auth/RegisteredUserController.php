@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -10,10 +9,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Str;
 
 class RegisteredUserController extends Controller
 {
@@ -24,10 +23,10 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'student_id'    => 'required|string|max:20|unique:'.User::class,
+            'student_id'    => 'required|string|max:20|unique:' . User::class,
             'intake'        => 'required|string',
             'name'          => 'required|string|max:255',
-            'email'         => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email'         => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'gender'        => 'required|in:M,F,O',
             'department_id' => 'required|exists:departments,id',
             'avatar'        => 'required|string',
@@ -56,9 +55,9 @@ class RegisteredUserController extends Controller
         activity()
             ->causedBy($user)
             ->event('register')
-            ->log('Register new account using this IP: '.$request->ip());
+            ->log('Register new account using this IP: ' . $request->ip());
 
-        return to_route('user.dashboard');
+        return to_route('verification.notice');
     }
 
     /**
