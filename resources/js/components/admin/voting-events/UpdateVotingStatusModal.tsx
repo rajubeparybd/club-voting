@@ -1,3 +1,4 @@
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -190,10 +191,14 @@ export default function UpdateVotingStatusModal({ isOpen, onOpenChange, votingEv
                         )}
 
                         {status === 'closed' && votingEvent?.status !== 'closed' && !isTerminalState && (
-                            <div className="text-sm text-amber-600">
-                                <p>Closing a voting event will finalize the results and update club positions based on the vote counts.</p>
-                                <p>If there are tied votes, you will be prompted to manually select winners.</p>
-                            </div>
+                            <Alert variant="info">
+                                <AlertDescription>
+                                    Closing a voting event will finalize the results and update club positions based on the vote counts.
+                                    <br />
+                                    <br />
+                                    If there are tied votes, you will be prompted to manually select winners.
+                                </AlertDescription>
+                            </Alert>
                         )}
                     </div>
 

@@ -296,13 +296,15 @@ export default function NominationShow({ nomination, applications }: { nominatio
 
                 <ManagementPageHeader title={`Applications for ${nomination.club?.name}`} description="Manage all applications.">
                     <div className="flex items-center gap-2">
-                        <CheckUserPermission permission="edit_nominations">
-                            <Button asChild>
-                                <Link href={route('admin.nominations.edit', nomination.id)}>
-                                    <Pencil className="size-4" /> Edit Nomination
-                                </Link>
-                            </Button>
-                        </CheckUserPermission>
+                        {nomination.status !== 'closed' && (
+                            <CheckUserPermission permission="edit_nominations">
+                                <Button asChild>
+                                    <Link href={route('admin.nominations.edit', nomination.id)}>
+                                        <Pencil className="size-4" /> Edit Nomination
+                                    </Link>
+                                </Button>
+                            </CheckUserPermission>
+                        )}
                         <Button variant="outline" asChild>
                             <Link href={route('admin.nominations.index')}>
                                 <ArrowLeft className="size-4" />

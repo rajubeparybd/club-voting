@@ -1,4 +1,5 @@
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,8 +79,17 @@ function PositionAssignmentDialog({ open, onOpenChange, clubPositions, userId, o
         >
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Assign Position</DialogTitle>
-                    <DialogDescription>Select a position to assign to this member</DialogDescription>
+                    <DialogTitle>Assign Position (Manual)</DialogTitle>
+                    <DialogDescription>
+                        Select a position to manually assign to this member.
+                        <br />
+                        <br />
+                        <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>Note</AlertTitle>
+                            <AlertDescription>This is separate from official positions assigned through voting events.</AlertDescription>
+                        </Alert>
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-4 py-4">
@@ -306,6 +316,21 @@ interface ClubPosition {
     updated_at: string;
 }
 
+// Position Columns
+interface PositionWithHolder extends ClubPosition {
+    current_holder: User | null;
+    votes_count: number | null;
+}
+
+interface User {
+    id: number;
+    name: string;
+    student_id: string | null;
+    email: string;
+    avatar: string | null;
+    department_id?: number;
+}
+
 interface ClubUser {
     id: number;
     name: string;
@@ -322,7 +347,6 @@ interface ClubUser {
         status?: 'pending' | 'active' | 'inactive' | 'banned';
         joined_at: string;
     };
-    position?: ClubPosition | null;
     payment_logs?: Payment[];
 }
 
@@ -342,6 +366,7 @@ interface Club {
 
 interface ClubShowProps {
     club: Club;
+    positionsWithHolders: PositionWithHolder[];
 }
 
 // Define a simple column definition
@@ -451,7 +476,7 @@ function MemberActions({ user, clubPositions, onStatusChange, onPositionChange, 
                                 }}
                             >
                                 <Award className="mr-2 size-4" />
-                                Assign Position
+                                Assign Position (Manual)
                             </DropdownMenuItem>
                         </CheckUserPermission>
 
@@ -510,7 +535,7 @@ function DataTable<T>({ columns, data }: { columns: Column<T>[]; data: T[] }) {
     );
 }
 
-export default function ClubShow({ club }: ClubShowProps) {
+export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [positionFilter, setPositionFilter] = useState('all');
@@ -676,7 +701,7 @@ export default function ClubShow({ club }: ClubShowProps) {
         );
     };
 
-    const positionColumns: Column<ClubPosition>[] = [
+    const positionColumns: Column<PositionWithHolder>[] = [
         {
             key: 'name',
             header: 'Position Name',
@@ -697,6 +722,31 @@ export default function ClubShow({ club }: ClubShowProps) {
             key: 'created_at',
             header: 'Created Date',
             cell: (position) => format(new Date(position.created_at), 'PPP'),
+        },
+        {
+            key: 'current_holder',
+            header: 'Current Holder',
+            cell: (position) => {
+                const holder = position.current_holder;
+                return (
+                    <div className="flex items-center gap-2">
+                        {holder && (
+                            <div className="flex items-center gap-2">
+                                <Avatar className="h-8 w-8 rounded-full border border-gray-300">
+                                    <AvatarImage src={holder.avatar || ''} alt={holder.name} />
+                                    <AvatarFallback>{holder.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <span>{holder.name}</span>
+                            </div>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            key: 'votes_count',
+            header: 'Votes',
+            cell: (position) => <span>{position.votes_count || '-'}</span>,
         },
     ];
 
@@ -725,7 +775,7 @@ export default function ClubShow({ club }: ClubShowProps) {
         },
         {
             key: 'position',
-            header: 'Position',
+            header: 'Manual Position',
             cell: (user) => {
                 const positionId = user.pivot.position_id;
                 const position = positionId ? club.positions.find((p) => p.id === positionId) : null;
@@ -904,8 +954,19 @@ export default function ClubShow({ club }: ClubShowProps) {
                                 <CardDescription>All positions available in this club</CardDescription>
                             </CardHeader>
                             <CardContent>
+                                <div className="mb-4 rounded-md bg-blue-50 p-4 text-blue-800">
+                                    <div className="flex items-center">
+                                        <Award className="mr-2 size-5 text-blue-600" />
+                                        <h3 className="font-medium">Current Position Holders</h3>
+                                    </div>
+                                    <p className="mt-1 text-sm">
+                                        Position holders displayed below are based on the most recent completed voting event results. These are the
+                                        official position assignments based on club member votes.
+                                    </p>
+                                </div>
+
                                 {club.positions.length > 0 ? (
-                                    <DataTable columns={positionColumns} data={club.positions} />
+                                    <DataTable columns={positionColumns} data={positionsWithHolders} />
                                 ) : (
                                     <div className="rounded-md border border-dashed p-6 text-center text-gray-500">
                                         <p>No positions have been created for this club yet.</p>
