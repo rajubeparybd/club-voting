@@ -6,6 +6,7 @@ use App\Http\Requests\Admin\UserRequest;
 use App\Http\Resources\Admin\UserResource;
 use App\Models\Department;
 use App\Models\User;
+use App\Notifications\User\AccountDeleted;
 use App\Notifications\User\UserRolesUpdated;
 use App\Notifications\User\UserStatusUpdated;
 use App\Notifications\User\WelcomeUserNotification;
@@ -110,6 +111,8 @@ class UserController extends Controller
         if ($user->roles->contains('name', 'admin')) {
             return back()->with('error', 'You cannot delete the admin account.');
         }
+
+        $user->notify(new AccountDeleted($user, auth()->user()->name));
 
         $user->delete();
 
