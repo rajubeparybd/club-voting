@@ -6,8 +6,10 @@ use App\Models\Club;
 use App\Models\Nomination;
 use App\Models\NominationApplication;
 use App\Models\NominationWinner;
+use App\Models\User;
 use App\Models\Vote;
 use App\Models\VotingEvent;
+use App\Notifications\User\NominationWinnerNotification;
 use DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -104,7 +106,8 @@ class VotingEventController extends Controller
         }
 
         $votingEvent->load('club');
-        $lastNomination = Nomination::where('club_id', $votingEvent->club_id)
+        $lastNomination = $votingEvent->club->nominations()
+            ->where('status', 'closed')
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -269,6 +272,9 @@ class VotingEventController extends Controller
                 ]);
             }
 
+            // Store winners for notification after transaction is committed
+            $winnersList = [];
+
             DB::beginTransaction();
 
             $votingEvent->update([
@@ -277,7 +283,12 @@ class VotingEventController extends Controller
 
             // Process position updates when voting event is closed
             if ($validated['status'] === 'closed' && $oldStatus !== 'closed') {
-                $this->processVotingResults($votingEvent, $validated['winners'] ?? []);
+                $result = $this->processVotingResults($votingEvent, $validated['winners'] ?? []);
+
+                // Store winners for notification after transaction is committed
+                if (isset($result['winners'])) {
+                    $winnersList = $result['winners'];
+                }
             }
 
             $this->logActivity("Updated Voting Event Status: {$votingEvent->title} from {$oldStatus} to {$validated['status']}", "voting_event");
@@ -290,10 +301,63 @@ class VotingEventController extends Controller
 
             DB::commit();
 
+            // Send notifications after successful transaction
+            if ($validated['status'] === 'closed' && $oldStatus !== 'closed' && ! empty($winnersList)) {
+                $this->sendWinnerNotifications($votingEvent, $winnersList);
+            }
+
             return redirect()->back()
                 ->with('success', $message);
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->back()->with('error', 'Failed to update voting event status. ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send notifications to winners after successful transaction.
+     */
+    private function sendWinnerNotifications(VotingEvent $votingEvent, array $winners)
+    {
+        $club           = $votingEvent->club;
+        $lastNomination = Nomination::where('club_id', $votingEvent->club_id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (! $lastNomination) {
+            return;
+        }
+
+        foreach ($winners as $positionId => $applicationId) {
+            $application = NominationApplication::find($applicationId);
+            if (! $application) {
+                continue;
+            }
+
+            // Get votes count
+            $votesCount = Vote::where('nomination_application_id', $applicationId)
+                ->where('voting_event_id', $votingEvent->id)
+                ->count();
+
+            // Get user and position details
+            $user     = User::find($application->user_id);
+            $position = $application->clubPosition;
+
+            // Send notification to the winner
+            if ($user) {
+                $user->notify(new NominationWinnerNotification(
+                    $club,
+                    $position,
+                    $votingEvent,
+                    $votesCount
+                ));
+
+                // Log the notification
+                $this->logActivity(
+                    "Sent winner notification to {$user->name} for position {$position->name} in {$club->name}",
+                    "notification"
+                );
+            }
         }
     }
 

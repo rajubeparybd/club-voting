@@ -144,12 +144,13 @@ class VotingEventController extends Controller
         $positions = ClubPosition::where('club_id', $votingEvent->club_id)->get();
 
         // Get the last nomination for this club
-        $lastNomination = $votingEvent->club->nominations()->orderBy('created_at', 'desc')->first();
+        $lastNomination = $votingEvent->club->nominations()
+            ->where('status', 'closed')
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         // Get all candidates (approved nomination applications)
-        $candidates = NominationApplication::whereHas('nomination', function ($query) use ($votingEvent) {
-            $query->where('club_id', $votingEvent->club_id);
-        })
+        $candidates = NominationApplication::where('nomination_id', $lastNomination->id)
             ->where('status', 'approved')
             ->with([
                 'user:id,name,email,student_id,avatar,department_id',
