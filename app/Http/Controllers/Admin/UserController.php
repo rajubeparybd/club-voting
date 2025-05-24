@@ -6,7 +6,7 @@ use App\Http\Requests\Admin\UserRequest;
 use App\Http\Resources\Admin\UserResource;
 use App\Models\Department;
 use App\Models\User;
-use App\Notifications\WelcomeUserNotification;
+use App\Notifications\User\WelcomeUserNotification;
 use App\Support\MediaHelper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

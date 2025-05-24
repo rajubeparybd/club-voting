@@ -1,5 +1,5 @@
 <?php
-namespace App\Notifications;
+namespace App\Notifications\User;
 
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Bus\Queueable;

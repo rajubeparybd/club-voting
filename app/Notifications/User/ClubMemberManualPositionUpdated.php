@@ -1,23 +1,38 @@
 <?php
-namespace App\Notifications;
+namespace App\Notifications\User;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class WelcomeUserNotification extends Notification implements ShouldQueue
+class ClubMemberManualPositionUpdated extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected string $password;
+    /**
+     * @var mixed
+     */
+    protected $club;
+
+    /**
+     * @var mixed
+     */
+    protected $user;
+
+    /**
+     * @var string
+     */
+    protected $position;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(string $password)
+    public function __construct($club, $user, $position)
     {
-        $this->password = $password;
+        $this->club     = $club;
+        $this->user     = $user;
+        $this->position = $position;
     }
 
     /**
@@ -36,10 +51,11 @@ class WelcomeUserNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Welcome to ' . config('app.name'))
-            ->markdown('emails.welcome-user', [
-                'user'     => $notifiable,
-                'password' => $this->password,
+            ->subject('Club Member Position Updated')
+            ->markdown('emails.club.member-manual-position-updated', [
+                'club'     => $this->club,
+                'user'     => $this->user,
+                'position' => $this->position,
             ]);
     }
 
