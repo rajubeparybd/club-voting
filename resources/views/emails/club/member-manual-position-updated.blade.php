@@ -1,11 +1,11 @@
 @component('mail::message')
 Hello <strong>{{ $user->name ?? 'there' }}</strong>!
 
-Your club member status has been updated on {{ config('app.name') }}.
+Your club member manual position has been updated on {{ config('app.name') }}.
 
-@component('mail::user-card', ['title' => 'Your Club Member Status'])
+@component('mail::user-card', ['title' => 'Your Club Member Position'])
 **Club:** {{ $club->name }}<br>
-**Status:** {{ $status }}
+**Position:** {{ $position->name }}
 @endcomponent
 
 @component('mail::button', ['url' => route('user.clubs.index'), 'color' => 'blue'])

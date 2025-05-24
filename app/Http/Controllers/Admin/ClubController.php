@@ -6,6 +6,7 @@ use App\Http\Requests\Admin\ClubRequest;
 use App\Models\Club;
 use App\Models\PaymentLog;
 use App\Models\User;
+use App\Notifications\ClubMemberManualPositionUpdated;
 use App\Notifications\ClubMemberStatusUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -272,6 +273,9 @@ class ClubController extends Controller
         $club->users()->updateExistingPivot($user->id, [
             'position_id' => $request->position_id,
         ]);
+
+        // Notify the user via email
+        $user->notify(new ClubMemberManualPositionUpdated($club, $user, $club->positions()->find($request->position_id)));
 
         if ($club) {
             $this->logActivity(sprintf('%s manually assigned %s to position in the %s', auth()->user()->name, $user->name, $club->name), 'club');
