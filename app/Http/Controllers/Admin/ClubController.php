@@ -8,6 +8,7 @@ use App\Models\PaymentLog;
 use App\Models\User;
 use App\Notifications\ClubMemberManualPositionUpdated;
 use App\Notifications\ClubMemberStatusUpdated;
+use App\Notifications\User\ClubMemberRemoved;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -294,6 +295,9 @@ class ClubController extends Controller
         }
 
         $club->users()->detach($user->id);
+
+        // Notify the user via email
+        $user->notify(new ClubMemberRemoved($club, $user));
 
         if ($club) {
             $this->logActivity(sprintf('%s removed %s from the %s', auth()->user()->name, $user->name, $club->name), 'club');
