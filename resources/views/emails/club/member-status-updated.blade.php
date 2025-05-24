@@ -18,6 +18,6 @@ Thanks,<br>
 <strong>{{ config('app.name') }} Team</strong>
 
 @slot('subcopy')
-If you're having trouble clicking the "View Club" button, copy and paste the URL below into your web browser: <span class="break-all">[{{ route('user.clubs.show', $club->id) }}]({{ route('user.clubs.show', $club->id) }})</span>
+If you're having trouble clicking the "View Club" button, copy and paste the URL below into your web browser: <span class="break-all">[{{ route('user.clubs.index') }}]({{ route('user.clubs.index') }})</span>
 @endslot
 @endcomponent
