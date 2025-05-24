@@ -8,7 +8,7 @@ export default function DashboardClubCard({ club, userId, paymentMethods }: { cl
     const memberStatus = user?.pivot?.status || 'pending';
 
     return (
-        <div className="rounded-2xl bg-[#252834] p-4 transition-transform duration-300 hover:scale-[1.02] lg:p-6">
+        <div className="rounded-2xl border bg-gray-100 p-4 transition-transform duration-300 hover:scale-[1.02] lg:p-6 dark:bg-[#252834]">
             <div className="relative mb-4 h-48 w-full overflow-hidden rounded-lg">
                 <img src={club.image || getNoImage(400, 200, club.name)} alt={club.name} className="h-full w-full object-cover" />
             </div>

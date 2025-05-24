@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { formatTimeRemaining } from '@/lib/utils';
+import { cn, formatTimeRemaining } from '@/lib/utils';
 import type { VotingEvent } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import { formatDate } from 'date-fns';
@@ -8,9 +8,10 @@ import React, { useEffect, useState } from 'react';
 
 interface VotingEventCardProps {
     votingEvent: VotingEvent;
+    className?: string;
 }
 
-const VotingEventCard: React.FC<VotingEventCardProps> = ({ votingEvent }) => {
+const VotingEventCard: React.FC<VotingEventCardProps> = ({ votingEvent, className }) => {
     const [timeRemaining, setTimeRemaining] = useState(formatTimeRemaining(votingEvent.end_date));
 
     const hasStarted = new Date(votingEvent.start_date) <= new Date();
@@ -38,7 +39,12 @@ const VotingEventCard: React.FC<VotingEventCardProps> = ({ votingEvent }) => {
     }, [votingEvent.end_date, votingEvent.start_date, hasStarted, isExpired]);
 
     return (
-        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-950">
+        <div
+            className={cn(
+                'flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-950',
+                className,
+            )}
+        >
             {/* Club Header */}
             <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-4 dark:border-gray-800 dark:bg-gray-900">
                 <div className="flex items-center gap-3">
@@ -67,7 +73,7 @@ const VotingEventCard: React.FC<VotingEventCardProps> = ({ votingEvent }) => {
             </div>
 
             {/* Content */}
-            <div className="flex flex-1 flex-col bg-white p-6 dark:bg-gray-950">
+            <div className="flex flex-1 flex-col bg-gray-100 p-6 dark:bg-[#252834]">
                 <h3 className="mb-3 text-xl font-semibold">{votingEvent.title}</h3>
                 <p className="mb-4 line-clamp-2 text-sm text-gray-600 dark:text-gray-300">{votingEvent.description || 'No description provided'}</p>
 

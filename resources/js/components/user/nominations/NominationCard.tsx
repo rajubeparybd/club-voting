@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { formatTimeRemaining } from '@/lib/utils';
+import { cn, formatTimeRemaining } from '@/lib/utils';
 import type { Nomination, NominationApplication } from '@/types';
 import { router } from '@inertiajs/react';
 import { formatDate } from 'date-fns';
@@ -10,9 +10,10 @@ import { NominationApplicationDialog } from './NominationApplicationDialog';
 interface NominationCardProps {
     nomination: Nomination;
     applications: NominationApplication[];
+    className?: string;
 }
 
-const NominationCard: React.FC<NominationCardProps> = ({ nomination, applications }) => {
+const NominationCard: React.FC<NominationCardProps> = ({ nomination, applications, className }) => {
     const [timeRemaining, setTimeRemaining] = useState(formatTimeRemaining(nomination.end_date));
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -36,7 +37,12 @@ const NominationCard: React.FC<NominationCardProps> = ({ nomination, application
     };
 
     return (
-        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-950">
+        <div
+            className={cn(
+                'flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-950',
+                className,
+            )}
+        >
             {/* Club Header */}
             <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-4 dark:border-gray-800 dark:bg-gray-900">
                 <div className="flex items-center gap-3">
@@ -51,7 +57,7 @@ const NominationCard: React.FC<NominationCardProps> = ({ nomination, application
             </div>
 
             {/* Content */}
-            <div className="flex flex-1 flex-col bg-[#252834] p-6">
+            <div className="flex flex-1 flex-col bg-gray-100 p-6 dark:bg-[#252834]">
                 <h3 className="mb-3 text-xl font-semibold">{nomination.title}</h3>
                 <p className="mb-4 line-clamp-2 text-sm text-gray-600 dark:text-gray-300">{nomination.description || 'No description provided'}</p>
 

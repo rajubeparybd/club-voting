@@ -39,7 +39,7 @@ export default function PaymentLogsIndex({ paymentLogs }: { paymentLogs: Payment
                         <div className="flex items-center gap-2">
                             <Avatar className="size-8 rounded-md border">
                                 <AvatarImage src={paymentMethod?.logo ?? undefined} alt={paymentMethod?.name ?? 'Payment Method'} />
-                                <AvatarFallback>
+                                <AvatarFallback className="rounded-md">
                                     <span>{paymentMethod?.name?.charAt(0) ?? '-'}</span>
                                 </AvatarFallback>
                             </Avatar>

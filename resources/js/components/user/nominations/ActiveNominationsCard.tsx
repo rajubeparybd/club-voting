@@ -11,7 +11,7 @@ interface ActiveNominationsCardProps {
 
 const ActiveNominationsCard: React.FC<ActiveNominationsCardProps> = ({ nominations, applications }) => {
     return (
-        <Card className="w-full rounded-2xl bg-[#191B22] p-4 lg:p-6">
+        <Card className="w-full rounded-2xl bg-gray-100 p-4 lg:p-6 dark:bg-[#191B22]">
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">All Active Nominations</h2>
                 {nominations.length > 0 && (
