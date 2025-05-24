@@ -6,6 +6,7 @@ use App\Http\Requests\Admin\ClubRequest;
 use App\Models\Club;
 use App\Models\PaymentLog;
 use App\Models\User;
+use App\Notifications\ClubMemberStatusUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -242,6 +243,9 @@ class ClubController extends Controller
         $club->users()->updateExistingPivot($user->id, [
             'status' => $request->status,
         ]);
+
+        // Notify the user via email
+        $user->notify(new ClubMemberStatusUpdated($club, $user, $request->status));
 
         if ($club) {
             $this->logActivity(sprintf('%s updated the status of %s in the %s', auth()->user()->name, $user->name, $club->name), 'club');
