@@ -99,7 +99,7 @@ class ClubMembershipController extends Controller
 
             $this->logActivity(sprintf('Submitted payment for joining %s club', $club->name), 'club');
 
-            return redirect()->route('user.dashboard')->with('success', 'Your club membership request has been submitted and is pending approval.');
+            return redirect()->route('user.clubs.index')->with('success', 'Your club membership request has been submitted and is pending approval.');
 
         } catch (\Exception $e) {
             DB::rollBack();
