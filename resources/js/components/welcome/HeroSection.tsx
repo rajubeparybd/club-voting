@@ -44,7 +44,7 @@ const HeroSection = memo(({ appName, auth, siteStats }: HeroSectionProps) => {
             <div className="relative z-10 max-w-3xl text-center">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mx-auto mb-8">
                     <motion.div
-                        className="inline-flex items-center gap-2 rounded-full border border-[rgba(59,130,246,0.3)] bg-[rgba(59,130,246,0.1)] px-6 py-3 text-sm font-semibold text-blue-400"
+                        className="inline-flex items-center gap-2 rounded-full border border-[rgba(59,130,246,0.3)] bg-[rgba(59,130,246,0.1)] px-6 py-3 text-xs font-semibold text-blue-400"
                         animate={{ scale: [1, 1.02, 1] }}
                         transition={{
                             duration: 3,
