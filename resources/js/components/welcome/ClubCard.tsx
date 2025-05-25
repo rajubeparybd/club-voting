@@ -18,7 +18,7 @@ interface ClubCardProps {
     positions: Position[];
 }
 
-const ClubCard = memo(({ name, description, image, members_count, positions }: ClubCardProps) => {
+const ClubCard = memo(({ id, name, description, image, members_count, positions }: ClubCardProps) => {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -71,10 +71,10 @@ const ClubCard = memo(({ name, description, image, members_count, positions }: C
                     </div>
 
                     <div className="mt-auto flex justify-between gap-3 pt-2">
-                        <AnimatedButton href={route('login')} icon={<ArrowRight className="ml-2 h-4 w-4" />} iconPosition="right">
+                        <AnimatedButton href={route('user.clubs.show', { id })} icon={<ArrowRight className="ml-2 h-4 w-4" />} iconPosition="right">
                             Join Club
                         </AnimatedButton>
-                        <AnimatedButton variant="outline" href={route('login')}>
+                        <AnimatedButton variant="outline" href={route('user.clubs.show', { id })}>
                             Learn More
                         </AnimatedButton>
                     </div>

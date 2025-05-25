@@ -110,14 +110,14 @@ const UpcomingNominationCard = memo(({ title, description, start_date, end_date,
                             <div className="flex justify-between">
                                 <AnimatedButton
                                     variant="warning"
-                                    href={route('login')}
+                                    href={route('user.nominations.index')}
                                     icon={<Bell className="ml-2 h-4 w-4" />}
                                     iconPosition="right"
                                     className="flex-1"
                                 >
                                     Set Reminder
                                 </AnimatedButton>
-                                <AnimatedButton variant="outline" href={route('login')} className="flex-1">
+                                <AnimatedButton variant="outline" href={route('user.nominations.index')} className="flex-1">
                                     View Details
                                 </AnimatedButton>
                             </div>

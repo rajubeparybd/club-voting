@@ -21,6 +21,7 @@ interface UpcomingVotingEventCardProps {
 
 const UpcomingVotingEventCard = memo(
     ({
+        id,
         title,
         description,
         start_date,
@@ -142,14 +143,14 @@ const UpcomingVotingEventCard = memo(
                                 <div className="flex justify-between gap-3">
                                     <AnimatedButton
                                         variant="warningLight"
-                                        href={route('login')}
+                                        href={route('user.voting-events.show', { id })}
                                         icon={<Bell className="ml-2 h-4 w-4" />}
                                         iconPosition="right"
                                         className="flex-1"
                                     >
-                                        Get Notified
+                                        Set Reminder
                                     </AnimatedButton>
-                                    <AnimatedButton variant="outline" href={route('login')} className="flex-1">
+                                    <AnimatedButton variant="outline" href={route('user.voting-events.show', { id })} className="flex-1">
                                         View Details
                                     </AnimatedButton>
                                 </div>

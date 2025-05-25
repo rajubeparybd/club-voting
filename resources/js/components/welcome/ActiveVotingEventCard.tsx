@@ -18,7 +18,7 @@ interface ActiveVotingEventCardProps {
 }
 
 const ActiveVotingEventCard = memo(
-    ({ title, description, end_date, club, index, positions_count = 0, candidates_count = 0 }: ActiveVotingEventCardProps) => {
+    ({ id, title, description, end_date, club, index, positions_count = 0, candidates_count = 0 }: ActiveVotingEventCardProps) => {
         // Memoize end date parsing to avoid repeated Date object creation
         const endDateTime = useMemo(() => new Date(end_date).getTime(), [end_date]);
 
@@ -233,14 +233,14 @@ const ActiveVotingEventCard = memo(
                                 <div className="flex justify-between gap-3">
                                     <AnimatedButton
                                         variant="success"
-                                        href={route('login')}
+                                        href={route('user.voting-events.show', { id })}
                                         icon={<ArrowRight className="ml-2 h-4 w-4" />}
                                         iconPosition="right"
                                         className="flex-1"
                                     >
                                         Vote Now
                                     </AnimatedButton>
-                                    <AnimatedButton variant="outline" href={route('login')} className="flex-1">
+                                    <AnimatedButton variant="outline" href={route('user.voting-events.show', { id })} className="flex-1">
                                         View Results
                                     </AnimatedButton>
                                 </div>

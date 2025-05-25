@@ -108,7 +108,12 @@ const ActiveNominationCard = memo(({ title, description, start_date, end_date, c
                                     />
                                 </div>
                             </div>
-                            <AnimatedButton href={route('login')} variant="danger" className="w-full" icon={<ArrowRight className="ml-2 h-4 w-4" />}>
+                            <AnimatedButton
+                                href={route('user.nominations.index')}
+                                variant="danger"
+                                className="w-full"
+                                icon={<ArrowRight className="ml-2 h-4 w-4" />}
+                            >
                                 Apply Now
                             </AnimatedButton>
                         </div>

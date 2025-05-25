@@ -51,12 +51,12 @@ const Header = memo(({ auth }: HeaderProps) => {
                     >
                         Voting
                     </Link>
-                    <Link
+                    {/* <Link
                         href="#about"
                         className="rounded-lg px-4 py-2 font-medium text-gray-300 transition-all hover:bg-[rgba(59,130,246,0.1)] hover:text-white"
                     >
                         About
-                    </Link>
+                    </Link> */}
                 </nav>
 
                 <div className="flex items-center gap-4">
