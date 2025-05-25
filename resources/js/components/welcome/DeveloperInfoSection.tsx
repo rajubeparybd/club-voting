@@ -95,7 +95,13 @@ const DeveloperInfoSection = memo(() => {
                                     {/* Developer Image */}
                                     <div className="mb-4 h-32 w-32 overflow-hidden rounded-full border-4 border-purple-500 shadow-lg">
                                         {developer.image ? (
-                                            <img src={developer.image} alt={developer.name} className="h-full w-full object-cover" />
+                                            <motion.img
+                                                whileHover={{ scale: 1.1 }}
+                                                transition={{ duration: 0.3, delay: index * 0.2 }}
+                                                src={developer.image}
+                                                alt={developer.name}
+                                                className="h-full w-full cursor-pointer object-cover"
+                                            />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center bg-gray-700 text-3xl font-bold text-white">
                                                 {developer.name.charAt(0)}

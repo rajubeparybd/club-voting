@@ -2,16 +2,16 @@ import useAuthorization from '@/hooks/useAuthorization';
 import { type Auth } from '@/types';
 import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Award, User } from 'lucide-react';
+import { ArrowRight, User } from 'lucide-react';
 import { memo } from 'react';
+import AppLogo from '../app/app-logo';
 import AnimatedButton from './AnimatedButton';
 
 interface HeaderProps {
-    appName: string;
     auth: Auth;
 }
 
-const Header = memo(({ appName, auth }: HeaderProps) => {
+const Header = memo(({ auth }: HeaderProps) => {
     const { hasRole } = useAuthorization();
 
     return (
@@ -27,10 +27,9 @@ const Header = memo(({ appName, auth }: HeaderProps) => {
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                 >
-                    <Award className="h-7 w-7 text-blue-500" />
-                    <span className="bg-gradient-to-r from-blue-500 to-blue-800 bg-clip-text text-xl font-extrabold text-transparent">
-                        🗳️ {appName}
-                    </span>
+                    <a href="/" className="flex items-center justify-center gap-2">
+                        <AppLogo />
+                    </a>
                 </motion.div>
 
                 <nav className="hidden items-center gap-8 md:flex">

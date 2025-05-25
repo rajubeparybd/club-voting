@@ -80,7 +80,7 @@ export default function Welcome() {
             </Head>
 
             <AnimatedBackground>
-                <Header appName={appInfo.name} auth={auth} />
+                <Header auth={auth} />
 
                 <main className="flex-1">
                     <HeroSection appName={appInfo.name} auth={auth} siteStats={siteStats} />

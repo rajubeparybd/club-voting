@@ -1,6 +1,8 @@
 import { Link } from '@inertiajs/react';
-import { Award, ExternalLink, Mail, Shield } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ExternalLink, Mail, Shield } from 'lucide-react';
 import { memo } from 'react';
+import AppLogo from '../app/app-logo';
 
 interface DeveloperInfo {
     name: string;
@@ -31,12 +33,15 @@ const Footer = memo(({ developerInfo, appInfo }: FooterProps) => {
                 <div className="grid grid-cols-1 gap-12 md:grid-cols-4 lg:gap-8">
                     {/* Column 1: Logo and info */}
                     <div className="md:col-span-1">
-                        <div className="mb-5 flex items-center gap-2">
-                            <Award className="h-6 w-6 text-blue-500" />
-                            <span className="bg-gradient-to-r from-white via-blue-400 to-blue-500 bg-clip-text text-lg font-bold text-transparent">
-                                {appInfo.name}
-                            </span>
-                        </div>
+                        <motion.div
+                            className="mb-5 flex items-center gap-2"
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                        >
+                            <a href="/" className="flex items-center justify-center gap-2">
+                                <AppLogo />
+                            </a>
+                        </motion.div>
                         <p className="mb-4 text-sm text-gray-400">
                             A modern platform for club management, nominations, and democratic voting processes.
                         </p>
