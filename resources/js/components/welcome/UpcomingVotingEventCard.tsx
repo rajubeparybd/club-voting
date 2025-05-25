@@ -2,17 +2,7 @@ import { motion } from 'framer-motion';
 import { Bell, Calendar, ChartBarDecreasing, Users, Vote } from 'lucide-react';
 import { memo } from 'react';
 import AnimatedButton from './AnimatedButton';
-
-interface Club {
-    id: number;
-    name: string;
-    image?: string;
-    candidate_count?: number;
-    positions: {
-        id: number;
-        name: string;
-    }[];
-}
+import { SimpleClub } from './types';
 
 interface UpcomingVotingEventCardProps {
     id: number;
@@ -21,14 +11,27 @@ interface UpcomingVotingEventCardProps {
     start_date: string;
     end_date: string;
     status: string;
-    club: Club;
+    club: SimpleClub;
     formatDate: (dateString: string) => string;
     index: number;
     candidate_count?: number;
+    candidates_count?: number;
+    positions_count?: number;
 }
 
 const UpcomingVotingEventCard = memo(
-    ({ title, description, start_date, end_date, club, formatDate, index, candidate_count }: UpcomingVotingEventCardProps) => {
+    ({
+        title,
+        description,
+        start_date,
+        end_date,
+        club,
+        formatDate,
+        index,
+        candidate_count,
+        candidates_count,
+        positions_count,
+    }: UpcomingVotingEventCardProps) => {
         const now = new Date();
         const startDate = new Date(start_date);
         const daysRemaining = Math.max(0, Math.floor((startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
@@ -100,7 +103,7 @@ const UpcomingVotingEventCard = memo(
                                         <ChartBarDecreasing className="h-4 w-4 text-purple-400" />
                                         <span>Total Positions</span>
                                     </div>
-                                    <span className="font-medium text-white">{club.positions.length || 0}</span>
+                                    <span className="font-medium text-white">{positions_count ?? club.positions?.length ?? 0}</span>
                                 </div>
 
                                 <div className="flex items-center justify-between text-xs text-gray-400">
@@ -108,17 +111,29 @@ const UpcomingVotingEventCard = memo(
                                         <Users className="h-4 w-4 text-purple-400" />
                                         <span>Total Candidates</span>
                                     </div>
-                                    <span className="font-medium text-white">{candidate_count || 0}</span>
+                                    <span className="font-medium text-white">{candidates_count ?? candidate_count ?? 0}</span>
                                 </div>
                             </div>
 
                             <div className="mt-auto flex flex-col gap-4">
                                 <div>
+                                    <div className="mb-2 flex items-center justify-between text-xs">
+                                        <span className="text-gray-400">Preparation Status</span>
+                                        <span className="font-medium text-white">
+                                            {candidates_count ?? candidate_count ?? 0}/{positions_count ?? club.positions?.length ?? 0} candidates
+                                            ready
+                                        </span>
+                                    </div>
                                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-[rgba(245,158,11,0.2)]">
                                         <motion.div
                                             className="h-full bg-gradient-to-r from-purple-500 to-purple-700"
                                             initial={{ width: 0 }}
-                                            whileInView={{ width: '30%' }}
+                                            whileInView={{
+                                                width:
+                                                    (positions_count ?? club.positions?.length ?? 0) > 0
+                                                        ? `${Math.min(((candidates_count ?? candidate_count ?? 0) / (positions_count ?? club.positions?.length ?? 0)) * 100, 100)}%`
+                                                        : '0%',
+                                            }}
                                             viewport={{ once: true }}
                                             transition={{ duration: 1, delay: 0.2 }}
                                         />

@@ -235,6 +235,8 @@ export interface VotingEvent {
     updated_at?: string;
     has_voted_all?: boolean;
     has_any_votes?: boolean;
+    positions_count?: number;
+    candidates_count?: number;
 }
 
 export interface NominationWinner {

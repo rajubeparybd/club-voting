@@ -18,6 +18,8 @@ export interface SimpleClub {
     id: number;
     name: string;
     logo?: string;
+    image?: string;
+    positions?: Position[];
 }
 
 export interface Nomination {
@@ -38,6 +40,9 @@ export interface VotingEvent {
     end_date: string;
     status: string;
     club: SimpleClub;
+    candidate_count?: number;
+    candidates_count?: number;
+    positions_count?: number;
 }
 
 export interface AppInfo {

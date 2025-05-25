@@ -1,21 +1,7 @@
 import { memo } from 'react';
 import ActiveVotingEventCard from './ActiveVotingEventCard';
 import SectionHeading from './SectionHeading';
-
-interface Club {
-    id: number;
-    name: string;
-}
-
-interface VotingEvent {
-    id: number;
-    title: string;
-    description: string;
-    start_date: string;
-    end_date: string;
-    status: string;
-    club: Club;
-}
+import { VotingEvent } from './types';
 
 interface ActiveVotingEventsSectionProps {
     activeVotingEvents: VotingEvent[];
@@ -44,6 +30,8 @@ const ActiveVotingEventsSection = memo(({ activeVotingEvents }: ActiveVotingEven
                                 status={event.status}
                                 club={event.club}
                                 index={index}
+                                positions_count={event.positions_count}
+                                candidates_count={event.candidates_count}
                             />
                         ))
                     ) : (

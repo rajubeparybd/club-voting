@@ -1,18 +1,7 @@
 import { memo } from 'react';
 import SectionHeading from './SectionHeading';
 import UpcomingVotingEventCard from './UpcomingVotingEventCard';
-import { Club } from './types';
-
-interface VotingEvent {
-    id: number;
-    title: string;
-    description: string;
-    start_date: string;
-    end_date: string;
-    status: string;
-    club: Club;
-    candidate_count?: number;
-}
+import { VotingEvent } from './types';
 
 interface UpcomingVotingEventsSectionProps {
     upcomingVotingEvents: VotingEvent[];
@@ -37,6 +26,8 @@ const UpcomingVotingEventsSection = memo(({ upcomingVotingEvents, formatDate }: 
                                 end_date={event.end_date}
                                 status={event.status}
                                 candidate_count={event.candidate_count}
+                                candidates_count={event.candidates_count}
+                                positions_count={event.positions_count}
                                 club={event.club}
                                 formatDate={formatDate}
                                 index={index}
