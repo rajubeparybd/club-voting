@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class VotingEvent extends Model
 {
@@ -58,5 +59,13 @@ class VotingEvent extends Model
     public function nominationWinners(): HasMany
     {
         return $this->hasMany(NominationWinner::class);
+    }
+
+    /**
+     * Get the notification reminders for this voting event.
+     */
+    public function notificationReminders(): MorphMany
+    {
+        return $this->morphMany(NotificationReminder::class, 'notifiable');
     }
 }

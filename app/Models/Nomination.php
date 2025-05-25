@@ -70,4 +70,12 @@ class Nomination extends Model
         $this->status === 'archived' ||
         now()->greaterThan($this->end_date);
     }
+
+    /**
+     * Get the notification reminders for this nomination.
+     */
+    public function notificationReminders(): MorphMany
+    {
+        return $this->morphMany(NotificationReminder::class, 'notifiable');
+    }
 }

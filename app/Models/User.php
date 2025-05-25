@@ -142,4 +142,12 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     {
         return $this->hasMany(Vote::class);
     }
+
+    /**
+     * Get the notification reminders for the user.
+     */
+    public function notificationReminders(): HasMany
+    {
+        return $this->hasMany(NotificationReminder::class);
+    }
 }

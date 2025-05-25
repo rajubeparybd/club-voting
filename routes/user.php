@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\User\ClubMembershipController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\NominationController;
+use App\Http\Controllers\User\NotificationReminderController;
 use App\Http\Controllers\User\PaymentLogController;
 use App\Http\Controllers\User\Settings\PasswordController;
 use App\Http\Controllers\User\Settings\ProfileController;
@@ -56,3 +57,10 @@ Route::get('activities', [ActivityController::class, 'index'])->name('activities
 
 // Payment logs
 Route::get('payment-logs', [PaymentLogController::class, 'index'])->name('payment-logs.index');
+
+// Notification Reminders
+Route::prefix('reminders')->name('reminders.')->group(function () {
+    // Route::get('/', [NotificationReminderController::class, 'index'])->name('index');
+    Route::post('/{type}/{id}', [NotificationReminderController::class, 'store'])->name('store');
+    // Route::delete('/{reminder}', [NotificationReminderController::class, 'destroy'])->name('destroy');
+});

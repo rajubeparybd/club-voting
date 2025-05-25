@@ -1,12 +1,10 @@
 import { type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { Suspense, lazy, useCallback } from 'react';
 
-// Import always-needed components
-import AnimatedBackground from '@/components/welcome/AnimatedBackground';
-import Footer from '@/components/welcome/Footer';
-import Header from '@/components/welcome/Header';
+// Import welcome layout and components
 import HeroSection from '@/components/welcome/HeroSection';
+import WelcomeLayout, { SectionLoader } from '@/layouts/welcome-layout';
 
 // Lazy load other components
 const ClubsSection = lazy(() => import('@/components/welcome/ClubsSection'));
@@ -19,13 +17,6 @@ const DeveloperInfoSection = lazy(() => import('@/components/welcome/DeveloperIn
 
 // Import shared types
 import { AppInfo, Club, DeveloperInfo, Nomination, VotingEvent } from '@/components/welcome/types';
-
-// Loading fallback component
-const SectionLoader = () => (
-    <div className="flex h-60 w-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-500"></div>
-    </div>
-);
 
 interface SiteStat {
     number: string;
@@ -73,49 +64,36 @@ export default function Welcome() {
     }, []);
 
     return (
-        <>
-            <Head title="Welcome to Club Voting">
-                <link rel="preconnect" href="https://fonts.bunny.net" />
-                <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
-            </Head>
+        <WelcomeLayout title="Welcome to Club Voting" appInfo={appInfo} developerInfo={developerInfo}>
+            <HeroSection appName={appInfo.name} auth={auth} siteStats={siteStats} />
 
-            <AnimatedBackground>
-                <Header auth={auth} />
+            <Suspense fallback={<SectionLoader />}>
+                <ClubsSection activeClubs={activeClubs} />
+            </Suspense>
 
-                <main className="flex-1">
-                    <HeroSection appName={appInfo.name} auth={auth} siteStats={siteStats} />
+            <Suspense fallback={<SectionLoader />}>
+                <UpcomingNominationsSection upcomingNominations={upcomingNominations} formatDate={formatDate} />
+            </Suspense>
 
-                    <Suspense fallback={<SectionLoader />}>
-                        <ClubsSection activeClubs={activeClubs} />
-                    </Suspense>
+            <Suspense fallback={<SectionLoader />}>
+                <ActiveNominationsSection activeNominations={activeNominations} formatDate={formatDate} />
+            </Suspense>
 
-                    <Suspense fallback={<SectionLoader />}>
-                        <UpcomingNominationsSection upcomingNominations={upcomingNominations} formatDate={formatDate} />
-                    </Suspense>
+            <Suspense fallback={<SectionLoader />}>
+                <UpcomingVotingEventsSection upcomingVotingEvents={upcomingVotingEvents} formatDate={formatDate} />
+            </Suspense>
 
-                    <Suspense fallback={<SectionLoader />}>
-                        <ActiveNominationsSection activeNominations={activeNominations} formatDate={formatDate} />
-                    </Suspense>
+            <Suspense fallback={<SectionLoader />}>
+                <ActiveVotingEventsSection activeVotingEvents={activeVotingEvents} />
+            </Suspense>
 
-                    <Suspense fallback={<SectionLoader />}>
-                        <UpcomingVotingEventsSection upcomingVotingEvents={upcomingVotingEvents} formatDate={formatDate} />
-                    </Suspense>
+            {/* <Suspense fallback={<SectionLoader />}>
+                <AboutSection description={appInfo.description} />
+            </Suspense> */}
 
-                    <Suspense fallback={<SectionLoader />}>
-                        <ActiveVotingEventsSection activeVotingEvents={activeVotingEvents} />
-                    </Suspense>
-
-                    {/* <Suspense fallback={<SectionLoader />}>
-                        <AboutSection description={appInfo.description} />
-                    </Suspense> */}
-
-                    <Suspense fallback={<SectionLoader />}>
-                        <DeveloperInfoSection />
-                    </Suspense>
-                </main>
-
-                <Footer developerInfo={developerInfo} appInfo={appInfo} />
-            </AnimatedBackground>
-        </>
+            <Suspense fallback={<SectionLoader />}>
+                <DeveloperInfoSection />
+            </Suspense>
+        </WelcomeLayout>
     );
 }

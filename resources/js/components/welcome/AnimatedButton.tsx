@@ -30,9 +30,10 @@ const animatedButtonVariants = cva(
 );
 
 interface AnimatedButtonProps {
-    href: string;
+    href?: string;
     icon?: React.ReactNode;
     iconPosition?: 'left' | 'right';
+    onClick?: () => void;
 }
 
 const AnimatedButton = ({
@@ -43,22 +44,51 @@ const AnimatedButton = ({
     variant,
     size,
     iconPosition = 'right',
+    onClick,
 }: React.ComponentProps<'button'> & VariantProps<typeof animatedButtonVariants> & AnimatedButtonProps) => {
     return (
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="cursor-pointer">
-            <Link href={href} className={cn(animatedButtonVariants({ variant, className, size }))}>
-                {icon && iconPosition === 'left' && (
-                    <motion.div animate={{ x: [0, 4, 0], rotate: [0, 10, 0] }} transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop' }}>
-                        {icon}
-                    </motion.div>
-                )}
-                {children}
-                {icon && iconPosition === 'right' && (
-                    <motion.div animate={{ x: [0, 4, 0], rotate: [0, 10, 0] }} transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop' }}>
-                        {icon}
-                    </motion.div>
-                )}
-            </Link>
+            {href ? (
+                <Link href={href} className={cn(animatedButtonVariants({ variant, className, size }))}>
+                    {icon && iconPosition === 'left' && (
+                        <motion.div
+                            animate={{ x: [0, 4, 0], rotate: [0, 10, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop' }}
+                        >
+                            {icon}
+                        </motion.div>
+                    )}
+                    {children}
+                    {icon && iconPosition === 'right' && (
+                        <motion.div
+                            animate={{ x: [0, 4, 0], rotate: [0, 10, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop' }}
+                        >
+                            {icon}
+                        </motion.div>
+                    )}
+                </Link>
+            ) : (
+                <button className={cn(animatedButtonVariants({ variant, className, size }))} onClick={onClick}>
+                    {icon && iconPosition === 'left' && (
+                        <motion.div
+                            animate={{ x: [0, 4, 0], rotate: [0, 10, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop' }}
+                        >
+                            {icon}
+                        </motion.div>
+                    )}
+                    {children}
+                    {icon && iconPosition === 'right' && (
+                        <motion.div
+                            animate={{ x: [0, 4, 0], rotate: [0, 10, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop' }}
+                        >
+                            {icon}
+                        </motion.div>
+                    )}
+                </button>
+            )}
         </motion.div>
     );
 };
