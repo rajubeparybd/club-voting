@@ -93,11 +93,12 @@ class DashboardController extends Controller
 
     public function landingPage()
     {
-        // Get all active clubs
+        // Get active clubs (limited to 4 for home page)
         $activeClubs = Club::where('status', 'active')
             ->with(['positions' => function ($query) {
                 $query->where('is_active', true);
             }])
+            ->limit(4)
             ->get();
 
         // Get all upcoming nominations

@@ -1,4 +1,6 @@
+import { ArrowRight } from 'lucide-react';
 import { memo } from 'react';
+import { route } from 'ziggy-js';
 import ClubCard from './ClubCard';
 import SectionHeading from './SectionHeading';
 
@@ -25,7 +27,7 @@ const ClubsSection = memo(({ activeClubs }: ClubsSectionProps) => {
     return (
         <section id="clubs" className="px-6 py-24 md:px-8">
             <div className="container mx-auto">
-                <SectionHeading title="Active Clubs" description="Join and participate in our vibrant community of active clubs" />
+                <SectionHeading title="Active Clubs" description="Featured clubs from our vibrant community - explore all available clubs" />
 
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
                     {activeClubs.length > 0 ? (
@@ -46,6 +48,19 @@ const ClubsSection = memo(({ activeClubs }: ClubsSectionProps) => {
                         </div>
                     )}
                 </div>
+
+                {/* View All Clubs Button */}
+                {activeClubs.length > 0 && (
+                    <div className="mt-12 flex justify-center">
+                        <a
+                            href={route('user.clubs.index')}
+                            className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-800 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                        >
+                            View All Clubs
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </a>
+                    </div>
+                )}
             </div>
         </section>
     );
