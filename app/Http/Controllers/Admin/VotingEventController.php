@@ -42,7 +42,7 @@ class VotingEventController extends Controller
      */
     public function create()
     {
-        //
+        return back();
     }
 
     /**
@@ -182,7 +182,7 @@ class VotingEventController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        return back();
     }
 
     /**

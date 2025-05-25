@@ -28,7 +28,7 @@ class PaymentMethodController extends Controller
      */
     public function create()
     {
-        //
+        return back();
     }
 
     /**
@@ -66,7 +66,7 @@ class PaymentMethodController extends Controller
      */
     public function show(PaymentMethod $paymentMethod)
     {
-        //
+        return back();
     }
 
     /**
@@ -74,7 +74,7 @@ class PaymentMethodController extends Controller
      */
     public function edit(PaymentMethod $paymentMethod)
     {
-        //
+        return back();
     }
 
     /**

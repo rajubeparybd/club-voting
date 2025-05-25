@@ -49,7 +49,7 @@ class UserController extends Controller
      */
     public function create(Request $request): Response
     {
-        //
+        return back();
     }
 
     /**
@@ -83,7 +83,7 @@ class UserController extends Controller
      */
     public function edit(User $user): Response
     {
-        //
+        return back();
     }
 
     /**
@@ -91,7 +91,7 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, User $user): RedirectResponse
     {
-        //
+        return back();
     }
 
     /**
