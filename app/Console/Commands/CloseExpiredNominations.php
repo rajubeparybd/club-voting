@@ -2,6 +2,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Nomination;
+use App\Notifications\Admin\NominationClosedNotification;
+use App\Support\AdminHelper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -46,7 +48,8 @@ class CloseExpiredNominations extends Command
                 $nomination->update(['status' => 'closed']);
                 $count++;
 
-                // TODO: Notify admin that the nomination has been closed
+                // Notify admin and club admins that the nomination has been closed
+                $this->notifyAdmins($nomination);
 
                 $this->info("Closed nomination: {$nomination->title} (ID: {$nomination->id})");
                 Log::info("Automatically closed expired nomination: {$nomination->title} (ID: {$nomination->id})");
@@ -62,6 +65,38 @@ class CloseExpiredNominations extends Command
             ]);
 
             return Command::FAILURE;
+        }
+    }
+
+    /**
+     * Notify admins about the closed nomination
+     *
+     * @param Nomination $nomination
+     * @return void
+     */
+    private function notifyAdmins(Nomination $nomination)
+    {
+        try {
+            // Notify system admins
+            $adminUsers = AdminHelper::getAdminUsers();
+            foreach ($adminUsers as $admin) {
+                $admin->notify(new NominationClosedNotification($nomination));
+            }
+
+            // Notify club admins if the nomination is associated with a club
+            if ($nomination->club_id) {
+                $clubAdmins = AdminHelper::getClubAdminUsers($nomination->club_id);
+                foreach ($clubAdmins as $clubAdmin) {
+                    $clubAdmin->notify(new NominationClosedNotification($nomination));
+                }
+            }
+
+            Log::info("Sent nomination closed notifications for: {$nomination->title} (ID: {$nomination->id})");
+        } catch (\Exception $e) {
+            Log::error("Error sending nomination closed notifications: {$e->getMessage()}", [
+                'nomination_id' => $nomination->id,
+                'exception'     => $e,
+            ]);
         }
     }
 }
