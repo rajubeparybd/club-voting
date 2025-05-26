@@ -350,7 +350,7 @@ export default function DataTable<TData, TValue>({
                       className="mb-2"
                     />
                   )}
-                  {/* TODO: Select Filter Not Working. Fix it. */}
+                  
                   {filter.type === "select" && filter.options && (
                     <Select
                       value={(column.getFilterValue() as string) ?? ""}
