@@ -56,7 +56,7 @@ const DeveloperInfoSection = memo(() => {
             twitter: 'https://twitter.com/rajubeparybd',
             linkedin: 'https://linkedin.com/in/rajubepary',
             role: 'Software Developer',
-            bio: 'A skilled Software Developer with a passion for building scalable applications. His expertise lies in utilizing technologies like Laravel, React, and TypeScript to solve complex problems and deliver efficient, secure, scaleable and user friendly solutions.',
+            bio: 'An enthusiastic Software Developer with a strong focus on building scalable and efficient applications. Skilled in technologies like Laravel, React, and TypeScript. Raju excels at solving complex problems and delivering secure, high-performance, and user-friendly digital solutions.',
             image: rajubepary,
         },
         {
