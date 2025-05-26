@@ -245,7 +245,7 @@ export default function VotingEventResults({
                                     </h2>
 
                                     {/* Display all winners */}
-                                    <div className="stagger-children mb-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                    <div className="stagger-children mx-auto mb-8 flex flex-wrap items-center justify-center gap-8">
                                         {winners
                                             .filter((winner) => winner.nomination_application?.user)
                                             .map((winner) => (
