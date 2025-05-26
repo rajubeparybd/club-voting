@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
 import { memo } from 'react';
 import { route } from 'ziggy-js';
@@ -52,13 +53,13 @@ const ClubsSection = memo(({ activeClubs }: ClubsSectionProps) => {
                 {/* View All Clubs Button */}
                 {activeClubs.length > 0 && (
                     <div className="mt-12 flex justify-center">
-                        <a
-                            href={route('user.clubs.index')}
+                        <Link
+                            href={route('clubs.index')}
                             className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-800 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
                         >
                             View All Clubs
                             <ArrowRight className="ml-2 h-4 w-4" />
-                        </a>
+                        </Link>
                     </div>
                 )}
             </div>

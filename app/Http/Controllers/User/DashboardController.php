@@ -3,8 +3,10 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Club;
+use App\Models\ClubPosition;
 use App\Models\Nomination;
 use App\Models\NominationApplication;
+use App\Models\NominationWinner;
 use App\Models\PaymentMethod;
 use App\Models\User;
 use App\Models\Vote;
@@ -218,6 +220,206 @@ class DashboardController extends Controller
             'activeVotingEvents'   => $activeVotingEvents,
             'appInfo'              => $appInfo,
             'siteStats'            => $siteStats,
+        ]);
+    }
+
+    /**
+     * Display a specific club details (public access).
+     */
+    public function showClub(Club $club)
+    {
+        // Get club with positions and current holders
+        $club->load(['positions' => function ($query) {
+            $query->where('is_active', true);
+        }]);
+
+        // Get positions with current holders
+        $positionsWithHolders = $club->getPositionsWithCurrentHolders();
+
+        // Get previous nominations (closed/archived)
+        $previousNominations = $club->nominations()
+            ->whereIn('status', ['closed', 'archived'])
+            ->with(['applications' => function ($query) {
+                $query->where('status', 'approved')
+                    ->with(['user', 'clubPosition']);
+            }, 'winners' => function ($query) {
+                $query->with(['nominationApplication.user', 'clubPosition']);
+            }])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Get current active nomination
+        $currentNomination = $club->nominations()
+            ->where('status', 'active')
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->with(['applications' => function ($query) {
+                $query->where('status', 'approved')
+                    ->with(['user', 'clubPosition']);
+            }])
+            ->first();
+
+        // Get previous voting events (closed)
+        $previousVotingEvents = $club->votingEvents()
+            ->where('status', 'closed')
+            ->with(['winners' => function ($query) {
+                $query->with(['nominationApplication.user', 'clubPosition']);
+            }])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Get current active voting event
+        $currentVotingEvent = $club->votingEvents()
+            ->where('status', 'active')
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->with(['winners' => function ($query) {
+                $query->with(['nominationApplication.user', 'clubPosition']);
+            }])
+            ->first();
+
+        // Check if user is authenticated and a member
+        $isMember         = false;
+        $membershipStatus = null;
+        if (auth()->check()) {
+            $user     = auth()->user();
+            $isMember = $club->users()->where('user_id', $user->id)->exists();
+            if ($isMember) {
+                $membership       = $club->users()->where('user_id', $user->id)->first();
+                $membershipStatus = $membership->pivot->status;
+            }
+        }
+
+        // Get payment methods for joining
+        $paymentMethods = PaymentMethod::where('is_active', true)->get();
+
+        return Inertia::render('landing-page/clubs/show', [
+            'club'                 => $club,
+            'positionsWithHolders' => $positionsWithHolders,
+            'previousNominations'  => $previousNominations,
+            'currentNomination'    => $currentNomination,
+            'previousVotingEvents' => $previousVotingEvents,
+            'currentVotingEvent'   => $currentVotingEvent,
+            'isMember'             => $isMember,
+            'membershipStatus'     => $membershipStatus,
+            'paymentMethods'       => $paymentMethods,
+        ]);
+    }
+
+    public function showAllClubs()
+    {
+
+        $activeClubs = Club::where('status', 'active')
+            ->with(['positions' => function ($query) {
+                $query->where('is_active', true);
+            }])
+            ->get();
+
+        return Inertia::render('landing-page/clubs/index', [
+            'activeClubs' => $activeClubs,
+        ]);
+    }
+
+    /**
+     * Display voting event results (public access).
+     */
+    public function showVotingEventResults(Club $club, VotingEvent $votingEvent)
+    {
+        // Load voting event with club
+        $votingEvent->load('club');
+
+        // Get the associated nomination
+        $nomination = $votingEvent->club->nominations()
+            ->where('status', 'closed')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        // Get all positions for this club
+        $positions = ClubPosition::where('club_id', $votingEvent->club_id)
+            ->where('is_active', true)
+            ->get();
+
+        // Get all candidates (approved nomination applications)
+        $candidates = collect([]);
+        if ($nomination) {
+            $candidates = NominationApplication::where('nomination_id', $nomination->id)
+                ->where('status', 'approved')
+                ->with(['user:id,name,email,student_id,avatar,department_id', 'clubPosition:id,name'])
+                ->get();
+
+            // Load vote counts for each candidate
+            foreach ($candidates as $candidate) {
+                $candidate->votes_count = Vote::where('nomination_application_id', $candidate->id)
+                    ->where('voting_event_id', $votingEvent->id)
+                    ->count();
+
+                // Check if this candidate is a winner
+                $candidate->is_winner = NominationWinner::where('nomination_id', $nomination->id)
+                    ->where('voting_event_id', $votingEvent->id)
+                    ->where('nomination_application_id', $candidate->id)
+                    ->exists();
+            }
+        }
+
+        // Group candidates by position
+        $candidatesByPosition = $candidates->groupBy('club_position_id');
+
+        // Get winners
+        $winners = collect([]);
+        if ($nomination) {
+            $winners = NominationWinner::where('nomination_id', $nomination->id)
+                ->where('voting_event_id', $votingEvent->id)
+                ->with(['nominationApplication.user:id,name,email,student_id,avatar,department_id', 'clubPosition:id,name'])
+                ->get();
+        }
+
+        // Calculate comprehensive voting statistics
+        $totalVotes          = Vote::where('voting_event_id', $votingEvent->id)->count();
+        $totalEligibleVoters = $votingEvent->club->users()->where('club_user.status', 'active')->count();
+        $votingPercentage    = $totalEligibleVoters > 0 ? ($totalVotes / $totalEligibleVoters) * 100 : 0;
+
+        // Get unique voters count
+        $uniqueVoters = Vote::where('voting_event_id', $votingEvent->id)
+            ->distinct('user_id')
+            ->count('user_id');
+
+        // Calculate average votes per voter
+        $averageVotesPerVoter = $uniqueVoters > 0 ? ($totalVotes / $uniqueVoters) : 0;
+
+        // Check if voting is completed
+        $isVotingCompleted = $votingEvent->status === 'closed' || $votingEvent->end_date < now();
+
+        // Get user votes if authenticated
+        $userVotes = [];
+        if (auth()->check()) {
+            $userVotes = Vote::where('user_id', auth()->id())
+                ->where('voting_event_id', $votingEvent->id)
+                ->pluck('nomination_application_id')
+                ->toArray();
+        }
+
+        return Inertia::render('landing-page/voting-events/results', [
+            'votingEvent'          => $votingEvent,
+            'club'                 => $votingEvent->club,
+            'nomination'           => $nomination,
+            'positions'            => $positions,
+            'candidates'           => $candidates,
+            'candidatesByPosition' => $candidatesByPosition,
+            'winners'              => $winners,
+            'userVotes'            => $userVotes,
+            'isVotingCompleted'    => $isVotingCompleted,
+            'votingStats'          => [
+                'totalVotes'           => $totalVotes,
+                'totalEligibleVoters'  => $totalEligibleVoters,
+                'uniqueVoters'         => $uniqueVoters,
+                'votingPercentage'     => round($votingPercentage, 1),
+                'averageVotesPerVoter' => round($averageVotesPerVoter, 1),
+                'totalCandidates'      => $candidates->count(),
+                'totalPositions'       => $positions->count(),
+                'totalWinners'         => $winners->count(),
+            ],
         ]);
     }
 }

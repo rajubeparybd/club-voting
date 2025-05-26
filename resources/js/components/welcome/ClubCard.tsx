@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Award, Users } from 'lucide-react';
 import { memo } from 'react';
+import { route } from 'ziggy-js';
 import AnimatedButton from './AnimatedButton';
 
 interface Position {
@@ -71,10 +72,15 @@ const ClubCard = memo(({ id, name, description, image, members_count, positions 
                     </div>
 
                     <div className="mt-auto flex justify-between gap-3 pt-2">
-                        <AnimatedButton href={route('user.clubs.show', { id })} icon={<ArrowRight className="ml-2 h-4 w-4" />} iconPosition="right">
+                        <AnimatedButton
+                            href={route('user.clubs.show', { club: id })}
+                            icon={<ArrowRight className="ml-2 h-4 w-4" />}
+                            iconPosition="right"
+                            variant="primary"
+                        >
                             Join Club
                         </AnimatedButton>
-                        <AnimatedButton variant="outline" href={route('user.clubs.show', { id })}>
+                        <AnimatedButton variant="outline" href={route('clubs.show', { club: id })}>
                             Learn More
                         </AnimatedButton>
                     </div>
