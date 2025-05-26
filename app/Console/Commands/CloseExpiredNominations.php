@@ -85,7 +85,7 @@ class CloseExpiredNominations extends Command
 
             // Notify club admins if the nomination is associated with a club
             if ($nomination->club_id) {
-                $clubAdmins = AdminHelper::getClubAdminUsers($nomination->club_id);
+                $clubAdmins = AdminHelper::getClubAdminUsers($nomination->club_id, 'edit_nominations');
                 foreach ($clubAdmins as $clubAdmin) {
                     $clubAdmin->notify(new NominationClosedNotification($nomination));
                 }
