@@ -356,6 +356,10 @@ class DashboardController extends Controller
      */
     public function showVotingEventResults(Club $club, VotingEvent $votingEvent)
     {
+        if ($votingEvent->status !== 'closed') {
+            return redirect()->route('clubs.show', $club->id)->with('error', 'Voting event is not closed yet');
+        }
+
         // Load voting event with club
         $votingEvent->load('club');
 

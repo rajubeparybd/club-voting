@@ -751,7 +751,7 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
                                 </Avatar>
                                 <div className="flex flex-col">
                                     <span>{holder.name}</span>
-                                    {position.is_tie_resolved && (
+                                    {position.is_tie_resolved == true && (
                                         <Badge className="rounded-full bg-amber-600 text-xs text-white">⚖️ Tie Resolved</Badge>
                                     )}
                                 </div>

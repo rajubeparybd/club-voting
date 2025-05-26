@@ -48,6 +48,7 @@ interface Position {
         department_id: string;
     };
     votes_count?: number;
+    is_tie_resolved?: boolean;
 }
 
 interface NominationApplication {
@@ -246,15 +247,15 @@ export default function ClubShow({
                                             <p className="mb-6 text-xl leading-relaxed text-slate-300">{club.description}</p>
 
                                             <div className="flex flex-wrap gap-8 text-slate-300">
-                                                <div className="flex items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3">
+                                                <div className="flex cursor-pointer items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 transition-all duration-300 hover:scale-105 hover:border-blue-500">
                                                     <Users className="h-6 w-6 text-blue-400" />
                                                     <span className="text-lg font-semibold">{club.members_count} Members</span>
                                                 </div>
-                                                <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
+                                                <div className="flex cursor-pointer items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 transition-all duration-300 hover:scale-105 hover:border-emerald-500">
                                                     <Award className="h-6 w-6 text-emerald-400" />
                                                     <span className="text-lg font-semibold">{positionsWithHolders.length} Positions</span>
                                                 </div>
-                                                <div className="flex items-center gap-3 rounded-xl border border-purple-500/30 bg-purple-500/10 px-4 py-3">
+                                                <div className="flex cursor-pointer items-center gap-3 rounded-xl border border-purple-500/30 bg-purple-500/10 px-4 py-3 transition-all duration-300 hover:scale-105 hover:border-purple-500">
                                                     <Sparkles className="h-6 w-6 text-purple-400" />
                                                     <span className="text-lg font-semibold">Join Fee: {club.join_fee}৳</span>
                                                 </div>
@@ -295,13 +296,18 @@ export default function ClubShow({
                                 {positionsWithHolders.map((position) => (
                                     <div
                                         key={position.id}
-                                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-yellow-500/20"
+                                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-yellow-500/10 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-yellow-500"
                                     >
                                         <div className="absolute top-4 right-4">
                                             <Crown className="h-6 w-6 text-yellow-400 transition-transform duration-300 group-hover:scale-125" />
                                         </div>
 
-                                        <h3 className="mb-4 text-xl font-bold text-yellow-400">{position.name}</h3>
+                                        <h3 className="mb-4 flex gap-2 text-xl font-bold text-yellow-400">
+                                            {position.name}
+                                            {position.is_tie_resolved == true && (
+                                                <Badge className="rounded-full bg-amber-600 text-xs text-white">⚖️ Tie Resolved</Badge>
+                                            )}
+                                        </h3>
 
                                         {position.current_holder ? (
                                             <div className="flex items-center gap-4">
@@ -364,7 +370,7 @@ export default function ClubShow({
                                 {manualPositions.map((manualPosition) => (
                                     <div
                                         key={`${manualPosition.user.id}-${manualPosition.position.id}`}
-                                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/20"
+                                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-emerald-500/10 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-emerald-500"
                                     >
                                         <div className="absolute top-4 right-4">
                                             <Award className="h-6 w-6 text-emerald-400 transition-transform duration-300 group-hover:scale-125" />
