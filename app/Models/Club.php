@@ -84,16 +84,15 @@ class Club extends Model
 
         // Find the most recent closed or archived voting event
         $mostRecentVotingEvent = $this->votingEvents()
-            ->where(function ($query) {
-                $query->where('status', 'closed');
-            })
-            ->orderBy('end_date', 'desc')
+            ->where('status', 'closed')
+            ->orderBy('id', 'desc')
             ->first();
 
         if (! $mostRecentVotingEvent) {
             // No closed voting events, return positions without holders
             return $positions->map(function ($position) {
                 $position->current_holder = null;
+                $position->votes_count    = null;
                 return $position;
             });
         }
@@ -112,11 +111,11 @@ class Club extends Model
         }
 
         // Get winners from the most recent voting event
-        $winners = $lastNomination->winners;
+        $winners = $lastNomination->winners->where('voting_event_id', $mostRecentVotingEvent->id);
 
         // Map positions with their holders
-        return $positions->map(function ($position) use ($winners, $lastNomination) {
-            $winner = $winners->where('club_position_id', $position->id)->first();
+        return $positions->map(function ($position) use ($winners, $lastNomination, $mostRecentVotingEvent) {
+            $winner = $winners->where('club_position_id', $position->id)->where('nomination_id', $lastNomination->id)->where('voting_event_id', $mostRecentVotingEvent->id)->first();
 
             // First try to get the winner directly from winner_id
             if ($winner && $winner->winner_id) {
@@ -125,11 +124,13 @@ class Club extends Model
 
                 $isActiveMember = $clubMembership ? $clubMembership->pivot->status === 'active' : false;
 
-                $position->current_holder = $isActiveMember ? $user : null;
-                $position->votes_count    = $isActiveMember ? $winner->votes_count : null;
+                $position->current_holder  = $isActiveMember ? $user : null;
+                $position->votes_count     = $isActiveMember ? $winner->votes_count : null;
+                $position->is_tie_resolved = $winner->is_tie_resolved;
             } else {
-                $position->current_holder = null;
-                $position->votes_count    = null;
+                $position->current_holder  = null;
+                $position->votes_count     = null;
+                $position->is_tie_resolved = null;
             }
 
             return $position;

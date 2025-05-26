@@ -2,6 +2,7 @@ import { AddMembersDialog } from '@/components/admin/clubs/AddMembersDialog';
 import ManagementPageHeader from '@/components/admin/common/management-page-header';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import CheckUserPermission from '@/components/ui/check-user-permission';
@@ -320,6 +321,7 @@ interface ClubPosition {
 interface PositionWithHolder extends ClubPosition {
     current_holder: User | null;
     votes_count: number | null;
+    is_tie_resolved: boolean;
 }
 
 interface User {
@@ -747,7 +749,12 @@ export default function ClubShow({ club, positionsWithHolders }: ClubShowProps) 
                                     <AvatarImage src={holder.avatar || ''} alt={holder.name} />
                                     <AvatarFallback className="rounded-md">{holder.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
-                                <span>{holder.name}</span>
+                                <div className="flex flex-col">
+                                    <span>{holder.name}</span>
+                                    {position.is_tie_resolved && (
+                                        <Badge className="rounded-full bg-amber-600 text-xs text-white">⚖️ Tie Resolved</Badge>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>
