@@ -471,8 +471,9 @@ class VotingEventController extends Controller
      */
     private function processVotingResults(VotingEvent $votingEvent, array $manualWinners = [])
     {
-        $results = $this->identifyTiesAndWinners($votingEvent);
-        $winners = $results['winners'];
+        $results       = $this->identifyTiesAndWinners($votingEvent);
+        $winners       = $results['winners'];
+        $tiedPositions = array_keys($results['ties']);
 
         // If there are ties and no manual winners provided, return the results without updating
         if ($results['needsManualSelection'] && empty($manualWinners)) {
@@ -529,7 +530,8 @@ class VotingEventController extends Controller
                 ->count();
 
             // Get the user_id from the application
-            $userId = $application->user_id;
+            $userId        = $application->user_id;
+            $isTieResolved = in_array($positionId, $tiedPositions) && isset($manualWinners[$positionId]);
 
             NominationWinner::updateOrCreate(
                 [
@@ -541,7 +543,7 @@ class VotingEventController extends Controller
                     'nomination_application_id' => $applicationId,
                     'winner_id'                 => $userId,
                     'votes_count'               => $votesCount,
-                    'is_tie_resolved'           => isset($manualWinners[$positionId]),
+                    'is_tie_resolved'           => $isTieResolved,
                 ]
             );
 

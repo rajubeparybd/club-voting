@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { ClubPosition, NominationApplication, NominationWinner } from '@/types';
-import { BarChart2, Trophy, Users } from 'lucide-react';
+import { BarChart2, Trophy, Users, Vote } from 'lucide-react';
 
 interface VotingResultsProps {
     position: ClubPosition;
@@ -63,15 +63,22 @@ export function VotingResults({ position, candidates, userVotes, winners = [] }:
                                             <div>
                                                 <div className="flex items-center gap-1.5">
                                                     <p className="font-medium">{candidate.user?.name || 'Unknown Candidate'}</p>
-                                                    {isUserVote && (
-                                                        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                            Your Vote
-                                                        </span>
-                                                    )}
+
                                                     {hasWon && (
-                                                        <Badge className="ml-1 bg-yellow-500 text-white" variant="default">
+                                                        <Badge className="ml-1 rounded-full bg-yellow-500 text-white">
                                                             <Trophy className="mr-1 h-3 w-3" />
                                                             Winner
+                                                        </Badge>
+                                                    )}
+                                                    {hasWon &&
+                                                        winners.find((w) => w.nomination_application_id === candidate.id)?.is_tie_resolved ==
+                                                            true && (
+                                                            <Badge className="rounded-full bg-amber-600 text-xs text-white">⚖️ Tie Resolved</Badge>
+                                                        )}
+                                                    {isUserVote && (
+                                                        <Badge className="rounded-full bg-green-600 text-xs text-white">
+                                                            <Vote className="mr-1 h-3 w-3" />
+                                                            Your Vote
                                                         </Badge>
                                                     )}
                                                 </div>

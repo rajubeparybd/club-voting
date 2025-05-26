@@ -246,8 +246,37 @@ class DashboardController extends Controller
                 $query->with(['nominationApplication.user', 'clubPosition']);
             }])
             ->orderBy('created_at', 'desc')
-            ->limit(5)
             ->get();
+
+        // Get manual positions - users manually assigned to positions
+        $manualPositions = $club->users()
+            ->wherePivot('position_id', '!=', null)
+            ->wherePivot('status', 'active')
+            ->where('users.status', 'active')
+            ->with(['clubs' => function ($query) use ($club) {
+                $query->where('clubs.id', $club->id);
+            }])
+            ->get()
+            ->map(function ($user) use ($club) {
+                // Get the position details from the pivot
+                $clubUserPivot = $user->clubs->first()->pivot ?? null;
+                if ($clubUserPivot && $clubUserPivot->position_id) {
+                    $position = ClubPosition::where('id', $clubUserPivot->position_id)
+                        ->where('is_active', true)
+                        ->first();
+
+                    if ($position) {
+                        return [
+                            'user'      => $user,
+                            'position'  => $position,
+                            'joined_at' => $clubUserPivot->joined_at,
+                            'status'    => $clubUserPivot->status,
+                        ];
+                    }
+                }
+                return null;
+            })
+            ->filter(); // Remove null values
 
         // Get current active nomination
         $currentNomination = $club->nominations()
@@ -267,7 +296,6 @@ class DashboardController extends Controller
                 $query->with(['nominationApplication.user', 'clubPosition']);
             }])
             ->orderBy('created_at', 'desc')
-            ->limit(5)
             ->get();
 
         // Get current active voting event
@@ -297,6 +325,7 @@ class DashboardController extends Controller
 
         return Inertia::render('landing-page/clubs/show', [
             'club'                 => $club,
+            'manualPositions'      => $manualPositions,
             'positionsWithHolders' => $positionsWithHolders,
             'previousNominations'  => $previousNominations,
             'currentNomination'    => $currentNomination,

@@ -15,3 +15,9 @@ require __DIR__ . '/auth.php';
 
 // Student API routes
 Route::post('/verify-student', [StudentController::class, 'verifyStudent'])->name('verify-student');
+
+Route::get('/test', function () {
+    $event = \App\Models\VotingEvent::find(8);
+    $event->update(['status' => 'active']);
+    return 'done';
+});

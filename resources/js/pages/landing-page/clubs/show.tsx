@@ -12,6 +12,29 @@ import { motion } from 'framer-motion';
 import { Award, Calendar, Clock, Crown, Eye, LogIn, Sparkles, Trophy, Users, Vote } from 'lucide-react';
 import { route } from 'ziggy-js';
 
+interface ManualPosition {
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        avatar?: string;
+        student_id: string;
+        department_id: string;
+        department?: {
+            id: number;
+            name: string;
+        };
+    };
+    position: {
+        id: number;
+        name: string;
+        description?: string;
+        is_active: boolean;
+    };
+    joined_at: string;
+    status: string;
+}
+
 interface Position {
     id: number;
     name: string;
@@ -76,6 +99,7 @@ interface VotingEvent {
 
 type ClubShowProps = {
     club: Club;
+    manualPositions: ManualPosition[];
     positionsWithHolders: Position[];
     previousNominations: Nomination[];
     currentNomination: Nomination | null;
@@ -89,6 +113,7 @@ type ClubShowProps = {
 export default function ClubShow({
     club,
     positionsWithHolders,
+    manualPositions,
     previousNominations,
     currentNomination,
     previousVotingEvents,
@@ -100,7 +125,8 @@ export default function ClubShow({
     const { auth } = usePage<SharedData>().props;
     const isAuthenticated = !!auth?.user;
 
-    console.log(currentVotingEvent);
+    // Log manual positions for debugging
+    // console.log('Manual Positions:', manualPositions);
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -148,8 +174,8 @@ export default function ClubShow({
         <WelcomeLayout>
             <Head title={`${club.name} - Club Details`} />
 
-            <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-slate-50">
-                <main className="mt-20 px-8 py-12">
+            <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 pt-20 text-slate-50">
+                <main className="px-8 py-12">
                     {/* Club Header */}
                     <motion.div
                         className="mx-auto mb-16 max-w-7xl"
@@ -305,6 +331,67 @@ export default function ClubShow({
                         )}
                     </motion.div>
 
+                    {/* Manual Positions Section */}
+                    {manualPositions.length > 0 && (
+                        <motion.div
+                            className="mx-auto mb-16 max-w-7xl"
+                            initial="hidden"
+                            animate="visible"
+                            variants={slideInLeft}
+                            transition={{ duration: 0.6, ease: 'easeOut', delay: 0.9 }}
+                        >
+                            <motion.div
+                                className="mb-8 text-center"
+                                initial="hidden"
+                                animate="visible"
+                                variants={fadeInUp}
+                                transition={{ duration: 0.5, delay: 1.1 }}
+                            >
+                                <SectionHeading
+                                    variant="success"
+                                    title="Manual Positions"
+                                    description="Members with specific assigned roles without any voting or nomination"
+                                />
+                            </motion.div>
+
+                            <motion.div
+                                className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+                                initial="hidden"
+                                animate="visible"
+                                variants={staggerChildren}
+                                transition={{ delay: 1.3 }}
+                            >
+                                {manualPositions.map((manualPosition) => (
+                                    <div
+                                        key={`${manualPosition.user.id}-${manualPosition.position.id}`}
+                                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/20"
+                                    >
+                                        <div className="absolute top-4 right-4">
+                                            <Award className="h-6 w-6 text-emerald-400 transition-transform duration-300 group-hover:scale-125" />
+                                        </div>
+
+                                        <h3 className="mb-4 text-xl font-bold text-emerald-400">{manualPosition.position.name}</h3>
+
+                                        <div className="flex items-center gap-4">
+                                            <img
+                                                src={manualPosition.user.avatar || getNoImage(60, 60, manualPosition.user.name)}
+                                                alt={manualPosition.user.name}
+                                                className="h-15 w-15 rounded-full border-3 border-emerald-400 shadow-lg transition-transform duration-300 group-hover:scale-110"
+                                            />
+                                            <div>
+                                                <p className="text-lg font-semibold text-slate-50">{manualPosition.user.name}</p>
+                                                <p className="text-sm text-slate-400">
+                                                    ID: {manualPosition.user.student_id || 'N/A'}
+                                                    {manualPosition.user.department && <> | Department: {manualPosition.user.department.name}</>}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </motion.div>
+                        </motion.div>
+                    )}
+
                     {/* Activities Section */}
                     <motion.div
                         className="mx-auto max-w-7xl"
@@ -326,17 +413,17 @@ export default function ClubShow({
 
                                 <Tabs defaultValue="nominations" className="w-full">
                                     <div className="mb-8 flex justify-center">
-                                        <TabsList className="grid w-full max-w-md grid-cols-2 rounded-full bg-slate-800/50 p-1">
+                                        <TabsList className="grid h-auto w-full max-w-md grid-cols-2 rounded-full bg-slate-800/50">
                                             <TabsTrigger
                                                 value="nominations"
-                                                className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-emerald-400 data-[state=active]:text-white"
+                                                className="rounded-full py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-emerald-400 data-[state=active]:text-white"
                                             >
                                                 <Award className="h-6 w-6" />
                                                 Nominations
                                             </TabsTrigger>
                                             <TabsTrigger
                                                 value="voting"
-                                                className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-400 data-[state=active]:to-blue-400 data-[state=active]:text-white"
+                                                className="rounded-full py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-400 data-[state=active]:to-blue-400 data-[state=active]:text-white"
                                             >
                                                 <Clock className="h-6 w-6" />
                                                 Voting Events
