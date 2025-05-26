@@ -1,10 +1,12 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import AnimatedButton from '@/components/welcome/AnimatedButton';
+import useAuthorization from '@/hooks/useAuthorization';
 import WelcomeLayout from '@/layouts/welcome-layout';
 import { getNoImage } from '@/lib/utils';
 import { Club, ClubPosition, Nomination, NominationApplication, NominationWinner, SharedData, VotingEvent } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { LogIn, Trophy, Users, Vote } from 'lucide-react';
+import { ArrowRight, LogIn, Trophy, Users, Vote } from 'lucide-react';
 import { useEffect } from 'react';
 import { route } from 'ziggy-js';
 
@@ -44,6 +46,8 @@ export default function VotingEventResults({
 }: VotingEventResultsProps) {
     const { auth } = usePage<SharedData>().props;
     const isAuthenticated = !!auth?.user;
+
+    const { hasRole } = useAuthorization();
 
     // Create confetti effect
     useEffect(() => {
@@ -90,6 +94,8 @@ export default function VotingEventResults({
         const colors = ['emerald', 'blue', 'purple', 'amber'];
         return colors[index % colors.length];
     };
+
+    const isTieResolved = winners.some((winner) => winner.is_tie_resolved);
 
     return (
         <WelcomeLayout>
@@ -227,8 +233,8 @@ export default function VotingEventResults({
 
                     {/* Winner Announcement */}
                     {winners.length > 0 ? (
-                        <div className="animate-scaleIn mx-auto mb-16 max-w-5xl opacity-0 [animation-delay:0.8s]">
-                            <div className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 p-12 text-center transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-emerald-500/20">
+                        <div className="animate-scaleIn mx-auto mb-16 w-full opacity-0 [animation-delay:0.8s] lg:max-w-8/12">
+                            <div className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 p-12 text-center transition-all duration-500">
                                 {/* Background decoration */}
                                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-emerald-500/5 to-blue-500/5"></div>
 
@@ -239,70 +245,57 @@ export default function VotingEventResults({
                                     </h2>
 
                                     {/* Display all winners */}
-                                    <div className="stagger-children mb-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                                    <div className="stagger-children mb-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                         {winners
-                                            .filter((winner) => winner.nominationApplication?.user)
+                                            .filter((winner) => winner.nomination_application?.user)
                                             .map((winner) => (
                                                 <div
                                                     key={winner.id}
-                                                    className="group flex flex-col items-center transition-all duration-300 hover:scale-105"
+                                                    className="group flex cursor-pointer flex-col items-center rounded-2xl border border-emerald-500/30 bg-transparent p-6 transition-all duration-300 hover:scale-105 hover:border-emerald-500"
                                                 >
                                                     <div className="relative mb-4">
-                                                        <img
-                                                            src={
-                                                                winner.nominationApplication?.user?.avatar ||
-                                                                getNoImage(150, 150, winner.nominationApplication?.user?.name || 'Winner')
-                                                            }
-                                                            alt={winner.nominationApplication?.user?.name || 'Winner'}
-                                                            className="h-32 w-32 rounded-3xl border-4 border-emerald-400 object-cover shadow-2xl shadow-emerald-500/30 transition-all duration-300 group-hover:border-emerald-300 group-hover:shadow-emerald-400/50"
-                                                        />
-                                                        <div className="absolute -top-2 -right-2 animate-pulse rounded-full bg-emerald-500 px-3 py-1 text-sm font-bold text-white transition-all duration-300 group-hover:bg-emerald-400">
-                                                            WINNER
+                                                        <div className="relative h-24 w-24 overflow-hidden rounded-2xl border-3 border-emerald-500">
+                                                            <img
+                                                                src={
+                                                                    winner.nomination_application?.user?.avatar ||
+                                                                    getNoImage(150, 150, winner.nomination_application?.user?.name || 'Winner')
+                                                                }
+                                                                alt={winner.nomination_application?.user?.name || 'Winner'}
+                                                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                            />
                                                         </div>
-                                                        {winner.is_tie_resolved && (
-                                                            <div className="absolute -bottom-2 -left-2 animate-pulse rounded-full bg-amber-500 px-2 py-1 text-xs font-bold text-white transition-all duration-300 group-hover:bg-amber-400">
-                                                                TIE RESOLVED
-                                                            </div>
-                                                        )}
+
+                                                        {/* Winner Icon */}
+                                                        <div className="absolute -right-2 -bottom-2 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500 shadow-lg">
+                                                            <Trophy className="h-4 w-4 text-white" />
+                                                        </div>
                                                     </div>
 
                                                     <div className="text-center">
-                                                        <h3 className="mb-2 text-xl font-bold text-slate-50 transition-colors duration-300 group-hover:text-emerald-100">
-                                                            {winner.nominationApplication?.user?.name || 'Unknown Winner'}
+                                                        <h3 className="text-xl font-bold text-slate-200 transition-colors duration-300">
+                                                            {winner.nomination_application?.user?.name || 'Unknown Winner'}
                                                         </h3>
-                                                        <p className="mb-2 text-lg font-semibold text-emerald-400 transition-colors duration-300 group-hover:text-emerald-300">
-                                                            {winner.clubPosition?.name || 'Position'}
+                                                        <p className="text-lg font-semibold text-emerald-400 transition-colors duration-300">
+                                                            {winner.club_position?.name || 'Position'}
                                                         </p>
-                                                        <div className="space-y-1 text-sm text-slate-300">
-                                                            {winner.nominationApplication?.user?.student_id && (
-                                                                <div className="flex items-center justify-center gap-1">
-                                                                    <span className="text-emerald-400">🎓</span>
-                                                                    <span>ID: {winner.nominationApplication.user.student_id}</span>
-                                                                </div>
-                                                            )}
-                                                            <div className="flex items-center justify-center gap-1">
-                                                                <span className="text-emerald-400">🗳️</span>
-                                                                <span>{(winner.votes_count || 0).toLocaleString()} votes</span>
-                                                            </div>
-                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
                                     </div>
 
-                                    <div className="rounded-2xl border border-emerald-500/20 bg-slate-800/50 p-6">
+                                    <div className="cursor-pointer rounded-2xl border border-emerald-500/20 bg-slate-800/50 p-6 transition-all duration-300 hover:scale-102 hover:border-emerald-500">
                                         <h4 className="mb-4 text-xl font-bold text-slate-200">Congratulations!</h4>
-                                        <p className="leading-relaxed text-slate-300 italic">
+                                        <p className="leading-relaxed text-slate-400 italic">
                                             "Thank you for your trust and support. Together, we will work towards a better future for our club and
                                             create positive change for all members."
                                         </p>
                                     </div>
 
-                                    {winners.some((winner) => winner.is_tie_resolved) && (
-                                        <div className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+                                    {isTieResolved && (
+                                        <div className="mt-4 cursor-pointer rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 transition-all duration-300 hover:scale-102 hover:border-amber-500">
                                             <div className="flex flex-col items-center justify-center gap-3">
                                                 <h5 className="font-semibold text-amber-300">⚖️ Fair Resolution</h5>
-                                                <p className="text-sm leading-relaxed text-amber-200/80">
+                                                <p className="text-sm leading-relaxed text-amber-500/80">
                                                     Some positions had tied votes that were fairly resolved through proper procedures, ensuring a
                                                     democratic outcome.
                                                 </p>
@@ -325,25 +318,25 @@ export default function VotingEventResults({
                     {/* Election Statistics */}
                     <div className="animate-fadeInUp mx-auto mb-16 max-w-7xl opacity-0 [animation-delay:1.2s]">
                         <div className="stagger-children grid gap-8 md:grid-cols-4">
-                            <div className="rounded-2xl border border-blue-500/20 bg-slate-800 p-8 text-center transition-all duration-300 hover:scale-105 hover:border-blue-400/40 hover:bg-slate-700/80">
+                            <div className="cursor-pointer rounded-2xl border border-blue-500/20 bg-slate-800 p-8 text-center transition-all duration-300 hover:scale-105 hover:border-blue-500 hover:bg-slate-700/80">
                                 <div className="mb-2 text-4xl font-bold text-blue-400 transition-colors duration-300 hover:text-blue-300">
                                     {votingStats.totalVotes.toLocaleString()}
                                 </div>
                                 <div className="text-slate-400">Total Votes Cast</div>
                             </div>
-                            <div className="rounded-2xl border border-emerald-500/20 bg-slate-800 p-8 text-center transition-all duration-300 hover:scale-105 hover:border-emerald-400/40 hover:bg-slate-700/80">
+                            <div className="cursor-pointer rounded-2xl border border-emerald-500/20 bg-slate-800 p-8 text-center transition-all duration-300 hover:scale-105 hover:border-emerald-500 hover:bg-slate-700/80">
                                 <div className="mb-2 text-4xl font-bold text-emerald-400 transition-colors duration-300 hover:text-emerald-300">
                                     {votingStats.votingPercentage}%
                                 </div>
                                 <div className="text-slate-400">Voter Turnout</div>
                             </div>
-                            <div className="rounded-2xl border border-purple-500/20 bg-slate-800 p-8 text-center transition-all duration-300 hover:scale-105 hover:border-purple-400/40 hover:bg-slate-700/80">
+                            <div className="cursor-pointer rounded-2xl border border-purple-500/20 bg-slate-800 p-8 text-center transition-all duration-300 hover:scale-105 hover:border-purple-500 hover:bg-slate-700/80">
                                 <div className="mb-2 text-4xl font-bold text-purple-400 transition-colors duration-300 hover:text-purple-300">
                                     {votingStats.totalCandidates}
                                 </div>
                                 <div className="text-slate-400">Candidates</div>
                             </div>
-                            <div className="rounded-2xl border border-amber-500/20 bg-slate-800 p-8 text-center transition-all duration-300 hover:scale-105 hover:border-amber-400/40 hover:bg-slate-700/80">
+                            <div className="cursor-pointer rounded-2xl border border-amber-500/20 bg-slate-800 p-8 text-center transition-all duration-300 hover:scale-105 hover:border-amber-500 hover:bg-slate-700/80">
                                 <div className="mb-2 text-4xl font-bold text-amber-400 transition-colors duration-300 hover:text-amber-300">
                                     {votingStats.totalWinners}
                                 </div>
@@ -367,7 +360,10 @@ export default function VotingEventResults({
                                     );
 
                                     return (
-                                        <div key={position.id} className="rounded-2xl border border-slate-600/30 bg-slate-800 p-8">
+                                        <div
+                                            key={position.id}
+                                            className="cursor-pointer rounded-2xl border border-slate-600/50 bg-slate-800 p-8 transition-all duration-300 hover:scale-105 hover:border-slate-500"
+                                        >
                                             <div className="mb-6 flex items-start justify-between">
                                                 <h4 className="text-2xl font-bold text-slate-50">{position.name}</h4>
                                                 <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
@@ -486,19 +482,21 @@ export default function VotingEventResults({
                                 continue to build a stronger, more inclusive club community.
                             </p>
                             <div className="flex flex-wrap justify-center gap-4">
-                                <Link
+                                <AnimatedButton
                                     href={route('clubs.show', club.id)}
-                                    className="rounded-xl border border-blue-500/30 bg-blue-500/10 px-6 py-3 font-semibold text-blue-400 transition-all hover:bg-blue-500/20"
+                                    iconPosition="left"
+                                    variant="warningLight"
+                                    icon={<Trophy className="mr-2 inline h-4 w-4" />}
                                 >
-                                    <Trophy className="mr-2 inline h-4 w-4" />
                                     View Club Details
-                                </Link>
-                                <Link
-                                    href={route('home')}
-                                    className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-6 py-3 font-semibold text-emerald-400 transition-all hover:bg-emerald-500/20"
+                                </AnimatedButton>
+                                <AnimatedButton
+                                    href={hasRole('user') ? route('user.dashboard') : route('admin.dashboard')}
+                                    variant="outline"
+                                    icon={<ArrowRight className="ml-2 inline h-4 w-4" />}
                                 >
                                     Back to Portal
-                                </Link>
+                                </AnimatedButton>
                             </div>
                         </div>
                     </div>

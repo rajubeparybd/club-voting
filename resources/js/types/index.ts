@@ -250,7 +250,7 @@ export interface NominationWinner {
     is_tie_resolved: boolean;
     created_at: string;
     updated_at: string;
-    nominationApplication?: NominationApplication;
-    clubPosition?: ClubPosition;
+    nomination_application?: NominationApplication;
+    club_position?: ClubPosition;
     winner?: User;
 }
