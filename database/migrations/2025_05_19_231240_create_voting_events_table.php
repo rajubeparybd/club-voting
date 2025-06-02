@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('voting_events', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('blockchain_event_id')->nullable();
             $table->string('title');
             $table->text('description')->nullable();
             $table->foreignId('club_id')->constrained()->onDelete('cascade');

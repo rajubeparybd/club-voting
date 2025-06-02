@@ -15,14 +15,15 @@ import { Head, router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDate } from 'date-fns';
 import { Activity, Eye, Pencil, Plus, Trash2 } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface Props {
     votingEvents: VotingEvent[];
     clubs: Club[];
+    candidates: any[];
 }
 
-export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
+export default function VotingEventsIndex({ votingEvents, clubs, candidates }: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [eventToDelete, setEventToDelete] = useState<number | null>(null);
@@ -285,7 +286,7 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
                             <DialogTitle>Create Voting Event</DialogTitle>
                             <DialogDescription>Fill in the details to create a new voting event.</DialogDescription>
                         </DialogHeader>
-                        <VotingEventForm clubs={clubs} onSuccess={() => setCreateDialogOpen(false)} />
+                        <VotingEventForm clubs={clubs} candidatesList={candidates} onSuccess={() => setCreateDialogOpen(false)} />
                     </DialogContent>
                 </Dialog>
 
@@ -295,7 +296,7 @@ export default function VotingEventsIndex({ votingEvents, clubs }: Props) {
                             <DialogTitle>Edit Voting Event</DialogTitle>
                             <DialogDescription>Update the details of this voting event.</DialogDescription>
                         </DialogHeader>
-                        {selectedEvent && <VotingEventForm clubs={clubs} votingEvent={selectedEvent} onSuccess={() => setEditDialogOpen(false)} />}
+                        {selectedEvent && <VotingEventForm clubs={clubs} candidatesList={candidates} votingEvent={selectedEvent} onSuccess={() => setEditDialogOpen(false)} />}
                     </DialogContent>
                 </Dialog>
 
