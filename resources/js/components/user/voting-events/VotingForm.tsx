@@ -9,15 +9,92 @@ import type { ClubPosition, NominationApplication, VotingEvent } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { ethers } from 'ethers';
+import contractABI from '@/components/admin/nominations/ClubVoting.abi.json';
 
 interface VotingFormProps {
     votingEvent: VotingEvent;
     position: ClubPosition;
     candidates: NominationApplication[];
     userVotes: number[];
+    positions: ClubPosition[];
 }
 
-export function VotingForm({ votingEvent, position, candidates, userVotes }: VotingFormProps) {
+const CONTRACT_ADDRESS = '0xb0fFa4201846969F5B5180aa3ECCBCBc8BBf875C';
+const RPC_URL = import.meta.env.VITE_BLOCKCHAIN_RPC_URL || 'https://testnet.skalenodes.com/v1/giant-half-dual-testnet';
+const PRIVATE_KEY = import.meta.env.VITE_BLOCKCHAIN_PRIVATE_KEY;
+
+async function castVoteOnBlockchain({
+    eventId,
+    positionIdx,
+    candidateIdx,
+}: {
+    eventId: number;
+    positionIdx: number;
+    candidateIdx: number;
+}) {
+    if (!PRIVATE_KEY) {
+        throw new Error('Blockchain private key is not set in environment variables.');
+    }
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, wallet);
+
+    // Debug: Print eventId, positionIdx, candidateIdx
+    console.log('Preparing to cast vote on blockchain:');
+    console.log('  eventId:', eventId);
+    console.log('  positionIdx:', positionIdx);
+    console.log('  candidateIdx:', candidateIdx);
+
+    // Print positions and candidates count and names
+    try {
+        const positionsCount = await contract.getPositionsCount(eventId);
+        console.log('Positions count for event:', positionsCount.toString());
+        for (let i = 0; i < Number(positionsCount); i++) {
+            const positionName = await contract.getPositionName(eventId, i);
+            console.log(`Position ${i} name:`, positionName);
+            const candidatesCount = await contract.getCandidatesCount(eventId, i);
+            console.log(`Candidates count for position ${i}:`, candidatesCount.toString());
+            for (let j = 0; j < Number(candidatesCount); j++) {
+                const candidateName = await contract.getCandidateName(eventId, i, j);
+                console.log(`Candidate ${j} name for position ${i}:`, candidateName);
+            }
+        }
+    } catch (err) {
+        console.warn('Could not fetch positions/candidates info before voting:', err);
+    }
+
+    // Optional: Fetch and print event data from blockchain
+    let eventData;
+    try {
+        eventData = await contract.votingEvents(eventId);
+        console.log('Blockchain event data:', eventData);
+        // Print event status and times
+        console.log('Blockchain event status:', eventData[6]); // 0 = Active
+        console.log('Blockchain event start:', Number(eventData[4]));
+        console.log('Blockchain event end:', Number(eventData[5]));
+        console.log('Current time:', Math.floor(Date.now() / 1000));
+    } catch (err) {
+        console.warn('Could not fetch event data from blockchain (may not exist yet):', err);
+    }
+
+    // Optionally, check if already voted (if hasUserVoted is in ABI)
+    try {
+        const alreadyVoted = await contract.hasUserVoted(eventId, positionIdx, wallet.address);
+        console.log('Already voted for this position:', alreadyVoted);
+    } catch (err) {
+        console.warn('Could not check already voted:', err);
+    }
+
+    // Cast the vote
+    const tx = await contract.castVote(eventId, positionIdx, candidateIdx);
+    console.log('Transaction sent:', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmed:', receipt.transactionHash);
+    return receipt;
+}
+
+export function VotingForm({ votingEvent, position, candidates, userVotes, positions }: VotingFormProps) {
     // Check if user has already voted for this position
     const hasVotedForPosition = candidates.some((candidate) => userVotes.includes(candidate.id));
     const selectedCandidate = hasVotedForPosition ? candidates.find((candidate) => userVotes.includes(candidate.id)) : null;
@@ -34,12 +111,49 @@ export function VotingForm({ votingEvent, position, candidates, userVotes }: Vot
         setShowConfirmDialog(true);
     };
 
-    const confirmVote = useCallback(() => {
-        post(route('user.voting-events.vote'), {
-            preserveScroll: true,
-        });
-        setShowConfirmDialog(false);
-    }, [post]);
+    const confirmVote = useCallback(async () => {
+        try {
+            // Debug: Print arrays and IDs used for lookup
+            console.log('Current position.id:', position.id);
+            console.log('candidates:', candidates);
+            console.log('Selected candidate id:', data.nomination_application_id);
+
+            // Find the correct positionIdx in positions array
+            const positionIdx = positions.findIndex((p) => p.id === position.id);
+            if (positionIdx === -1) {
+                throw new Error('Could not determine position index for blockchain voting');
+            }
+            console.log('Resolved positionIdx:', positionIdx, 'for position.id:', position.id);
+
+            // Find the correct candidateIdx in candidates array
+            const candidateIdx = candidates.findIndex((c) => c.id.toString() === data.nomination_application_id.toString());
+            if (candidateIdx === -1) {
+                throw new Error('Could not determine candidate index for blockchain voting');
+            }
+            console.log('Resolved candidateIdx:', candidateIdx, 'for candidate.id:', data.nomination_application_id);
+
+            // Use blockchain_event_id for voting
+            if (!votingEvent.blockchain_event_id) {
+                throw new Error('Blockchain event ID is missing for this voting event. Please contact admin.');
+            }
+
+            // 1. Call blockchain
+            await castVoteOnBlockchain({
+                eventId: votingEvent.blockchain_event_id,
+                positionIdx,
+                candidateIdx,
+            });
+            // 2. Submit to backend
+            post(route('user.voting-events.vote'), {
+                preserveScroll: true,
+            });
+            setShowConfirmDialog(false);
+        } catch (error: any) {
+            alert('Blockchain voting failed: ' + (error?.message || error));
+            console.error('Blockchain voting failed:', error);
+            setShowConfirmDialog(false);
+        }
+    }, [post, votingEvent, position, candidates, data.nomination_application_id, positions]);
 
     const cancelVote = useCallback(() => {
         setShowConfirmDialog(false);

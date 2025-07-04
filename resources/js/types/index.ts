@@ -222,6 +222,7 @@ export interface PaymentLog {
 
 export interface VotingEvent {
     id: number;
+    blockchain_event_id?: number;
     title: string;
     description?: string;
     club_id: number;

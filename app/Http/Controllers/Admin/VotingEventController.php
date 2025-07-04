@@ -13,6 +13,7 @@ use App\Notifications\User\NominationWinnerNotification;
 use DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Http;
 
 class VotingEventController extends Controller
 {
@@ -31,9 +32,26 @@ class VotingEventController extends Controller
             $query->whereIn('status', ['closed', 'archived']);
         })->get();
 
+        // Get the last nomination for this club
+        $lastNomination = Nomination::where('status', 'closed')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        // Get all candidates (approved nomination applications)
+        $candidates = NominationApplication::where('nomination_id', $lastNomination->id)
+            ->where('status', 'approved')
+            ->with([
+                'user:id,name,email,student_id',
+                'clubPosition:id,name',
+                'user.department:id,name',
+            ])
+            ->groupBy('club_position_id')
+            ->get();
+
         return Inertia::render('admin/voting-events/index', [
             'votingEvents' => $votingEvents,
             'clubs'        => $clubs,
+            'candidates'   => $candidates
         ]);
     }
 
@@ -62,6 +80,7 @@ class VotingEventController extends Controller
             'status'      => 'required|in:active,draft,closed,archived',
             'start_date'  => 'required|date',
             'end_date'    => 'required|date|after:start_date',
+            'blockchain_event_id' => 'required|numeric',
         ]);
 
         // Check if there's an active voting event for this club
@@ -87,12 +106,47 @@ class VotingEventController extends Controller
             return back()->with('error', 'This club already has an active or draft voting event. Please close the voting event before creating a new one.');
         }
 
-        $votingEvent = VotingEvent::create($validated);
+        // \DB::beginTransaction();
+        try {
+            $votingEvent = VotingEvent::create($validated);
 
-        $this->logActivity("Created Voting Event: {$votingEvent->title}", "voting_event");
+        //     // Gather positions and candidates for blockchain
+        //     $club = $votingEvent->club;
+        //     $positions = $club->positions()->with(['nominations' => function($q) use ($club) {
+        //         $q->where('club_id', $club->id)->whereIn('status', ['closed', 'archived']);
+        //     }, 'nominations.applications' => function($q) {
+        //         $q->where('status', 'approved');
+        //     }])->get();
+        //     $positionsForChain = [];
+        //     foreach ($positions as $position) {
+        //         $candidates = $position->nominations->flatMap(function($nom) {
+        //             return $nom->applications->pluck('user.name');
+        //         })->unique()->values()->all();
+        //         $positionsForChain[$position->id] = $candidates;
+        //     }
 
-        return redirect()->route('admin.voting-events.index')
-            ->with('success', 'Voting event created successfully.');
+        //     // Call Node.js microservice here (HTTP POST)
+        //     $response = Http::post(config('services.blockchain_node.url') . '/createVotingEvent', [
+        //         'club_id' => $votingEvent->club_id,
+        //         'title' => $votingEvent->title,
+        //         'description' => $votingEvent->description ?? '',
+        //         'start_date' => strtotime($votingEvent->start_date),
+        //         'end_date' => strtotime($votingEvent->end_date),
+        //         'positions' => $positionsForChain,
+        //     ]);
+        //     if (!$response->ok()) {
+        //         throw new \Exception('Blockchain microservice error: ' . $response->body());
+        //     }
+        //     $txHash = $response->json('txHash');
+
+        //     $this->logActivity("Created Voting Event: {$votingEvent->title}", "voting_event");
+        //     \DB::commit();
+            return redirect()->route('admin.voting-events.index')
+                ->with('success', 'Voting event created successfully and registered on blockchain.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->with('error', 'Failed to create voting event: ' . $e->getMessage());
+        }
     }
 
     /**

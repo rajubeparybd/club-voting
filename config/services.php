@@ -39,4 +39,8 @@ return [
         'url' => env('BUBT_CLIENT_URL', 'https://api.bubt.edu.bd'),
     ],
 
+    'blockchain_node' => [
+        'url' => env('BLOCKCHAIN_NODE_URL', 'http://localhost:4000'),
+    ],
+
 ];
